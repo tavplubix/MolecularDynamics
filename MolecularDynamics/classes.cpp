@@ -5,7 +5,7 @@
 const double Molecule::r = Angstrom;	//m
 const double Molecule::m = 20.1797 * AtomicMassUnit;	//kg
 const double Molecule::sigma = 2.74 * Angstrom;		//m
-const double Molecule::epsilon = 36.2 * Boltzmann;	//J
+const double Molecule::epsilon = /*10.0 **/ 36.2 * Boltzmann;	//J
 
 
 
@@ -21,8 +21,8 @@ Space::Space(int width, int height, int n)
 		m.x *= Angstrom;
 		m.y = std::rand() % height;
 		m.y *= Angstrom;
-		double v = 300 + (rand() % 200 - 100);
-		double alphaDeg = rand() % 360;
+		double v = 300 + (std::rand() % 200 - 100);
+		double alphaDeg = std::rand() % 360;
 		double alpha = alphaDeg / 360.0 * 2 * pi;
 		m.vx = v * std::cos(alpha);
 		m.vy = v * std::sin(alpha);
@@ -70,9 +70,8 @@ void Calculator::oneStep(Space &space)
 
 double Calculator::Force(Molecule &m1, Molecule &m2)
 {
-	double r = sqrt(m1.x*m1.x + m1.y*m2.y);
-	if (r == 0) throw std::exception("r == 0");
-	double U = pow(Molecule::sigma / r, 12) - pow(Molecule::sigma / r, 6);
+	double r = std::sqrt(m1.x*m1.x + m1.y*m2.y);
+	double U = std::pow(Molecule::sigma / r, 12) - std::pow(Molecule::sigma / r, 6);
 	U *= 4 * Molecule::epsilon;
 	return - U / r;
 }
