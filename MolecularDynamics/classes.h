@@ -1,4 +1,5 @@
 #pragma once
+#include <exception>
 #include <cmath>
 #include <ctime>
 #include <cstdlib>
