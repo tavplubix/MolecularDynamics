@@ -9,6 +9,9 @@
 #include <QPainter>
 #include <QObject>
 #include <QDebug>
+#include <QThread>
+#include <QReadWriteLock>
+#include <QMutex>
 
 
 class PaintWidget;
@@ -51,6 +54,8 @@ public:
 class Space
 {
 public:
+	//QReadWriteLock mutex;
+	QMutex mutex;
 	int width, height;
 	double averageV;
 	Space(int width, int height, int n);
@@ -60,14 +65,21 @@ public:
 class Calculator : public QObject
 {
 	Q_OBJECT
-public:
-	double dt = 10e-13;
+private:
+	Space* space;
+	double dt = 10e-16;
+	bool calculationsRequired;
+	void averageSpeed();
 	static double Force(Molecule &m1, Molecule &m2);
+	void oneStep();
+public:
+	void modeling();
+	Calculator(Space *space, QObject *parent = 0);
 	//static double LennardJonesPotential(Molecule &m1, Molecule &m2);
 	static double pow(double d, int i);
-	static void average(Space &space);
 public slots:
-	void oneStep(Space &space);
+	void start();
+	void stop();
 signals:
 	void stateChanged();
 };
