@@ -9,12 +9,12 @@ const double Molecule::epsilon = /*10.0 **/ 36.2 * Boltzmann;	//J
 
 
 
-
 Space::Space(int width, int height, int n)
 	:width(width), height(height)
 {
 	std::srand(std::time(nullptr));
 	molecules.resize(n);
+
 	for (auto &i : molecules) {
 		Molecule m;
 		m.x = std::rand() % width;
@@ -30,9 +30,12 @@ Space::Space(int width, int height, int n)
 	}
 }
 
+
+
 void Calculator::oneStep(Space &space)
 {
 	//forces
+	
 	for (int i = 0; i < space.molecules.size(); ++i) {
 		space.molecules[i].Fx = 0;
 		space.molecules[i].Fy = 0;
