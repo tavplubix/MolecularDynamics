@@ -67,7 +67,7 @@ class Calculator : public QObject
 	Q_OBJECT
 private:
 	Space* space;
-	double dt = 10e-10;
+	double dt = 10e-16;
 	bool calculationsRequired;
 	void averageSpeed();
 	static double Force(Molecule &m1, Molecule &m2);

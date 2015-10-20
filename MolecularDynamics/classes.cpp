@@ -115,6 +115,7 @@ void Calculator::modeling()
 {
 	while (calculationsRequired) {
 		space->mutex.lock();
+		//space->mutex.lockForWrite();
 		qDebug() << "	enter in modeling() cycle";
 		for (int i = 0; i < 5; ++i) {
 			oneStep();
@@ -141,7 +142,8 @@ PaintWidget::PaintWidget(Space *space, QWidget *parent)
 void PaintWidget::paintEvent(QPaintEvent *)
 {
 	space->mutex.lock();
-	qDebug() << "	enter in paintEvent()";
+	//space->mutex.lockForRead();
+	qDebug() << "\n	enter in paintEvent()\n";
 	static std::vector<int> oldx, oldy;
 	QPainter painter(this);
 	painter.setPen(Qt::SolidLine);
@@ -162,6 +164,6 @@ void PaintWidget::paintEvent(QPaintEvent *)
 	}
 	painter.setPen(Qt::black);
 	painter.drawText(5, space->height * zoom + hIndent, QString("Average speed: ") + QString::number(space->averageV, 'f', 3));
-	qDebug() << "	return from paintEvent()";
+	qDebug() << "\n	return from paintEvent()\n";
 	space->mutex.unlock();
 }
