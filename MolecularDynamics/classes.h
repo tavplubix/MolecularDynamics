@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <QPainter>
 #include <QObject>
+#include <QDebug>
 
 
 class PaintWidget;
@@ -32,6 +33,7 @@ class PaintWidget : public QWidget
 private:
 	Space *space;
 	const int zoom = 1;
+	const int hIndent = 35;
 public:
 	PaintWidget(Space *space, QWidget *parent = 0);
 	void paintEvent(QPaintEvent *);
@@ -50,6 +52,7 @@ class Space
 {
 public:
 	int width, height;
+	double averageV;
 	Space(int width, int height, int n);
 	std::vector<Molecule> molecules;
 };
@@ -58,9 +61,11 @@ class Calculator : public QObject
 {
 	Q_OBJECT
 public:
-	double dt = 10e-12;
+	double dt = 10e-13;
 	static double Force(Molecule &m1, Molecule &m2);
 	//static double LennardJonesPotential(Molecule &m1, Molecule &m2);
+	static double pow(double d, int i);
+	static void average(Space &space);
 public slots:
 	void oneStep(Space &space);
 signals:
