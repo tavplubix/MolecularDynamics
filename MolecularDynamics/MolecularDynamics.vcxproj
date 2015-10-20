@@ -170,6 +170,7 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="maingui.cpp" />
+    <ClCompile Include="Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="maingui.h">
@@ -212,6 +213,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Vector.h" />
     <CustomBuild Include="classes.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing classes.h...</Message>
