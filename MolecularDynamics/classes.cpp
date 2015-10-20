@@ -42,6 +42,7 @@ void Calculator::oneStep(Space &space)
 		for (int j = 0; j < space.molecules.size(); ++j) {
 			if (i == j) continue;
 			double dF = Force(space.molecules[i], space.molecules[j]);
+			if (!std::isfinite(dF)) throw std::exception("infinite force");
 			if (std::isnan(dF)) throw std::exception("dF == NaN");
 			double dx = space.molecules[j].x - space.molecules[i].x;
 			double dy = space.molecules[j].y - space.molecules[i].y;
@@ -82,8 +83,8 @@ double Calculator::Force(Molecule &m1, Molecule &m2)
 	double dy = m2.y - m1.y;
 	double r = std::sqrt(dx*dx + dy*dy);
 	if (std::isnan(r)) throw std::exception("r == NaN");
-	double U = std::pow(Molecule::sigma / r, 12) - std::pow(Molecule::sigma / r, 6);
-	//double U = pow(Molecule::sigma / r, 12) - pow(Molecule::sigma / r, 6);
+	//double U = std::pow(Molecule::sigma / r, 12) - std::pow(Molecule::sigma / r, 6);
+	double U = pow(Molecule::sigma / r, 12) - pow(Molecule::sigma / r, 6);
 	U *= 4 * Molecule::epsilon;
 	return - U / r;
 }
@@ -92,7 +93,7 @@ double Calculator::pow(double d, int i)
 {
 	double result = d;
 	while (--i)  result *= d;
-	return d;
+	return result;
 }
 
 void Calculator::average(Space &space)
