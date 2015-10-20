@@ -14,6 +14,7 @@ public:
 	~MainGui();
 
 private:
+	QThread *calculationsThread;
 	QTimer *timer;
 	Calculator *calculator;
 	Space *space;

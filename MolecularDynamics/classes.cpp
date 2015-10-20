@@ -30,8 +30,9 @@ Space::Space(int width, int height, int n)
 	}
 }
 
-void Calculator::oneStep(Space &space)
+void Calculator::oneStep()
 {
+	Space &space = *this->space;
 	//forces
 	for (int i = 0; i < space.molecules.size(); ++i) {
 		space.molecules[i].Fx = 0;
@@ -69,8 +70,8 @@ void Calculator::oneStep(Space &space)
 			i.vy = -vy;
 		}
 	}
-	average(space);
-	emit stateChanged();
+	averageSpeed();
+	//emit stateChanged();
 }
 
 double Calculator::Force(Molecule &m1, Molecule &m2)
@@ -85,6 +86,12 @@ double Calculator::Force(Molecule &m1, Molecule &m2)
 	return - U / r;
 }
 
+Calculator::Calculator(Space *space, QObject *parent /*= 0*/)
+	:QObject(parent), space(space)
+{
+	calculationsRequired = false;
+}
+
 double Calculator::pow(double d, int i)
 {
 	double result = d;
@@ -92,12 +99,37 @@ double Calculator::pow(double d, int i)
 	return d;
 }
 
-void Calculator::average(Space &space)
+void Calculator::start()
 {
-	space.averageV = 0;
-	for (auto i : space.molecules) 
-		space.averageV += std::sqrt(i.vx*i.vx + i.vy*i.vy);
-	space.averageV /= space.molecules.size();
+	calculationsRequired = true;
+	//QMetaObject::invokeMethod(this, "modeling");
+	modeling();
+}
+
+void Calculator::stop()
+{
+	calculationsRequired = false;
+}
+
+void Calculator::modeling()
+{
+	while (calculationsRequired) {
+		space->mutex.lock();
+		qDebug() << "	enter in modeling() cycle";
+		for (int i = 0; i < 5; ++i) {
+			oneStep();
+		}
+		qDebug() << "	return from modeling() cycle";
+		space->mutex.unlock();	//WARNING мьютекс может не освободиться, если будет выкинуто исключение
+	}
+}
+
+void Calculator::averageSpeed()
+{
+	space->averageV = 0;
+	for (auto i : space->molecules)
+		space->averageV += std::sqrt(i.vx*i.vx + i.vy*i.vy);
+	space->averageV /= space->molecules.size();
 }
 
 PaintWidget::PaintWidget(Space *space, QWidget *parent)
@@ -108,6 +140,8 @@ PaintWidget::PaintWidget(Space *space, QWidget *parent)
 
 void PaintWidget::paintEvent(QPaintEvent *)
 {
+	space->mutex.lock();
+	qDebug() << "	enter in paintEvent()";
 	static std::vector<int> oldx, oldy;
 	QPainter painter(this);
 	painter.setPen(Qt::SolidLine);
@@ -128,4 +162,6 @@ void PaintWidget::paintEvent(QPaintEvent *)
 	}
 	painter.setPen(Qt::black);
 	painter.drawText(5, space->height * zoom + hIndent, QString("Average speed: ") + QString::number(space->averageV, 'f', 3));
+	qDebug() << "	return from paintEvent()";
+	space->mutex.unlock();
 }
