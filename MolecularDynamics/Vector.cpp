@@ -1,28 +1,106 @@
 #include "Vector.h"
 
-Vector::Vector(double startX, double startY, double startZ, double endX, double endY, double endZ)
-	: startX(startX), startY(startY), startZ(startZ), endX(endX), endY(endY), endZ(endZ)
+Point::Point()
 {
-	dx = endX - startX;
-	dy = endY - startY;
-	dz = endZ - startZ;
+	x = 0;
+	y = 0;
+	z = 0;
+}
+Point::Point(double x_, double y_, double z_)
+	:x(x_), y(y_), z(z_)
+{
 
-	v = sqrt(dx*dx + dy*dy + dz*dz);
+}
+Point::Point(const Point &P)
+{
+	x = P.x;
+	y = P.y;
+	z = P.z;
 }
 
-Vector::Vector(const Vector &V) {
-	startX = V.startX;
-	startY = V.startY;
-	startZ = V.startZ;
-	endX = V.endX;
-	endY = V.endY;
-	endZ = V.endZ;
-	dx = V.dx;
-	dy = V.dy;
-	dz = V.dz;
+Point& Point::operator=(const Point &P)
+{
+	x = P.x;
+	y = P.y;
+	z = P.z;
+	return *this;
+}
+
+Vector::Vector()
+{
+	x = 0;
+	y = 0;
+	z = 0;
+	v = 0;
+}
+Vector::Vector(double startX, double startY, double startZ, double endX, double endY, double endZ)
+{
+	x = endX - startX;
+	y = endY - startY;
+	z = endZ - startZ;
+	v = sqrt(x*x + y*y + z*z);
+}
+Vector::Vector(const Vector &V)
+{
+	x = V.x;
+	y = V.y;
+	z = V.z;
 	v = V.v;
 }
+Vector::Vector(Point S, Point E)
+{
 
-double Vector::GetABS() {
-	return v;
+	x = E.getX() - S.getX();
+	y = E.getY() - S.getY();
+	z = E.getZ() - S.getZ();
+
+	v = sqrt(x*x + y*y + z*z);
+}
+
+Vector& Vector::operator=(const Vector &V)
+{
+	x = V.x;
+	y = V.y;
+	z = V.z;
+	v = V.v;
+	return *this;
+}
+Vector& Vector::operator+=(const Vector &V)
+{
+	x += V.x;
+	y += V.y;
+	z += V.z;
+	v = sqrt(x*x + y*y + z*z);
+	return *this;
+}
+Vector& Vector::operator-=(const Vector &V)
+{
+	x -= V.x;
+	y -= V.y;
+	z -= V.z;
+	v = sqrt(x*x + y*y + z*z);
+	return *this;
+}
+Vector& Vector::operator*=(const double &I)
+{
+	x *= I;
+	y *= I;
+	z *= I;
+	v = sqrt(x*x + y*y + z*z);
+	return *this;
+}
+Vector& Vector::operator+(const Vector &V)
+{
+	Vector temp(*this);
+	return temp += V;
+}
+Vector& Vector::operator-(const Vector &V)
+{
+	Vector temp(*this);
+	return temp -= V;
+}
+Vector& Vector::operator*(const double &I)
+{
+	Vector temp(*this);
+	return temp *= I;
 }
