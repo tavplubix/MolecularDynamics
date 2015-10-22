@@ -46,21 +46,24 @@ public:
 class Vector
 {
 public:
+	friend Vector& operator*(const double I, const Vector &V);
+
 	double x, y, z;
 	double v;
 
 	Vector();
 	Vector(Point S, Point E);
-	Vector(double startX, double startY, double startZ, double endX, double endY, double endZ);
+	Vector(double endX, double endY, double endZ, double startX = 0, double startY = 0, double startZ = 0);
 	Vector(const Vector &V);
 
 	Vector& operator=(const Vector &V);
 	Vector& operator+=(const Vector &V);
 	Vector& operator-=(const Vector &V);
-	Vector& operator*=(const double &I);
-	Vector& operator+(const Vector &V);
-	Vector& operator-(const Vector &V);
-	Vector& operator*(const double &I);
+	Vector& operator*=(const double I);
+	Vector& operator/(const double I) const;
+	Vector& operator+(const Vector &V) const;
+	Vector& operator-(const Vector &V) const;
+	Vector& operator*(const double I) const;
 	operator double() { return v; }
 
 };

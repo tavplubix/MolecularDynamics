@@ -33,7 +33,7 @@ Vector::Vector()
 	z = 0;
 	v = 0;
 }
-Vector::Vector(double startX, double startY, double startZ, double endX, double endY, double endZ)
+Vector::Vector(double endX, double endY, double endZ, double startX, double startY, double startZ)
 {
 	x = endX - startX;
 	y = endY - startY;
@@ -65,6 +65,12 @@ Vector& Vector::operator=(const Vector &V)
 	v = V.v;
 	return *this;
 }
+
+Vector& Vector::operator/(const double I) const
+{
+	return (*this) * (1.0 / I);
+}
+
 Vector& Vector::operator+=(const Vector &V)
 {
 	x += V.x;
@@ -81,7 +87,7 @@ Vector& Vector::operator-=(const Vector &V)
 	v = sqrt(x*x + y*y + z*z);
 	return *this;
 }
-Vector& Vector::operator*=(const double &I)
+Vector& Vector::operator*=(const double I)
 {
 	x *= I;
 	y *= I;
@@ -89,17 +95,24 @@ Vector& Vector::operator*=(const double &I)
 	v = sqrt(x*x + y*y + z*z);
 	return *this;
 }
-Vector& Vector::operator+(const Vector &V)
+
+Vector& operator*(const double I, const Vector &V)
+{
+	return V * I;
+}
+
+Vector& Vector::operator+(const Vector &V) const
 {
 	Vector temp(*this);
 	return temp += V;
 }
-Vector& Vector::operator-(const Vector &V)
+Vector& Vector::operator-(const Vector &V) const
 {
 	Vector temp(*this);
 	return temp -= V;
 }
-Vector& Vector::operator*(const double &I)
+
+Vector& Vector::operator*(const double I) const
 {
 	Vector temp(*this);
 	return temp *= I;

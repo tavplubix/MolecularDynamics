@@ -2,7 +2,7 @@
 
 
 //Ne
-const double Molecule::r = Angstrom;	//m
+const double Molecule::radius = Angstrom;	//m
 const double Molecule::m = 20.1797 * AtomicMassUnit;	//kg
 const double Molecule::sigma = 2.74 * Angstrom;		//m
 const double Molecule::epsilon = 1.0 * 36.2 * Boltzmann;	//J
@@ -16,17 +16,17 @@ Space::Space(int width, int height, int n)
 	molecules.resize(n);
 
 	for (auto &i : molecules) {
-		Molecule m;
-		m.x = std::rand() % width;
-		m.x *= Angstrom;
-		m.y = std::rand() % height;
-		m.y *= Angstrom;
+		double x = std::rand() % width;
+		x *= Angstrom;
+		double y = std::rand() % height;
+		y *= Angstrom;
+		i.r = Vector(x, y, 0);
 		double v = 300 + (std::rand() % 200 - 100);
 		double alphaDeg = std::rand() % 360;
 		double alpha = alphaDeg / 360.0 * 2 * pi;
-		m.vx = v * std::cos(alpha);
-		m.vy = v * std::sin(alpha);
-		i = m;
+		double vy = v * std::sin(alpha);
+		double vx = v * std::cos(alpha);
+		i.v = Vector(vx, vy, 0);
 	}
 }
 
@@ -36,56 +36,41 @@ void Calculator::oneStep()
 	//forces
 	
 	for (int i = 0; i < space.molecules.size(); ++i) {
-		space.molecules[i].Fx = 0;
-		space.molecules[i].Fy = 0;
+		space.molecules[i].F = Vector();
 		for (int j = 0; j < space.molecules.size(); ++j) {
 			if (i == j) continue;
-			double dF = Force(space.molecules[i], space.molecules[j]);
+			Vector dF = Force(space.molecules[i], space.molecules[j]);
 			if (!std::isfinite(dF)) throw std::exception("infinite force");
 			if (std::isnan(dF)) throw std::exception("dF == NaN");
-			double dx = space.molecules[j].x - space.molecules[i].x;
-			double dy = space.molecules[j].y - space.molecules[i].y;
-			double hip = std::sqrt(dx*dx + dy*dy);
-			double dFx = dF * dx / hip;
-			double dFy = dF * dy / hip;
-			space.molecules[i].Fx += dFx;
-			space.molecules[i].Fy += dFy;
+			space.molecules[i].F += dF;
 		}
 	}
 	
 	for (auto &i : space.molecules) {
 		//speeds
-		double vx = i.vx + (i.Fx / i.m) * dt;
-		double vy = i.vy + (i.Fy / i.m) * dt;
-		if (std::abs(vx - i.vx) > 1000.0 || std::abs(vy - i.vy) > 1000.0)
-			//throw std::exception("strange speed");
-			qDebug() << "strange speed, Fx = " + QString::number(i.Fx) + ", Fy = " + QString::number(i.Fy);
+		Vector v = i.v + (i.F / i.m) * dt;
+		if (std::abs(v - i.v) > 1000.0 )
+			qDebug() << "strange speed, Fx = " + QString::number(i.F.x) + ", Fy = " + QString::number(i.F.y);
 		//cordinates
-		i.x += (i.vx + vx) * 0.5 * dt;
-		i.y += (i.vy + vy) * 0.5 * dt;
-		i.vx = vx;
-		i.vy = vy;
-		if (i.x <= 0 || space.width * Angstrom <= i.x) {
-			i.vx = -vx;
+		i.r += (i.v + v) * 0.5 * dt;
+		i.v = v;
+		if (i.r.x <= 0 || space.width * Angstrom <= i.r.x) {
+			i.v.x = -v.x;
 		}
-		if (i.y <= 0 || space.height * Angstrom <= i.y) {
-			i.vy = -vy;
+		if (i.r.y <= 0 || space.height * Angstrom <= i.r.y) {
+			i.v.y = -v.y;
 		}
 	}
 	averageSpeed();
 	//emit stateChanged();
 }
 
-double Calculator::Force(Molecule &m1, Molecule &m2)
+Vector Calculator::Force(Molecule &m1, Molecule &m2)
 {
-	double dx = m2.x - m1.x;
-	double dy = m2.y - m1.y;
-	double r = std::sqrt(dx*dx + dy*dy);
-	if (std::isnan(r)) throw std::exception("r == NaN");
-	//double U = std::pow(Molecule::sigma / r, 12) - std::pow(Molecule::sigma / r, 6);
-	double U = pow(Molecule::sigma / r, 12) - pow(Molecule::sigma / r, 6);
-	U *= 4 * Molecule::epsilon;
-	return - U / r;
+	Vector r = m2.r - m1.r;
+	double U = pow(Molecule::sigma / r, 14) - pow(Molecule::sigma / r, 8);
+	U *= 4 * Molecule::epsilon / pow(Molecule::sigma, 2);
+	return - U * r;
 }
 
 Calculator::Calculator(Space *space, QObject *parent /*= 0*/)
@@ -131,7 +116,7 @@ void Calculator::averageSpeed()
 {
 	space->averageV = 0;
 	for (auto i : space->molecules)
-		space->averageV += std::sqrt(i.vx*i.vx + i.vy*i.vy);
+		space->averageV += i.v;
 	space->averageV /= space->molecules.size();
 }
 
@@ -146,26 +131,32 @@ void PaintWidget::paintEvent(QPaintEvent *)
 	space->mutex.lock();
 	//space->mutex.lockForRead();
 	qDebug() << "\n	enter in paintEvent()\n";
-	static std::vector<int> oldx, oldy;
+	//static std::vector<int> oldx, oldy;
 	QPainter painter(this);
 	painter.setPen(Qt::SolidLine);
 	painter.setPen(Qt::red);
 	painter.drawRect(0, 0, space->width * zoom, space->height * zoom);
 	painter.setPen(Qt::green);
 	for (auto i : space->molecules) {
-		int x = i.x / Angstrom;
-		int y = i.y / Angstrom;
-		int r = 1 + 6 * i.r / Angstrom;
+		int x = i.r.x / Angstrom;
+		int y = i.r.y / Angstrom;
+		int r = 1 + 6 * i.radius / Angstrom;
 		painter.drawEllipse(x * zoom, y * zoom, r * zoom, r * zoom);
-		oldx.push_back(x);
-		oldy.push_back(y);
+		//oldx.push_back(x);
+		//oldy.push_back(y);
 	}
 	painter.setPen(Qt::blue);
-	for (int i = 0; i < oldx.size(); ++i) {
-		painter.drawPoint(oldx[i], oldy[i]);
-	}
+	//for (int i = 0; i < oldx.size(); ++i) {
+	//	painter.drawPoint(oldx[i], oldy[i]);
+	//}
 	painter.setPen(Qt::black);
 	painter.drawText(5, space->height * zoom + hIndent, QString("Average speed: ") + QString::number(space->averageV, 'f', 3));
 	qDebug() << "\n	return from paintEvent()\n";
 	space->mutex.unlock();
+}
+
+Molecule::Molecule(const Vector &_r, const Vector &_v)
+	:r(_r), v(_v)
+{
+
 }

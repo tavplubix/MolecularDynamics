@@ -4,6 +4,7 @@
 #include <ctime>
 #include <cstdlib>
 #include <vector>
+
 #include <QWidget>
 #include <QTimer>
 #include <QPainter>
@@ -12,6 +13,8 @@
 #include <QThread>
 #include <QReadWriteLock>
 #include <QMutex>
+
+#include "Vector.h"
 
 
 class PaintWidget;
@@ -45,10 +48,12 @@ public:
 class Molecule
 {
 public:
-	double x, y;
-	double vx, vy;
-	double Fx, Fy;
-	const static double m, r, sigma, epsilon;
+	//double x, y;
+	//double vx, vy;
+	//double Fx, Fy;
+	Vector r, v, F;
+	const static double m, radius, sigma, epsilon;
+	Molecule(const Vector &r = Vector(), const Vector &v = Vector());
 };
 
 class Space
@@ -70,7 +75,7 @@ private:
 	double dt = 10e-16;
 	bool calculationsRequired;
 	void averageSpeed();
-	static double Force(Molecule &m1, Molecule &m2);
+	static Vector Force(Molecule &m1, Molecule &m2);
 	void oneStep();
 public:
 	void modeling();
