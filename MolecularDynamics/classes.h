@@ -13,6 +13,7 @@
 #include <QReadWriteLock>
 #include <QMutex>
 
+#include "Vector.h"
 
 class PaintWidget;
 class Molecule;
@@ -45,10 +46,11 @@ public:
 class Molecule
 {
 public:
-	double x, y;
-	double vx, vy;
-	double Fx, Fy;
-	const static double m, r, sigma, epsilon;
+// 	double x, y;
+// 	double vx, vy;
+// 	double Fx, Fy;
+	Vector r, v, F;
+	const static double m, radius, sigma, epsilon;
 };
 
 class Space
@@ -70,7 +72,7 @@ private:
 	double dt = 10e-16;
 	bool calculationsRequired;
 	void averageSpeed();
-	static double Force(Molecule &m1, Molecule &m2);
+	static Vector Force(Molecule &m1, Molecule &m2);
 	void oneStep();
 public:
 	void modeling();

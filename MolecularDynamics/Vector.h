@@ -51,7 +51,7 @@ public:
 
 	Vector();
 	Vector(Point S, Point E);
-	Vector(double startX, double startY, double startZ, double endX, double endY, double endZ);
+	Vector(double endX, double endY, double endZ, double startX = 0, double startY = 0, double startZ = 0);
 	Vector(const Vector &V);
 
 	Vector& operator=(const Vector &V);

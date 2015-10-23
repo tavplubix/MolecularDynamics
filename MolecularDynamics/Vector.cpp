@@ -33,7 +33,7 @@ Vector::Vector()
 	z = 0;
 	v = 0;
 }
-Vector::Vector(double startX, double startY, double startZ, double endX, double endY, double endZ)
+Vector::Vector(double endX, double endY, double endZ, double startX, double startY, double startZ)
 {
 	x = endX - startX;
 	y = endY - startY;
