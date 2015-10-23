@@ -46,7 +46,7 @@ public:
 class Vector
 {
 public:
-	friend Vector& operator*(const double I, const Vector &V);
+	friend Vector operator*(const double I, const Vector &V);
 
 	double x, y, z;
 	double v;
@@ -60,10 +60,10 @@ public:
 	Vector& operator+=(const Vector &V);
 	Vector& operator-=(const Vector &V);
 	Vector& operator*=(const double I);
-	Vector& operator/(const double I) const;
-	Vector& operator+(const Vector &V) const;
-	Vector& operator-(const Vector &V) const;
-	Vector& operator*(const double I) const;
+	Vector operator/(const double I) const;
+	Vector operator+(const Vector &V) const;
+	Vector operator-(const Vector &V) const;
+	Vector operator*(const double I) const;
 	operator double() { return v; }
 
 };

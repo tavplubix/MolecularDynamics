@@ -47,15 +47,6 @@ Vector::Vector(const Vector &V)
 	z = V.z;
 	v = V.v;
 }
-Vector::Vector(Point S, Point E)
-{
-
-	x = E.getX() - S.getX();
-	y = E.getY() - S.getY();
-	z = E.getZ() - S.getZ();
-
-	v = sqrt(x*x + y*y + z*z);
-}
 
 Vector& Vector::operator=(const Vector &V)
 {
@@ -66,54 +57,41 @@ Vector& Vector::operator=(const Vector &V)
 	return *this;
 }
 
-Vector& Vector::operator/(const double I) const
+Vector Vector::operator/(const double I) const
 {
 	return (*this) * (1.0 / I);
 }
 
 Vector& Vector::operator+=(const Vector &V)
 {
-	x += V.x;
-	y += V.y;
-	z += V.z;
-	v = sqrt(x*x + y*y + z*z);
+	*this = *this + V;
 	return *this;
 }
 Vector& Vector::operator-=(const Vector &V)
 {
-	x -= V.x;
-	y -= V.y;
-	z -= V.z;
-	v = sqrt(x*x + y*y + z*z);
+	*this = *this - V;
 	return *this;
 }
 Vector& Vector::operator*=(const double I)
 {
-	x *= I;
-	y *= I;
-	z *= I;
-	v = sqrt(x*x + y*y + z*z);
+	*this = *this * I;
 	return *this;
 }
 
-Vector& operator*(const double I, const Vector &V)
+Vector operator*(const double I, const Vector &V)
 {
 	return V * I;
 }
 
-Vector& Vector::operator+(const Vector &V) const
+Vector Vector::operator+(const Vector &V) const
 {
-	Vector temp(*this);
-	return temp += V;
+	return Vector(x + V.x, y + V.y, z + V.z);
 }
-Vector& Vector::operator-(const Vector &V) const
+Vector Vector::operator-(const Vector &V) const
 {
-	Vector temp(*this);
-	return temp -= V;
+	return Vector(x - V.x, y - V.y, z - V.z);
 }
-
-Vector& Vector::operator*(const double I) const
+Vector Vector::operator*(const double I) const
 {
-	Vector temp(*this);
-	return temp *= I;
+	return  Vector(x * I, y * I, z * I);
 }

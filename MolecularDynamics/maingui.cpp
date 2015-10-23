@@ -1,5 +1,6 @@
 #include "maingui.h"
 #include "classes.h"
+#include "Caculator.h"
 
 MainGui::MainGui(QWidget *parent)
 	: QMainWindow(parent)
