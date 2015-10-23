@@ -58,9 +58,9 @@ public:
 	Vector& operator+=(const Vector &V);
 	Vector& operator-=(const Vector &V);
 	Vector& operator*=(const double &I);
-	Vector& operator+(const Vector &V);
-	Vector& operator-(const Vector &V);
-	Vector& operator*(const double &I);
+	Vector operator+(const Vector &V);
+	Vector operator-(const Vector &V);
+	Vector operator*(const double &I);
 	operator double() { return v; }
 
 };
