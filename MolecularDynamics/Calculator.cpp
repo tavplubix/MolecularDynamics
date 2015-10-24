@@ -19,17 +19,19 @@ void Calculator::oneStep()
 
 	for (auto &i : space.molecules) {
 		//speeds
-		Vector v = i.v + (i.F / i.m) * dt;
-		if (std::abs(v - i.v) > 1000.0)
-			qDebug() << "strange speed, Fx = " + QString::number(i.F.x) + ", Fy = " + QString::number(i.F.y);
+		//Vector v = i.v + (i.F / i.m) * dt;
+		/*Vector v = */i.v += integrateWithTaylorAproximation(dt, i.F / i.m, i.v, i.r);
+		//if (std::abs(v - i.v) > 1000.0)
+		//	qDebug() << "strange speed, Fx = " + QString::number(i.F.x) + ", Fy = " + QString::number(i.F.y);
 		//cordinates
-		i.r += (i.v + v) * 0.5 * dt;
-		i.v = v;
+		//i.r += (i.v + v) * 0.5 * dt;
+		i.r += integrateWithTaylorAproximation(dt, i.v, i.r);
+		//i.v = v;
 		if (i.r.x <= 0 || space.width * Angstrom <= i.r.x) {
-			i.v.x = -v.x;
+			i.v.x = -i.v.x;
 		}
 		if (i.r.y <= 0 || space.height * Angstrom <= i.r.y) {
-			i.v.y = -v.y;
+			i.v.y = -i.v.y;
 		}
 	}
 	averageSpeed();
@@ -39,8 +41,8 @@ void Calculator::oneStep()
 Vector Calculator::Force(Molecule &m1, Molecule &m2)
 {
 	Vector r = m2.r - m1.r;
-	double U = pow(Molecule::sigma / r, 14) - pow(Molecule::sigma / r, 8);
-	U *= 4 * Molecule::epsilon / pow(Molecule::sigma, 2);
+	double U = 2.0*pow(Molecule::sigma / r, 14) - pow(Molecule::sigma / r, 8);
+	U *= 24.0 * Molecule::epsilon / pow(Molecule::sigma, 2);
 	return -U * r;
 }
 
@@ -90,3 +92,13 @@ void Calculator::averageSpeed()
 		space->averageV += i.v;
 	space->averageV /= space->molecules.size();
 }
+
+
+Vector Calculator::integrateWithTaylorAproximation(double h, const Vector &f, const Vector &d1f, const Vector &d2f /*= Vector()*/)
+{
+	Vector result = f * h;
+	result += d1f * (h*h) / 2.0;
+	result += d2f * (h*h*h) / 6.0;
+	return result;
+}
+

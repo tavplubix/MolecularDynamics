@@ -7,7 +7,7 @@ MainGui::MainGui(QWidget *parent)
 {
 	ui.setupUi(this);
 
-	space = new Space(300, 160, 16);
+	space = new Space(300, 160, 50);
 	pw = new PaintWidget(space, this);
 	ui.verticalLayout->addWidget(pw);
 	ui.centralWidget->setLayout(ui.verticalLayout);
