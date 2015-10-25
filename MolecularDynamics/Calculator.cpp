@@ -7,6 +7,7 @@ void Calculator::oneStep()
 	//forces
 
 	for (int i = 0; i < space.molecules.size(); ++i) {
+		space.molecules[i].oldF = space.molecules[i].F;
 		space.molecules[i].F = Vector();
 		for (int j = 0; j < space.molecules.size(); ++j) {
 			if (i == j) continue;
@@ -19,14 +20,12 @@ void Calculator::oneStep()
 
 	for (auto &i : space.molecules) {
 		//speeds
-		//Vector v = i.v + (i.F / i.m) * dt;
-		/*Vector v = */i.v += integrateWithTaylorAproximation(dt, i.F / i.m, i.v, i.r);
-		//if (std::abs(v - i.v) > 1000.0)
-		//	qDebug() << "strange speed, Fx = " + QString::number(i.F.x) + ", Fy = " + QString::number(i.F.y);
+		Vector v = i.v + ((i.F + i.oldF) / (2.0*i.m)) * dt;
+		//i.v += integrateWithTaylorAproximation(dt, i.F / i.m, (i.F - i.oldF)/dt);		//WARNING
 		//cordinates
-		//i.r += (i.v + v) * 0.5 * dt;
-		i.r += integrateWithTaylorAproximation(dt, i.v, i.r);
-		//i.v = v;
+		i.r += (i.v + v) * 0.5 * dt;
+		//i.r += integrateWithTaylorAproximation(dt, i.v, i.F / i.m);		
+		i.v = v;
 		if (i.r.x <= 0 || space.width * Angstrom <= i.r.x) {
 			i.v.x = -i.v.x;
 		}
@@ -94,7 +93,7 @@ void Calculator::averageSpeed()
 }
 
 
-Vector Calculator::integrateWithTaylorAproximation(double h, const Vector &f, const Vector &d1f, const Vector &d2f /*= Vector()*/)
+Vector Calculator::integrateWithTaylorAproximation(double h, const Vector &f, const Vector &d1f /*= Vector()*/, const Vector &d2f /*= Vector()*/)
 {
 	Vector result = f * h;
 	result += d1f * (h*h) / 2.0;

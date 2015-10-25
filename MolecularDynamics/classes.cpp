@@ -26,6 +26,7 @@ Space::Space(int width, int height, int n)
 		double alpha = alphaDeg / 360.0 * 2 * pi;
 		i.v.x = v * std::cos(alpha);
 		i.v.y = v * std::sin(alpha);
+		i.F = Vector();
 	}
 }
 

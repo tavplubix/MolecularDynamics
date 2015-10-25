@@ -51,7 +51,7 @@ public:
 	//double x, y;
 	//double vx, vy;
 	//double Fx, Fy;
-	Vector r, v, F;
+	Vector r, v, F, oldF;
 	const static double m, radius, sigma, epsilon;
 	Molecule(const Vector &r = Vector(), const Vector &v = Vector());
 };

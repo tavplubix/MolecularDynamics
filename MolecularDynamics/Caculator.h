@@ -8,11 +8,11 @@ class Calculator : public QObject
 	Q_OBJECT
 private:
 	Space* space;
-	double dt = 10e-14;
+	double dt = 10e-16;
 	bool calculationsRequired;
 	void averageSpeed();
 	static Vector Force(Molecule &m1, Molecule &m2);
-	static Vector integrateWithTaylorAproximation(double h, const Vector &f, const Vector &d1f, const Vector &d2f = Vector());
+	static Vector integrateWithTaylorAproximation(double h, const Vector &f, const Vector &d1f = Vector(), const Vector &d2f = Vector());
 	void oneStep();
 public:
 	void modeling();
