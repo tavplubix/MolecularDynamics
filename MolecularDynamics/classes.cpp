@@ -27,6 +27,7 @@ Space::Space(int width, int height, int n)
 		i.v.x = v * std::cos(alpha);
 		i.v.y = v * std::sin(alpha);
 		i.F = Vector();
+		i.oldr = i.r;
 	}
 }
 
@@ -42,7 +43,7 @@ void PaintWidget::paintEvent(QPaintEvent *)
 	space->mutex.lock();
 	//space->mutex.lockForRead();
 	qDebug() << "\n	enter in paintEvent()\n";
-	//static std::vector<int> oldx, oldy;
+//	static std::vector<int> oldx, oldy;
 	QPainter painter(this);
 	painter.setPen(Qt::SolidLine);
 	painter.setPen(Qt::red);
@@ -53,13 +54,13 @@ void PaintWidget::paintEvent(QPaintEvent *)
 		int y = i.r.y / Angstrom;
 		int r = 1 + 6 * i.radius / Angstrom;
 		painter.drawEllipse(x * zoom, y * zoom, r * zoom, r * zoom);
-		//oldx.push_back(x);
-		//oldy.push_back(y);
+// 		oldx.push_back(x);
+// 		oldy.push_back(y);
 	}
 	painter.setPen(Qt::blue);
-	//for (int i = 0; i < oldx.size(); ++i) {
-	//	painter.drawPoint(oldx[i], oldy[i]);
-	//}
+// 	for (int i = 0; i < oldx.size(); ++i) {
+// 		painter.drawPoint(oldx[i], oldy[i]);
+// 	}
 	painter.setPen(Qt::black);
 	painter.drawText(5, space->height * zoom + hIndent, QString("Average speed: ") + QString::number(space->averageV, 'f', 3));
 	qDebug() << "\n	return from paintEvent()\n";

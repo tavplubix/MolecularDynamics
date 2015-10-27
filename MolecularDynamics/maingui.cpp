@@ -1,13 +1,13 @@
 #include "maingui.h"
 #include "classes.h"
-#include "Caculator.h"
+#include "Calculator.h"
 
 MainGui::MainGui(QWidget *parent)
 	: QMainWindow(parent)
 {
 	ui.setupUi(this);
 
-	space = new Space(300, 160, 100);
+	space = new Space(300, 160, 50);
 	pw = new PaintWidget(space, this);
 	ui.verticalLayout->addWidget(pw);
 	ui.centralWidget->setLayout(ui.verticalLayout);
