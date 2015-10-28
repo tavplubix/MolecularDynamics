@@ -3,12 +3,19 @@
 
 void Calculator::oneStep()
 {
-	QThread::msleep(10);
-	Space &space = *this->space;
-	recalculatePositions_VelocityVerlet();
-	recalculateForces_LennardJones();
-	recalculateSpeeds_VelocityVerlet();
-	averageSpeed();
+	//QThread::msleep(1);
+	recalculatePositions_Beeman();
+	calculateNewForces();
+	recalculateSpeeds_Beeman();
+	for (auto &i : space->molecules) {
+		i.oldF = i.F;
+		i.F = i.newF;
+	}
+
+// 	recalculatePositions_VelocityVerlet();
+// 	recalculateForces_LennardJones();
+// 	recalculateSpeeds_VelocityVerlet();
+ 	averageSpeed();
 	//emit stateChanged();
 }
 
@@ -35,6 +42,22 @@ void Calculator::recalculateForces_LennardJones()
 		}
 	}
 }
+
+void Calculator::calculateNewForces()
+{
+	Space &space = *this->space;
+	for (int i = 0; i < space.molecules.size(); ++i) {
+		space.molecules[i].newF = Vector();
+		for (int j = 0; j < space.molecules.size(); ++j) {
+			if (i == j) continue;
+			Vector dF = Force_LennardJones(space.molecules[i], space.molecules[j]);
+			if (!std::isfinite(dF)) throw std::exception("infinite force");
+			if (std::isnan(dF)) throw std::exception("dF == NaN");
+			space.molecules[i].newF += dF;
+		}
+	}
+}
+
 
 void Calculator::recalculatePositions_VelocityVerlet()
 {
@@ -72,20 +95,27 @@ void Calculator::recalculatePositions_Beeman()
 		i.oldr = i.r;
 		i.r += i.v * dt;
 		i.r += 4.0 / 6.0 * (i.F / i.m) * (dt*dt);
-		i.r += 1.0 / 6.0 * (i.oldF / i.m) * (dt*dt);
+		i.r -= 1.0 / 6.0 * (i.oldF / i.m) * (dt*dt);
 	}
 }
 
-void Calculator::recalculateSpeed_Beeman()
+void Calculator::recalculateSpeeds_Beeman()
 {
 	//Beeman's algorithm
 	Space &space = *this->space;
 	for (auto &i : space.molecules) {
-		i.v += 2.0 / 6.0 * (i.newF / i.m);
-		i.v += 5.0 / 6.0 * (i.F / i.m);
-		i.v -= 1.0 / 6.0 * (i.oldF / i.m);
+		i.v += 2.0 / 6.0 * (i.newF / i.m) * dt;
+		i.v += 5.0 / 6.0 * (i.F / i.m) * dt;
+		i.v -= 1.0 / 6.0 * (i.oldF / i.m) * dt;
+		if (i.r.x <= 0 || space.width * Angstrom <= i.r.x) {
+			i.v.x = -i.v.x;
+		}
+		if (i.r.y <= 0 || space.height * Angstrom <= i.r.y) {
+			i.v.y = -i.v.y;
+		}
 	}
 }
+
 
 Calculator::Calculator(Space *space, QObject *parent /*= 0*/)
 	:QObject(parent), space(space)
@@ -104,6 +134,16 @@ void Calculator::start()
 {
 	calculationsRequired = true;
 	//QMetaObject::invokeMethod(this, "modeling");
+
+
+	//pre-init:
+	recalculateForces_LennardJones();
+	//init: first iteration
+	recalculatePositions_VelocityVerlet();
+	recalculateForces_LennardJones();
+	recalculateSpeeds_VelocityVerlet();
+	averageSpeed();
+	//next iterations:
 	modeling();
 }
 
@@ -114,7 +154,6 @@ void Calculator::stop()
 
 void Calculator::modeling()
 {
-	recalculateForces_LennardJones();
 	while (calculationsRequired) {
 		space->mutex.lock();
 		//space->mutex.lockForWrite();

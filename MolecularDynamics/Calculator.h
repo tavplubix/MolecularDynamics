@@ -8,7 +8,7 @@ class Calculator : public QObject
 	Q_OBJECT
 private:
 	Space* space;
-	double dt = 10e-14;
+	double dt = 10e-16;
 	bool calculationsRequired;
 	void averageSpeed();
 	Vector Force_LennardJones(Molecule &m1, Molecule &m2);
@@ -16,7 +16,8 @@ private:
 	void recalculatePositions_VelocityVerlet();
 	void recalculateSpeeds_VelocityVerlet();
 	void recalculatePositions_Beeman();
-	void recalculateSpeed_Beeman();
+	void recalculateSpeeds_Beeman();
+	void calculateNewForces();		//for Beeman
 	Vector VerletIntegration(const Vector &r, const Vector &oldR, const Vector &a);
 	Vector integrateWithTaylorAproximation(double h, const Vector &f, const Vector &d1f = Vector(), const Vector &d2f = Vector());
 	void oneStep();
