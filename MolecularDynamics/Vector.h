@@ -65,5 +65,9 @@ public:
 	Vector operator-(const Vector &V) const;
 	Vector operator*(const double I) const;
 	operator double() { return v; }
+	static double ScalarMultiply(const Vector &V1, const Vector &V2)
+	{
+		return V1.x * V2.x + V1.y * V2.y + V1.z * V2.z;
+	}
 
 };

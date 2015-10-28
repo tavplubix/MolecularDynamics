@@ -95,3 +95,5 @@ Vector Vector::operator*(const double I) const
 {
 	return  Vector(x * I, y * I, z * I);
 }
+
+
