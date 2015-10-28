@@ -59,7 +59,7 @@ Vector& Vector::operator=(const Vector &V)
 
 Vector Vector::operator/(const double I) const
 {
-	return (*this) * (1.0 / I);
+	return Vector(x / I, y / I, z / I);
 }
 
 Vector& Vector::operator+=(const Vector &V)
