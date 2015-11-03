@@ -14,6 +14,7 @@ public:
 	~MainGui();
 
 private:
+	inline void setButtons();
 	QThread *calculationsThread;
 	QTimer *timer;
 	Calculator *calculator;

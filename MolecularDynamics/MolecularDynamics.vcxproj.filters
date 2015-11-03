@@ -103,4 +103,8 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="MolecularDynamics.pri" />
+    <None Include="MolecularDynamics.pro" />
+  </ItemGroup>
 </Project>

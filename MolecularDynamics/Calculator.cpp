@@ -1,6 +1,7 @@
 #include "Calculator.h"
 #include "Space.h"
-
+#include <QEventLoop>
+#include <QEventLoopLocker>
 
 void Calculator::oneStep()
 {
@@ -116,6 +117,19 @@ void Calculator::recalculateSpeeds_Beeman()
 }
 
 
+void Calculator::set_dt_precision(int precision)	//hot only
+{
+	bool cr = calculationsRequired;
+	calculationsRequired = false;
+	space->mutex.lock();
+	dt = std::pow(10, -precision);
+	space->mutex.unlock();
+	start();
+	calculationsRequired = cr;
+}
+
+
+
 Calculator::Calculator(Space *space, QObject *parent /*= 0*/)
 	:QObject(parent), space(space)
 {
@@ -126,7 +140,8 @@ Calculator::Calculator(Space *space, QObject *parent /*= 0*/)
 double Calculator::pow(double d, int i)
 {
 	double result = d;
-	while (--i)  result *= d;
+	if (i > 0) while (--i)  result *= d;
+	else while (++i <= 1) result /= d;
 	return result;
 }
 
@@ -157,7 +172,7 @@ void Calculator::modeling()
 		space->mutex.lock();
 		//space->mutex.lockForWrite();
 		qDebug() << "	enter in modeling() cycle";
-		for (int i = 0; i < 5; ++i) {
+		for (int i = 0; i < 10; ++i) {
 			oneStep();
 		}
 		qDebug() << "	return from modeling() cycle";
@@ -173,6 +188,11 @@ void Calculator::averageSpeed()
 	for (auto i : space->molecules)
 		space->averageV += i.v;
 	space->averageV /= space->molecules.size();
+	if (space->averageV < space->minV)
+		space->minV = space->averageV;
+	if (space->averageV > space->maxV)
+		space->maxV = space->averageV;
+	space->deltaV = space->maxV - space->minV;
 	//space->averageV = space->molecules[0].v;
 }
 

@@ -8,7 +8,7 @@ class Calculator : public QObject
 	Q_OBJECT
 private:
 	Space* space;
-	double dt = 10e-15;
+	double dt = 1.0e-15;
 	void averageSpeed();
 	Vector Force_LennardJones(Molecule &m1, Molecule &m2);
 	void recalculateForces_LennardJones();
@@ -22,6 +22,9 @@ private:
 	void oneStep();
 	Q_INVOKABLE void modeling();
 public:
+	Q_INVOKABLE void set_dt_precision(int precision);
+	void setSpace(Space* s);
+	double get_dt() { return dt; };
 	volatile bool calculationsRequired;
 	Calculator(Space *space, QObject *parent = 0);
 	//static double LennardJonesPotential(Molecule &m1, Molecule &m2);

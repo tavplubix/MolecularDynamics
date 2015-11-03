@@ -7,11 +7,13 @@
 Space::Space(int width, int height, int n)
 	:width(width), height(height)
 {
+	maxV = 0;
+	minV = std::numeric_limits<double>::infinity();
+	deltaV = 0;
 	std::srand(std::time(nullptr));
 	molecules.resize(n);
 
 	for (auto &i : molecules) {
-		//Molecule m;
 		i.r.x = std::rand() % width;
 		i.r.x *= Angstrom;
 		i.r.y = std::rand() % height;
@@ -24,6 +26,25 @@ Space::Space(int width, int height, int n)
 		i.F = Vector();
 		//i.oldr = i.r;
 	}
+
+	saveCoordinatesAndSpeeds("./../last.log.mdcs");
+}
+
+Space& Space::operator=(const Space&& s)
+{
+	if (this == &s) return *this;
+	s.mutex.lock();
+	mutex.lock();
+	molecules = std::move(s.molecules);
+	width = s.width;
+	height = s.height;
+	averageV = s.averageV;
+	minV = s.minV;
+	maxV = s.maxV;
+	deltaV = s.deltaV;
+	mutex.unlock();
+	s.mutex.unlock();
+	return *this;
 }
 
 void Space::saveCoordinatesAndSpeeds(const QString& filename)
@@ -48,7 +69,6 @@ void Space::saveCoordinatesAndSpeeds(const QString& filename)
 void Space::loadStateCS(const QString& filename)
 {
 	mutex.lock();
-	qDebug() << "			enter in load()";
 	QFile file(filename);
 	file.open(QIODevice::ReadOnly);
 	molecules.clear();
@@ -64,6 +84,5 @@ void Space::loadStateCS(const QString& filename)
 		molecule.r = Vector(t[0], t[1], t[2]);
 		molecule.v = Vector(t[3], t[4], t[5]);
 	}
-	qDebug() << "			return from load()";
 	mutex.unlock();
 }

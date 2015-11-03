@@ -21,15 +21,22 @@ PaintWidget::PaintWidget(Space *space, QWidget *parent)
 void PaintWidget::paintEvent(QPaintEvent *)
 {
 	space->mutex.lock();
-	//space->mutex.lockForRead();
-	qDebug() << "\n	enter in paintEvent()\n";
+		//space->mutex.lockForRead();
+		qDebug() << "\n	enter in paintEvent()\n";
+		std::vector<Molecule> copy = space->molecules;
+		double averageV = space->averageV;
+		double deltaV = space->deltaV;
+		double height = space->height;
+		double width = space->width;
+	space->mutex.unlock();
+
 //	static std::vector<int> oldx, oldy;
 	QPainter painter(this);
 	painter.setPen(Qt::SolidLine);
 	painter.setPen(Qt::red);
-	painter.drawRect(0, 0, space->width * zoom, space->height * zoom);
+	painter.drawRect(0, 0, width * zoom, height * zoom);
 	painter.setPen(Qt::green);
-	for (auto i : space->molecules) {
+	for (auto i : copy) {
 		int x = i.r.x / Angstrom;
 		int y = i.r.y / Angstrom;
 		int r = 1 + 6 * i.radius / Angstrom;
@@ -42,9 +49,9 @@ void PaintWidget::paintEvent(QPaintEvent *)
 // 		painter.drawPoint(oldx[i], oldy[i]);
 // 	}
 	painter.setPen(Qt::black);
-	painter.drawText(5, space->height * zoom + hIndent, QString("Average speed: ") + QString::number(space->averageV, 'f', 3));
+	painter.drawText(5, height * zoom + hIndent, QString("Average speed: ") + QString::number(averageV, 'f', 3));
+	painter.drawText(5, height * zoom + 2*hIndent, QString("Delta: ") + QString::number(deltaV, 'f', 3));
 	qDebug() << "\n	return from paintEvent()\n";
-	space->mutex.unlock();
 }
 
 Molecule::Molecule(const Vector &_r, const Vector &_v)

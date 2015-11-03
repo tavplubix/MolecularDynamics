@@ -10,10 +10,12 @@ class Space
 {
 public:
 	//QReadWriteLock mutex;
-	QMutex mutex;
+	mutable QMutex mutex;
 	int width, height;
 	double averageV;
+	double maxV, minV, deltaV;
 	Space(int width, int height, int n);
+	Space& operator=(const Space&& s);
 	std::vector<Molecule> molecules;
 	public slots:
 	//void saveCoordinates();
