@@ -1,8 +1,44 @@
 #include "Space.h"
 #include <QFile>
 
+#include <map>
+#include <set>
 
 
+
+
+void Space::generateCoordinates()
+{
+	size_t size = molecules.size();
+	const int minDistance = 3 + int(Molecule::sigma / Angstrom);
+	std::map<int, std::set<int>> used;		//CRUTCH
+	for (auto &i : molecules) {
+
+		int tmpX = (std::rand() * minDistance) % width;
+		int tmpY;
+		do {
+			tmpY = (std::rand() * minDistance) % height;
+		} while (used[tmpX].find(tmpY) != used[tmpX].end());		//WARNING
+		used[tmpX].insert(tmpY);
+		i.r.x = double(tmpX) * Angstrom;
+		i.r.y = double(tmpY) * Angstrom;
+		//i.r.x = std::rand() % width;
+		//i.r.x *= Angstrom;
+		//i.r.y = std::rand() % height;
+		//i.r.y *= Angstrom;
+	}
+}
+
+void Space::generateSpeeds()
+{
+	for (auto &i : molecules) {
+		double v = 300 + (std::rand() % 200 - 100);
+		double alphaDeg = std::rand() % 360;
+		double alpha = alphaDeg / 360.0 * 2 * pi;
+		i.v.x = v * std::cos(alpha);
+		i.v.y = v * std::sin(alpha);
+	}
+}
 
 Space::Space(int width, int height, int n)
 	:width(width), height(height)
@@ -13,19 +49,8 @@ Space::Space(int width, int height, int n)
 	std::srand(std::time(nullptr));
 	molecules.resize(n);
 
-	for (auto &i : molecules) {
-		i.r.x = std::rand() % width;
-		i.r.x *= Angstrom;
-		i.r.y = std::rand() % height;
-		i.r.y *= Angstrom;
-		double v = 300 + (std::rand() % 200 - 100);
-		double alphaDeg = std::rand() % 360;
-		double alpha = alphaDeg / 360.0 * 2 * pi;
-		i.v.x = v * std::cos(alpha);
-		i.v.y = v * std::sin(alpha);
-		i.F = Vector();
-		//i.oldr = i.r;
-	}
+	generateCoordinates();
+	generateSpeeds();
 
 	saveCoordinatesAndSpeeds("./../last.log.mdcs");
 }

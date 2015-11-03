@@ -8,12 +8,17 @@
 
 class Space
 {
+private:
+	void generateCoordinates();
+	void generateSpeeds();
 public:
 	//QReadWriteLock mutex;
+	//TODO incapsulate this fields:
 	mutable QMutex mutex;
 	int width, height;
 	double averageV;
 	double maxV, minV, deltaV;
+	//===============================
 	Space(int width, int height, int n);
 	Space& operator=(const Space&& s);
 	std::vector<Molecule> molecules;

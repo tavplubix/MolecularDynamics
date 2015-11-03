@@ -34,7 +34,7 @@ MainGui::MainGui(QWidget *parent)
 	});
 
 
-	//Use timer to update gui every 100 ms
+	//Use timer to update GUI every 100 ms
 	timer = new QTimer(this);
 	timer->setInterval(100);
 	connect(timer, &QTimer::timeout, pw, static_cast<void(PaintWidget::*)(void)>(&PaintWidget::update));
@@ -63,12 +63,15 @@ MainGui::~MainGui()
 void MainGui::setButtons()
 {
 	//Set actions for buttons
+	//Disable some widgets
 	ui.saveButton->setHidden(true);
 	ui.numberOfMoleculesSpinBox->setEnabled(false);
-	//Stpo/Restart
+
+	//Stop/Restart Button
 	connect(ui.stopStartButton, &QPushButton::clicked, [&](){
+		//Stop Button
 		if (ui.stopStartButton->text() == "Stop") {
-			calculator->calculationsRequired = false;
+			calculator->calculationsRequired = false;	//stop calculations
 			//hide other buttons
 			ui.pauseContinueButton->setHidden(true);
 			ui.loadButton->setHidden(true);
@@ -76,9 +79,11 @@ void MainGui::setButtons()
 			//remove space
 			Space s(0, 0, 0);
 			*space = std::move(s);
+			
 			ui.stopStartButton->setText("Restart");
 			ui.numberOfMoleculesSpinBox->setEnabled(true);
 		}
+		//Restart Button
 		else if (ui.stopStartButton->text() == "Restart") {
 			//create new space
 			int height = ui.heightSpinBox->value();
@@ -86,8 +91,9 @@ void MainGui::setButtons()
 			int numberOfMolecules = ui.numberOfMoleculesSpinBox->value();
 			Space s(width, height, numberOfMolecules);
 			*space = std::move(s);
+			//disable some widgets
 			ui.numberOfMoleculesSpinBox->setEnabled(false);
-			//restore other buttons
+			//restore other widgets
 			ui.pauseContinueButton->setHidden(false);
 			ui.loadButton->setHidden(false);
 			ui.stopStartButton->setText("Stop");
@@ -95,7 +101,8 @@ void MainGui::setButtons()
 		}
 		else throw std::exception("something strange has happend in slot connected to stopStartButton");
 	});
-	//Pause/Continue
+
+	//Pause/Continue Button
 	connect(ui.pauseContinueButton, &QPushButton::clicked, [&](){
 		if (calculator->calculationsRequired) {		//pause
 			calculator->calculationsRequired = false;
@@ -108,12 +115,14 @@ void MainGui::setButtons()
 			ui.pauseContinueButton->setText("Pause");
 		}
 	});
-	//Save
+
+	//Save Button
 	connect(ui.saveButton, &QPushButton::clicked, [&]() {
 		QString filename = QFileDialog::getSaveFileName(this, "Save state", "./../state.mdcs", "MD (*.mdcs)");
 		space->saveCoordinatesAndSpeeds(filename);
 	});
-	//Load
+
+	//Load Button
 	connect(ui.loadButton, &QPushButton::clicked, [&](){
 		QString filename = QFileDialog::getOpenFileName(this, "Load state", "./../state.mdcs", "MD (*.mdcs)");
 		if (calculator->calculationsRequired == false) ui.pauseContinueButton->click();		//CRUTCH
@@ -121,5 +130,4 @@ void MainGui::setButtons()
 		space->loadStateCS(filename);
 		QMetaObject::invokeMethod(calculator, "start");
 	});
-
 }
