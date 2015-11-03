@@ -1,4 +1,5 @@
 #include "classes.h"
+#include "Space.h"
 
 
 //Ne
@@ -9,27 +10,6 @@ const double Molecule::epsilon = 1.0 * 36.2 * Boltzmann;	//J
 
 
 
-Space::Space(int width, int height, int n)
-	:width(width), height(height)
-{
-	std::srand(std::time(nullptr));
-	molecules.resize(n);
-
-	for (auto &i : molecules) {
-		//Molecule m;
-		i.r.x = std::rand() % width;
-		i.r.x *= Angstrom;
-		i.r.y = std::rand() % height;
-		i.r.y *= Angstrom;
-		double v = 300 + (std::rand() % 200 - 100);
-		double alphaDeg = std::rand() % 360;
-		double alpha = alphaDeg / 360.0 * 2 * pi;
-		i.v.x = v * std::cos(alpha);
-		i.v.y = v * std::sin(alpha);
-		i.F = Vector();
-		i.oldr = i.r;
-	}
-}
 
 
 PaintWidget::PaintWidget(Space *space, QWidget *parent)

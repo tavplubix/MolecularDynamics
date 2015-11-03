@@ -1,4 +1,5 @@
 #include "Calculator.h"
+#include "Space.h"
 
 
 void Calculator::oneStep()
@@ -68,7 +69,6 @@ void Calculator::recalculatePositions_VelocityVerlet()
 		i.r += i.v * dt;
 		i.r += (i.F / i.m) * (dt*dt) * 0.5;
 	}
-	//TODO использовать алгоритм Бимана для последующих итераций
 }
 
 void Calculator::recalculateSpeeds_VelocityVerlet()
@@ -77,7 +77,6 @@ void Calculator::recalculateSpeeds_VelocityVerlet()
 	Space &space = *this->space;
 	for (auto &i : space.molecules) {
 		i.v = i.v + (i.F + i.oldF) / i.m * 0.5 * dt;
-		//i.v = i.v + (i.F / i.m) * dt;
 		if (i.r.x <= 0 || space.width * Angstrom <= i.r.x) {
 			i.v.x = -i.v.x;
 		}
@@ -121,6 +120,7 @@ Calculator::Calculator(Space *space, QObject *parent /*= 0*/)
 	:QObject(parent), space(space)
 {
 	calculationsRequired = false;
+	QMetaObject::invokeMethod(this, "modeling", Qt::QueuedConnection);		//modeling() does nothing if calculationsRequired == false
 }
 
 double Calculator::pow(double d, int i)
@@ -132,10 +132,7 @@ double Calculator::pow(double d, int i)
 
 void Calculator::start()
 {
-	calculationsRequired = true;
-	//QMetaObject::invokeMethod(this, "modeling");
-
-
+	space->mutex.lock();
 	//pre-init:
 	recalculateForces_LennardJones();
 	//init: first iteration
@@ -144,10 +141,12 @@ void Calculator::start()
 	recalculateSpeeds_VelocityVerlet();
 	averageSpeed();
 	//next iterations:
-	modeling();
+	calculationsRequired = true;
+	space->mutex.unlock();
+	//modeling();
 }
 
-void Calculator::stop()
+void Calculator::pause()
 {
 	calculationsRequired = false;
 }
@@ -164,6 +163,8 @@ void Calculator::modeling()
 		qDebug() << "	return from modeling() cycle";
 		space->mutex.unlock();	//WARNING мьютекс может не освободиться, если будет выкинуто исключение
 	}
+
+	QMetaObject::invokeMethod(this, "modeling", Qt::QueuedConnection);
 }
 
 void Calculator::averageSpeed()

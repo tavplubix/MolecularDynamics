@@ -71,6 +71,9 @@
     <ClCompile Include="GeneratedFiles\Release\moc_Calculator.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="Space.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="maingui.h">
@@ -94,6 +97,9 @@
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="Vector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Space.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

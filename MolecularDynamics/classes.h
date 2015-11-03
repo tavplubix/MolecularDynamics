@@ -56,16 +56,7 @@ public:
 	Molecule(const Vector &r = Vector(), const Vector &v = Vector());
 };
 
-class Space
-{
-public:
-	//QReadWriteLock mutex;
-	QMutex mutex;
-	int width, height;
-	double averageV;
-	Space(int width, int height, int n);
-	std::vector<Molecule> molecules;
-};
+
 
 
 
