@@ -3,6 +3,7 @@
 
 #include <map>
 #include <set>
+#include <random>
 
 
 
@@ -22,21 +23,20 @@ void Space::generateCoordinates()
 		used[tmpX].insert(tmpY);
 		i.r.x = double(tmpX) * Angstrom;
 		i.r.y = double(tmpY) * Angstrom;
-		//i.r.x = std::rand() % width;
-		//i.r.x *= Angstrom;
-		//i.r.y = std::rand() % height;
-		//i.r.y *= Angstrom;
 	}
 }
 
 void Space::generateSpeeds()
 {
+	std::random_device rd;
+	std::default_random_engine generator(rd());
+	double averageSpeed = 400.0;
+	double sigma = averageSpeed / std::sqrt(3.0);
+	std::normal_distribution<double> normal(0, sigma);
 	for (auto &i : molecules) {
-		double v = 300 + (std::rand() % 200 - 100);
-		double alphaDeg = std::rand() % 360;
-		double alpha = alphaDeg / 360.0 * 2 * pi;
-		i.v.x = v * std::cos(alpha);
-		i.v.y = v * std::sin(alpha);
+		i.v.x = normal(generator);
+		i.v.y = normal(generator);
+		//i.v.z = normal(generator);
 	}
 }
 
