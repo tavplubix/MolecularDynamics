@@ -24,6 +24,7 @@ void Calculator::oneStep()
 Vector Calculator::Force_LennardJones(Molecule &m1, Molecule &m2)
 {
 	Vector r = m2.r - m1.r;
+	if (maxDist < r) return Vector();
 	double U = 2.0*pow(Molecule::sigma / r, 14) - pow(Molecule::sigma / r, 8);
 	U *= 24.0 * Molecule::epsilon / pow(Molecule::sigma, 2);
 	return -U * r;
@@ -38,8 +39,10 @@ void Calculator::recalculateForces_LennardJones()
 		for (int j = 0; j < space.molecules.size(); ++j) {
 			if (i == j) continue;
 			Vector dF = Force_LennardJones(space.molecules[i], space.molecules[j]);
+#ifdef DEBUG
 			if (!std::isfinite(dF)) throw std::exception("infinite force");
 			if (std::isnan(dF)) throw std::exception("dF == NaN");
+#endif
 			space.molecules[i].F += dF;
 		}
 	}
@@ -53,8 +56,10 @@ void Calculator::calculateNewForces()
 		for (int j = 0; j < space.molecules.size(); ++j) {
 			if (i == j) continue;
 			Vector dF = Force_LennardJones(space.molecules[i], space.molecules[j]);
+#ifdef DEBUG
 			if (!std::isfinite(dF)) throw std::exception("infinite force");
 			if (std::isnan(dF)) throw std::exception("dF == NaN");
+#endif
 			space.molecules[i].newF += dF;
 		}
 	}
@@ -171,11 +176,15 @@ void Calculator::modeling()
 	while (calculationsRequired) {
 		space->mutex.lock();
 		//space->mutex.lockForWrite();
+#ifdef DEBUG
 		qDebug() << "	enter in modeling() cycle";
-		for (int i = 0; i < 10; ++i) {
+#endif
+		for (int i = 0; i < 30; ++i) {
 			oneStep();
 		}
+#ifdef DEBUG
 		qDebug() << "	return from modeling() cycle";
+#endif
 		space->mutex.unlock();	//WARNING мьютекс может не освободиться, если будет выкинуто исключение
 	}
 

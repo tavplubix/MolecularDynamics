@@ -9,8 +9,9 @@ class Calculator : public QObject
 private:
 	Space* space;
 	double dt = 1.0e-15;
+	double maxDist = 3 * Molecule::sigma;
 	void averageSpeed();
-	Vector Force_LennardJones(Molecule &m1, Molecule &m2);
+	inline Vector Force_LennardJones(Molecule &m1, Molecule &m2);
 	void recalculateForces_LennardJones();
 	void recalculatePositions_VelocityVerlet();
 	void recalculateSpeeds_VelocityVerlet();

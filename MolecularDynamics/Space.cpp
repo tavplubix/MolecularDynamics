@@ -52,7 +52,9 @@ Space::Space(int width, int height, int n)
 	generateCoordinates();
 	generateSpeeds();
 
+#ifdef DEBUG
 	saveCoordinatesAndSpeeds("./../last.log.mdcs");
+#endif
 }
 
 Space& Space::operator=(const Space&& s)
