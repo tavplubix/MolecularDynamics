@@ -6,6 +6,14 @@
 #include <vector>
 
 
+class Underspace
+{
+
+
+
+};
+
+
 class Space
 {
 private:

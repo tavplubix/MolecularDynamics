@@ -11,7 +11,7 @@
 void Space::generateCoordinates()
 {
 	size_t size = molecules.size();
-	const int minDistance = 3 + int(Molecule::sigma / Angstrom);
+	const int minDistance = 2 + int(Molecule::sigma / Angstrom);
 	std::map<int, std::set<int>> used;		//CRUTCH
 	for (auto &i : molecules) {
 

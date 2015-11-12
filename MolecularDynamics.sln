@@ -12,6 +12,9 @@ Global
 		Debug|Mixed Platforms = Debug|Mixed Platforms
 		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
+		Profiling|Mixed Platforms = Profiling|Mixed Platforms
+		Profiling|Win32 = Profiling|Win32
+		Profiling|x64 = Profiling|x64
 		Release|Mixed Platforms = Release|Mixed Platforms
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
@@ -23,6 +26,12 @@ Global
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|Win32.Build.0 = Debug|Win32
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|x64.ActiveCfg = Debug|x64
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|x64.Build.0 = Debug|x64
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Profiling|Mixed Platforms.ActiveCfg = Profiling|Win32
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Profiling|Mixed Platforms.Build.0 = Profiling|Win32
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Profiling|Win32.ActiveCfg = Profiling|Win32
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Profiling|Win32.Build.0 = Profiling|Win32
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Profiling|x64.ActiveCfg = Profiling|x64
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Profiling|x64.Build.0 = Profiling|x64
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|Mixed Platforms.ActiveCfg = Release|Win32
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|Win32.ActiveCfg = Release|Win32
@@ -34,6 +43,9 @@ Global
 		{E42E80BE-E702-4737-951D-346600929569}.Debug|Win32.Build.0 = Debug|Win32
 		{E42E80BE-E702-4737-951D-346600929569}.Debug|x64.ActiveCfg = Debug|x64
 		{E42E80BE-E702-4737-951D-346600929569}.Debug|x64.Build.0 = Debug|x64
+		{E42E80BE-E702-4737-951D-346600929569}.Profiling|Mixed Platforms.ActiveCfg = Release|Win32
+		{E42E80BE-E702-4737-951D-346600929569}.Profiling|Win32.ActiveCfg = Release|Win32
+		{E42E80BE-E702-4737-951D-346600929569}.Profiling|x64.ActiveCfg = Release|x64
 		{E42E80BE-E702-4737-951D-346600929569}.Release|Mixed Platforms.ActiveCfg = Release|Win32
 		{E42E80BE-E702-4737-951D-346600929569}.Release|Win32.ActiveCfg = Release|Win32
 		{E42E80BE-E702-4737-951D-346600929569}.Release|Win32.Build.0 = Release|Win32

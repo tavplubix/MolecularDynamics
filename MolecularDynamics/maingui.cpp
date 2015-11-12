@@ -10,7 +10,7 @@ MainGui::MainGui(QWidget *parent)
 {
 	ui.setupUi(this);
 
-	space = new Space(300, 160, 50);
+	space = new Space(500, 500, 500);
 	calculator = new Calculator(space);
 
 	//Create PaintWidget for space

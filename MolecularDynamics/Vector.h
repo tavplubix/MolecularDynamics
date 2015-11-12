@@ -49,7 +49,7 @@ public:
 	friend Vector operator*(const double I, const Vector &V);
 
 	double x, y, z;
-	double v;
+	//double v;
 
 	Vector();
 	Vector(Point S, Point E);
@@ -64,7 +64,8 @@ public:
 	Vector operator+(const Vector &V) const;
 	Vector operator-(const Vector &V) const;
 	Vector operator*(const double I) const;
-	operator double() { return v; }
+	double square() { return x*x + y*y + z*z; };
+	operator double() { return sqrt(square()); }
 	static double ScalarMultiply(const Vector &V1, const Vector &V2)
 	{
 		return V1.x * V2.x + V1.y * V2.y + V1.z * V2.z;

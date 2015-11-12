@@ -9,10 +9,10 @@ class Calculator : public QObject
 private:
 	Space* space;
 	double dt = 1.0e-15;
-	double maxDist = 3 * Molecule::sigma;
+	double maxDistSquare = pow(4 * Molecule::sigma, 2);
 	void averageSpeed();
 	inline Vector Force_LennardJones(Molecule &m1, Molecule &m2);
-	void recalculateForces_LennardJones();
+	inline Vector Calculator::Force_LennardJones(Vector r, double square);		//r - distance between two molecules, square=r*r
 	void recalculatePositions_VelocityVerlet();
 	void recalculateSpeeds_VelocityVerlet();
 	void recalculatePositions_Beeman();
@@ -30,6 +30,7 @@ public:
 	Calculator(Space *space, QObject *parent = 0);
 	//static double LennardJonesPotential(Molecule &m1, Molecule &m2);
 	static double pow(double d, int i);
+	static double pow(Vector v, int i);
 	public slots:
 	void start();
 	void pause();

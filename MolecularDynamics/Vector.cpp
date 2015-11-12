@@ -31,21 +31,21 @@ Vector::Vector()
 	x = 0;
 	y = 0;
 	z = 0;
-	v = 0;
+	//v = 0;
 }
 Vector::Vector(double endX, double endY, double endZ, double startX, double startY, double startZ)
 {
 	x = endX - startX;
 	y = endY - startY;
 	z = endZ - startZ;
-	v = sqrt(x*x + y*y + z*z);
+	//v = sqrt(x*x + y*y + z*z);
 }
 Vector::Vector(const Vector &V)
 {
 	x = V.x;
 	y = V.y;
 	z = V.z;
-	v = V.v;
+	//v = V.v;
 }
 
 Vector& Vector::operator=(const Vector &V)
@@ -53,7 +53,7 @@ Vector& Vector::operator=(const Vector &V)
 	x = V.x;
 	y = V.y;
 	z = V.z;
-	v = V.v;
+	//v = V.v;
 	return *this;
 }
 

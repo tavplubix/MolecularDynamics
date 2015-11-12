@@ -21,46 +21,44 @@ void Calculator::oneStep()
 	//emit stateChanged();
 }
 
-Vector Calculator::Force_LennardJones(Molecule &m1, Molecule &m2)
+inline Vector Calculator::Force_LennardJones(Molecule &m1, Molecule &m2)
 {
 	Vector r = m2.r - m1.r;
-	if (maxDist < r) return Vector();
-	double U = 2.0*pow(Molecule::sigma / r, 14) - pow(Molecule::sigma / r, 8);
+	register double square = r.square();
+	if (maxDistSquare < square) return Vector();
+	square = (Molecule::sigma * Molecule::sigma) / square;
+	double U = 2.0*pow(square, 14/2) - pow(square, 8/2);
 	U *= 24.0 * Molecule::epsilon / pow(Molecule::sigma, 2);
 	return -U * r;
 }
 
-void Calculator::recalculateForces_LennardJones()
+inline Vector Calculator::Force_LennardJones(Vector r, double square)
 {
-	Space &space = *this->space;
-	for (int i = 0; i < space.molecules.size(); ++i) {
-		space.molecules[i].oldF = space.molecules[i].F;
-		space.molecules[i].F = Vector();
-		for (int j = 0; j < space.molecules.size(); ++j) {
-			if (i == j) continue;
-			Vector dF = Force_LennardJones(space.molecules[i], space.molecules[j]);
-#ifdef DEBUG
-			if (!std::isfinite(dF)) throw std::exception("infinite force");
-			if (std::isnan(dF)) throw std::exception("dF == NaN");
-#endif
-			space.molecules[i].F += dF;
-		}
-	}
+	square = (Molecule::sigma * Molecule::sigma) / square;
+	double U = 2.0*pow(square, 14 / 2) - pow(square, 8 / 2);
+	U *= 24.0 * Molecule::epsilon / pow(Molecule::sigma, 2);
+	return -U * r;
 }
+
+
 
 void Calculator::calculateNewForces()
 {
-	Space &space = *this->space;
-	for (int i = 0; i < space.molecules.size(); ++i) {
-		space.molecules[i].newF = Vector();
-		for (int j = 0; j < space.molecules.size(); ++j) {
+	for (int i = 0; i < space->molecules.size(); ++i) {
+		space->molecules[i].newF = Vector();
+		int size = space->molecules.size();
+		for (int j = 0; j < size; ++j) {
 			if (i == j) continue;
-			Vector dF = Force_LennardJones(space.molecules[i], space.molecules[j]);
+			Vector r = space->molecules[j].r - space->molecules[i].r;
+			register double square = r.square();
+			if (maxDistSquare < square) continue;
+			//Vector dF = Force_LennardJones(space->molecules[i], space->molecules[j]);
 #ifdef DEBUG
 			if (!std::isfinite(dF)) throw std::exception("infinite force");
 			if (std::isnan(dF)) throw std::exception("dF == NaN");
 #endif
-			space.molecules[i].newF += dF;
+			//space->molecules[i].newF += dF;
+			space->molecules[i].newF += Force_LennardJones(r, square);
 		}
 	}
 }
@@ -150,14 +148,29 @@ double Calculator::pow(double d, int i)
 	return result;
 }
 
+
+double Calculator::pow(Vector v, int i)
+{
+	if (i && 1 == 0)
+		return pow(v.x*v.x + v.y*v.y + v.z*v.z, i / 2);
+	else
+		return pow(double(v), i);
+}
+
 void Calculator::start()
 {
 	space->mutex.lock();
 	//pre-init:
-	recalculateForces_LennardJones();
+	calculateNewForces();
+	for (auto &i : space->molecules) {
+		i.F = i.newF;
+	}
 	//init: first iteration
 	recalculatePositions_VelocityVerlet();
-	recalculateForces_LennardJones();
+	calculateNewForces();
+	for (auto &i : space->molecules) {
+		i.F = i.newF;
+	}
 	recalculateSpeeds_VelocityVerlet();
 	averageSpeed();
 	//next iterations:
@@ -179,7 +192,7 @@ void Calculator::modeling()
 #ifdef DEBUG
 		qDebug() << "	enter in modeling() cycle";
 #endif
-		for (int i = 0; i < 30; ++i) {
+		for (int i = 0; i < 20; ++i) {
 			oneStep();
 		}
 #ifdef DEBUG
