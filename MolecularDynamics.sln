@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MolecularDynamics", "Molecu
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VectorTest", "VectorTest\VectorTest.vcxproj", "{E42E80BE-E702-4737-951D-346600929569}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestCUDA", "TestCUDA\TestCUDA.vcxproj", "{D32ECC0B-A717-4ED7-99D9-C6A9690928CA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -51,6 +53,24 @@ Global
 		{E42E80BE-E702-4737-951D-346600929569}.Release|Win32.Build.0 = Release|Win32
 		{E42E80BE-E702-4737-951D-346600929569}.Release|x64.ActiveCfg = Release|x64
 		{E42E80BE-E702-4737-951D-346600929569}.Release|x64.Build.0 = Release|x64
+		{D32ECC0B-A717-4ED7-99D9-C6A9690928CA}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{D32ECC0B-A717-4ED7-99D9-C6A9690928CA}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{D32ECC0B-A717-4ED7-99D9-C6A9690928CA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D32ECC0B-A717-4ED7-99D9-C6A9690928CA}.Debug|Win32.Build.0 = Debug|Win32
+		{D32ECC0B-A717-4ED7-99D9-C6A9690928CA}.Debug|x64.ActiveCfg = Debug|x64
+		{D32ECC0B-A717-4ED7-99D9-C6A9690928CA}.Debug|x64.Build.0 = Debug|x64
+		{D32ECC0B-A717-4ED7-99D9-C6A9690928CA}.Profiling|Mixed Platforms.ActiveCfg = Release|Win32
+		{D32ECC0B-A717-4ED7-99D9-C6A9690928CA}.Profiling|Mixed Platforms.Build.0 = Release|Win32
+		{D32ECC0B-A717-4ED7-99D9-C6A9690928CA}.Profiling|Win32.ActiveCfg = Release|Win32
+		{D32ECC0B-A717-4ED7-99D9-C6A9690928CA}.Profiling|Win32.Build.0 = Release|Win32
+		{D32ECC0B-A717-4ED7-99D9-C6A9690928CA}.Profiling|x64.ActiveCfg = Release|x64
+		{D32ECC0B-A717-4ED7-99D9-C6A9690928CA}.Profiling|x64.Build.0 = Release|x64
+		{D32ECC0B-A717-4ED7-99D9-C6A9690928CA}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{D32ECC0B-A717-4ED7-99D9-C6A9690928CA}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{D32ECC0B-A717-4ED7-99D9-C6A9690928CA}.Release|Win32.ActiveCfg = Release|Win32
+		{D32ECC0B-A717-4ED7-99D9-C6A9690928CA}.Release|Win32.Build.0 = Release|Win32
+		{D32ECC0B-A717-4ED7-99D9-C6A9690928CA}.Release|x64.ActiveCfg = Release|x64
+		{D32ECC0B-A717-4ED7-99D9-C6A9690928CA}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

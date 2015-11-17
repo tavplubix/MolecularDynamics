@@ -54,8 +54,8 @@ void Calculator::calculateNewForces()
 			if (maxDistSquare < square) continue;
 			//Vector dF = Force_LennardJones(space->molecules[i], space->molecules[j]);
 #ifdef DEBUG
-			if (!std::isfinite(dF)) throw std::exception("infinite force");
-			if (std::isnan(dF)) throw std::exception("dF == NaN");
+			if (!std::isfinite(Force_LennardJones(r, square))) throw std::exception("infinite force");
+			if (std::isnan(Force_LennardJones(r, square))) throw std::exception("dF == NaN");
 #endif
 			//space->molecules[i].newF += dF;
 			space->molecules[i].newF += Force_LennardJones(r, square);

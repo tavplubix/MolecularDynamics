@@ -6,7 +6,7 @@
 #include <random>
 
 
-
+const Vector Underspace::size = Vector(300 * Angstrom, 300 * Angstrom, 300 * Angstrom);
 
 void Space::generateCoordinates()
 {
@@ -23,6 +23,7 @@ void Space::generateCoordinates()
 		used[tmpX].insert(tmpY);
 		i.r.x = double(tmpX) * Angstrom;
 		i.r.y = double(tmpY) * Angstrom;
+		i.r.z = 0;
 	}
 }
 
@@ -36,12 +37,47 @@ void Space::generateSpeeds()
 	for (auto &i : molecules) {
 		i.v.x = normal(generator);
 		i.v.y = normal(generator);
-		//i.v.z = normal(generator);
+		i.v.z = 0;
 	}
 }
 
+void Space::initializeUnderspaces()
+{
+
+	int Nx = 1 + width * Angstrom / Underspace::size.x;
+	int Ny = 1 + height * Angstrom / Underspace::size.y;
+	int Nz = 1 + depth * Angstrom / Underspace::size.z;
+	underspaces.resize(Nx);
+	for (auto &i : underspaces)
+		i.resize(Ny);
+	for (auto &i : underspaces) {
+		for (auto &j : i) {
+			j.resize(Nz);
+		}
+	}
+}
+
+void Space::toUnderspaces()
+{
+	for (auto i : molecules) {
+		int nx = i.r.x / Underspace::size.x;
+		int ny = i.r.y / Underspace::size.y;
+		int nz = i.r.z / Underspace::size.z;
+		try {
+			underspaces[nx][ny][nz].molecules.push_back(i);
+		}
+		catch (...) {
+			qDebug() << "Space::toUnderspaces(): Vector: out of range";
+			QErrorMessage err;
+			err.showMessage("Space::toUnderspaces(): Vector: out of range");
+			err.exec();
+		}
+	}
+
+}
+
 Space::Space(int width, int height, int n)
-	:width(width), height(height)
+	:width(width), height(height), depth(1)
 {
 	maxV = 0;
 	minV = std::numeric_limits<double>::infinity();
@@ -51,6 +87,9 @@ Space::Space(int width, int height, int n)
 
 	generateCoordinates();
 	generateSpeeds();
+
+	initializeUnderspaces();
+	toUnderspaces();
 
 #ifdef DEBUG
 	saveCoordinatesAndSpeeds("./../last.log.mdcs");
