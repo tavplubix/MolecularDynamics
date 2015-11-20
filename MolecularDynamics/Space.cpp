@@ -55,10 +55,25 @@ void Space::initializeUnderspaces()
 			j.resize(Nz);
 		}
 	}
+	for (size_t x = 0; x < Nx; ++x) {
+		for (size_t y = 0; y < Ny; ++y) {
+			for (size_t z = 0; z < Nz; ++z) {
+				underspaces[x][y][x].nx = x;
+				underspaces[x][y][x].ny = y;
+				underspaces[x][y][x].nz = z;
+			}
+		}
+	}
+
 }
 
 void Space::toUnderspaces()
 {
+	for (auto &i : underspaces)
+		for (auto &j : i)
+			for (auto &k : j)
+				k.molecules.clear();
+
 	for (auto i : molecules) {
 		int nx = i.r.x / Underspace::size.x;
 		int ny = i.r.y / Underspace::size.y;

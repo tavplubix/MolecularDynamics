@@ -7,6 +7,7 @@
 #include <list>
 #include <vector>
 #include <functional>
+#include <iterator>
 
 
 
@@ -16,7 +17,7 @@ class Underspace
 public:
 	std::list<Molecule> molecules;
 	//const Vector minR, maxR;
-	//int nx, ny, nz;
+	int nx, ny, nz;
 public:
 	const static Vector size;
 	//Underspace(std::list<Molecule> &&molecules);
@@ -34,6 +35,7 @@ private:
 	void generateCoordinates();
 	void generateSpeeds();
 	void initializeUnderspaces();
+public:
 	void toUnderspaces();
 public:
 	//QReadWriteLock mutex;
@@ -55,3 +57,18 @@ public:
 	void loadStateCS(const QString& filename);	//load coordinates and speeds (CS)
 	//void loadStateALL(const QString& filename);
 };
+
+/*
+class SpaceIterator 
+	: public std::iterator < std::forward_iterator_tag, Space >
+{
+	
+public:
+
+};
+*/
+
+
+
+
+

@@ -1,5 +1,4 @@
 #include "Calculator.h"
-#include "Space.h"
 #include <QEventLoop>
 #include <QEventLoopLocker>
 
@@ -19,6 +18,42 @@ void Calculator::oneStep()
 // 	recalculateSpeeds_VelocityVerlet();
  	averageSpeed();
 	//emit stateChanged();
+}
+
+
+void Calculator::_oneStep()
+{
+	for (auto &i : space->underspaces) {
+		for (auto &j : i) {
+			for (auto &k : j) {
+				recalculatePositions_Beeman(k.molecules);
+			}
+		}
+	}
+	for (auto &i : space->underspaces) {
+		for (auto &j : i) {
+			for (auto &k : j) {
+				calculateNewForcesForUnderspace(k.nx, k.ny, k.nz);
+			}
+		}
+	}
+	for (auto &i : space->underspaces) {
+		for (auto &j : i) {
+			for (auto &k : j) {
+				recalculateSpeeds_Beeman(k.molecules);
+			}
+		}
+	}
+	for (auto &i : space->underspaces) {
+		for (auto &j : i) {
+			for (auto &k : j) {
+				for (auto &t : k.molecules) {
+					t.oldF = t.F;
+					t.F = t.newF;
+				}
+			}
+		}
+	}
 }
 
 inline Vector Calculator::Force_LennardJones(Molecule &m1, Molecule &m2)
@@ -64,6 +99,27 @@ void Calculator::calculateNewForces()
 }
 
 
+void Calculator::calculateNewForces(std::list<Molecule> &molecules1, std::list<Molecule> &molecules2)
+{
+	for (auto i = molecules1.begin(); i != molecules1.end(); ++i) {
+		(*i).newF = Vector();
+		int size = space->molecules.size();
+		for (auto j = molecules2.begin(); j != molecules2.end(); ++j) {
+			if (i == j) continue;
+			Vector r = (*j).r - (*i).r;
+			register double square = r.square();
+			if (maxDistSquare < square) continue;
+			//Vector dF = Force_LennardJones(space->molecules[i], space->molecules[j]);
+#ifdef DEBUG
+			if (!std::isfinite(Force_LennardJones(r, square))) throw std::exception("infinite force");
+			if (std::isnan(Force_LennardJones(r, square))) throw std::exception("dF == NaN");
+#endif
+			//space->molecules[i].newF += dF;
+			(*i).newF += Force_LennardJones(r, square);
+		}
+	}
+}
+
 void Calculator::recalculatePositions_VelocityVerlet()
 {
 	//Velocity Verlet
@@ -102,6 +158,17 @@ void Calculator::recalculatePositions_Beeman()
 	}
 }
 
+
+void Calculator::recalculatePositions_Beeman(std::list<Molecule> &molecules)
+{
+	for (auto &i : molecules) {
+		i.oldr = i.r;
+		i.r += i.v * dt;
+		i.r += 4.0 / 6.0 * (i.F / i.m) * (dt*dt);
+		i.r -= 1.0 / 6.0 * (i.oldF / i.m) * (dt*dt);
+	}
+}
+
 void Calculator::recalculateSpeeds_Beeman()
 {
 	//Beeman's algorithm
@@ -119,6 +186,21 @@ void Calculator::recalculateSpeeds_Beeman()
 	}
 }
 
+
+void Calculator::recalculateSpeeds_Beeman(std::list<Molecule> &molecules)
+{
+	for (auto &i : molecules) {
+		i.v += 2.0 / 6.0 * (i.newF / i.m) * dt;
+		i.v += 5.0 / 6.0 * (i.F / i.m) * dt;
+		i.v -= 1.0 / 6.0 * (i.oldF / i.m) * dt;
+		if (i.r.x <= 0 || space->width * Angstrom <= i.r.x) {
+			i.v.x = -i.v.x;
+		}
+		if (i.r.y <= 0 || space->height * Angstrom <= i.r.y) {
+			i.v.y = -i.v.y;
+		}
+	}
+}
 
 void Calculator::set_dt_precision(int precision)	//hot only
 {
@@ -173,6 +255,7 @@ void Calculator::start()
 	}
 	recalculateSpeeds_VelocityVerlet();
 	averageSpeed();
+	space->toUnderspaces();
 	//next iterations:
 	calculationsRequired = true;
 	space->mutex.unlock();
@@ -182,6 +265,47 @@ void Calculator::start()
 void Calculator::pause()
 {
 	calculationsRequired = false;
+}
+
+
+
+void Calculator::calculateNewForcesForUnderspace(int nx, int ny, int nz)
+{
+	//QThread::msleep(1);
+	Underspace &centralSpace = space->underspaces[nx][ny][nz];
+	auto closestSpaces = { -1, 0, 1 };
+	for (auto dx : closestSpaces) {
+		for (auto dy : closestSpaces) {
+			for (auto dz : closestSpaces) {
+				int x = nx + dx; 
+				int y = ny + dy;
+				int z = nz + dz;
+				if (x < 0 || y < 0 || z < 0) continue;
+				if (x > space->underspaces.size()) continue;
+				if (y > space->underspaces[x].size()) continue;
+				if (z > space->underspaces[x][y].size()) continue;
+				Underspace &neighboringSpace = space->underspaces[x][y][z];
+				calculateNewForces(centralSpace.molecules, neighboringSpace.molecules);
+			}
+		}
+	}
+}
+
+
+
+void Calculator::validateUnderspace(Underspace &space)
+{
+	for (auto iter = space.molecules.begin(); iter != space.molecules.end(); ++iter) {
+		Molecule molecule = *iter;
+		int moveToX = molecule.r.x / space.size.x;
+		int moveToY = molecule.r.y / space.size.y;
+		int moveToZ = molecule.r.z / space.size.z;
+		if (moveToX != space.nx || moveToY != space.ny || moveToZ != space.nz) {
+			space.molecules.erase(iter);
+			--iter;
+			this->space->underspaces[moveToX][moveToY][moveToZ].molecules.push_back(molecule);
+		}
+	}
 }
 
 void Calculator::modeling()

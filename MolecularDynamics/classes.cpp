@@ -33,7 +33,7 @@ void PaintWidget::paintEvent(QPaintEvent *)
 #ifdef DEBUG
 		qDebug() << "\n	return from paintEvent()\n";
 #endif
-	space->mutex.unlock();
+	//space->mutex.unlock();
 
 	//static std::vector<int> oldx, oldy;
 	QPainter painter(this);
@@ -41,14 +41,34 @@ void PaintWidget::paintEvent(QPaintEvent *)
 	painter.setPen(Qt::red);
 	painter.drawRect(0, 0, width * zoom, height * zoom);
 	painter.setPen(Qt::green);
-	for (auto i : copy) {
-		int x = i.r.x / Angstrom;
-		int y = i.r.y / Angstrom;
-		int r = 1 + 6 * i.radius / Angstrom;
-		painter.drawEllipse(x * zoom, y * zoom, r * zoom, r * zoom);
- 		//oldx.push_back(x);
- 		//oldy.push_back(y);
+
+	//for (auto i : copy) {
+	//	int x = i.r.x / Angstrom;
+	//	int y = i.r.y / Angstrom;
+	//	int r = 1 + 6 * i.radius / Angstrom;
+	//	painter.drawEllipse(x * zoom, y * zoom, r * zoom, r * zoom);
+ //		//oldx.push_back(x);
+ //		//oldy.push_back(y);
+	//}
+	//space->toUnderspaces();
+
+	for (auto i : space->underspaces) {
+		for (auto j : i) {
+			for (auto k : j) {
+				for (auto t : k.molecules) {
+					int x = t.r.x / Angstrom;
+					int y = t.r.y / Angstrom;
+					int r = 1 + 6 * t.radius / Angstrom;
+					painter.drawEllipse(x * zoom, y * zoom, r * zoom, r * zoom);
+					//oldx.push_back(x);
+					//oldy.push_back(y);
+				}
+			}
+		}
 	}
+	space->mutex.unlock();
+
+
 	//painter.setPen(Qt::blue);
  	//for (int i = 0; i < oldx.size(); ++i) {
  	//	painter.drawPoint(oldx[i], oldy[i]);
