@@ -11,7 +11,10 @@ private:
 	Space* space;
 	double dt = 1.0e-15;
 	double maxDistSquare = pow(4 * Molecule::sigma, 2);
-	void averageSpeed();
+
+	//void averageSpeed();
+	void _averageSpeed();
+
 	inline Vector Force_LennardJones(Molecule &m1, Molecule &m2);
 	inline Vector Calculator::Force_LennardJones(Vector r, double square);		//r - distance between two molecules, square=r*r
 	void recalculatePositions_VelocityVerlet();

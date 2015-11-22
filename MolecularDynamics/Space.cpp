@@ -58,9 +58,9 @@ void Space::initializeUnderspaces()
 	for (size_t x = 0; x < Nx; ++x) {
 		for (size_t y = 0; y < Ny; ++y) {
 			for (size_t z = 0; z < Nz; ++z) {
-				underspaces[x][y][x].nx = x;
-				underspaces[x][y][x].ny = y;
-				underspaces[x][y][x].nz = z;
+				underspaces[x][y][z].nx = x;
+				underspaces[x][y][z].ny = y;
+				underspaces[x][y][z].nz = z;
 			}
 		}
 	}
@@ -80,8 +80,7 @@ void Space::toUnderspaces()
 		int nz = i.r.z / Underspace::size.z;
 		try {
 			underspaces[nx][ny][nz].molecules.push_back(i);
-		}
-		catch (...) {
+		} catch (...) {
 			qDebug() << "Space::toUnderspaces(): Vector: out of range";
 			QErrorMessage err;
 			err.showMessage("Space::toUnderspaces(): Vector: out of range");

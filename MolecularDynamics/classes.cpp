@@ -40,7 +40,8 @@ void PaintWidget::paintEvent(QPaintEvent *)
 	painter.setPen(Qt::SolidLine);
 	painter.setPen(Qt::red);
 	painter.drawRect(0, 0, width * zoom, height * zoom);
-	painter.setPen(Qt::green);
+	painter.setPen(Qt::blue);
+	painter.setBrush(Qt::green);
 
 	//for (auto i : copy) {
 	//	int x = i.r.x / Angstrom;
@@ -52,19 +53,13 @@ void PaintWidget::paintEvent(QPaintEvent *)
 	//}
 	//space->toUnderspaces();
 
-	for (auto i : space->underspaces) {
-		for (auto j : i) {
-			for (auto k : j) {
-				for (auto t : k.molecules) {
-					int x = t.r.x / Angstrom;
-					int y = t.r.y / Angstrom;
-					int r = 1 + 6 * t.radius / Angstrom;
-					painter.drawEllipse(x * zoom, y * zoom, r * zoom, r * zoom);
-					//oldx.push_back(x);
-					//oldy.push_back(y);
-				}
-			}
-		}
+	forAllM(t, space->underspaces) {
+		int x = t.r.x / Angstrom;
+		int y = t.r.y / Angstrom;
+		int r = 1 + 6 * t.radius / Angstrom;
+		painter.drawEllipse((x - r / 2) * zoom, (y - r / 2) * zoom, r * zoom, r * zoom);
+		//oldx.push_back(x);
+		//oldy.push_back(y);
 	}
 	space->mutex.unlock();
 

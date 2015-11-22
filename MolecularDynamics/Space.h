@@ -9,6 +9,8 @@
 #include <functional>
 #include <iterator>
 
+#define forAllU(t, s) for (auto &i: s) for (auto &j: i) for (auto &t: j)
+#define forAllM(t, s) for (auto &i: s) for (auto &j: i) for (auto &k: j) for (auto &t: k.molecules)
 
 
 

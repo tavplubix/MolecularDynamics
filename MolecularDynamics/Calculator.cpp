@@ -2,6 +2,9 @@
 #include <QEventLoop>
 #include <QEventLoopLocker>
 
+//#define OLDCODE
+
+#ifdef OLDCODE
 void Calculator::oneStep()
 {
 	//QThread::msleep(1);
@@ -19,43 +22,36 @@ void Calculator::oneStep()
  	averageSpeed();
 	//emit stateChanged();
 }
-
+#endif
 
 void Calculator::_oneStep()
 {
-	for (auto &i : space->underspaces) {
-		for (auto &j : i) {
-			for (auto &k : j) {
-				recalculatePositions_Beeman(k.molecules);
-			}
-		}
+	
+	forAllU(k, space->underspaces)
+	{
+		recalculatePositions_Beeman(k.molecules);
 	}
-	for (auto &i : space->underspaces) {
-		for (auto &j : i) {
-			for (auto &k : j) {
-				calculateNewForcesForUnderspace(k.nx, k.ny, k.nz);
-			}
-		}
+	forAllM(t, space->underspaces)
+	{
+		t.newF = Vector();
 	}
-	for (auto &i : space->underspaces) {
-		for (auto &j : i) {
-			for (auto &k : j) {
-				recalculateSpeeds_Beeman(k.molecules);
-			}
-		}
+	forAllU(k, space->underspaces)
+	{
+		calculateNewForcesForUnderspace(k.nx, k.ny, k.nz);
 	}
-	for (auto &i : space->underspaces) {
-		for (auto &j : i) {
-			for (auto &k : j) {
-				for (auto &t : k.molecules) {
-					t.oldF = t.F;
-					t.F = t.newF;
-				}
-			}
-		}
+	forAllU(k, space->underspaces)
+	{
+		recalculateSpeeds_Beeman(k.molecules);
 	}
+	forAllM(t, space->underspaces)
+	{
+		t.oldF = t.F;
+		t.F = t.newF;
+	}
+	_averageSpeed();
 }
 
+#ifdef OLDCODE
 inline Vector Calculator::Force_LennardJones(Molecule &m1, Molecule &m2)
 {
 	Vector r = m2.r - m1.r;
@@ -66,6 +62,7 @@ inline Vector Calculator::Force_LennardJones(Molecule &m1, Molecule &m2)
 	U *= 24.0 * Molecule::epsilon / pow(Molecule::sigma, 2);
 	return -U * r;
 }
+#endif
 
 inline Vector Calculator::Force_LennardJones(Vector r, double square)
 {
@@ -76,7 +73,7 @@ inline Vector Calculator::Force_LennardJones(Vector r, double square)
 }
 
 
-
+//#ifdef OLDCODE
 void Calculator::calculateNewForces()
 {
 	for (int i = 0; i < space->molecules.size(); ++i) {
@@ -97,15 +94,15 @@ void Calculator::calculateNewForces()
 		}
 	}
 }
-
+// #endif
 
 void Calculator::calculateNewForces(std::list<Molecule> &molecules1, std::list<Molecule> &molecules2)
 {
 	for (auto i = molecules1.begin(); i != molecules1.end(); ++i) {
-		(*i).newF = Vector();
+		//(*i).newF = Vector();			//FIXME
 		int size = space->molecules.size();
 		for (auto j = molecules2.begin(); j != molecules2.end(); ++j) {
-			if (i == j) continue;
+			if (i._Ptr == j._Ptr) continue;
 			Vector r = (*j).r - (*i).r;
 			register double square = r.square();
 			if (maxDistSquare < square) continue;
@@ -146,22 +143,12 @@ void Calculator::recalculateSpeeds_VelocityVerlet()
 	}
 }
 
+#ifdef OLDCODE
 void Calculator::recalculatePositions_Beeman()
 {
 	//Beeman's algorithm
 	Space &space = *this->space;
 	for (auto &i : space.molecules) {
-		i.oldr = i.r;
-		i.r += i.v * dt;
-		i.r += 4.0 / 6.0 * (i.F / i.m) * (dt*dt);
-		i.r -= 1.0 / 6.0 * (i.oldF / i.m) * (dt*dt);
-	}
-}
-
-
-void Calculator::recalculatePositions_Beeman(std::list<Molecule> &molecules)
-{
-	for (auto &i : molecules) {
 		i.oldr = i.r;
 		i.r += i.v * dt;
 		i.r += 4.0 / 6.0 * (i.F / i.m) * (dt*dt);
@@ -185,7 +172,17 @@ void Calculator::recalculateSpeeds_Beeman()
 		}
 	}
 }
+#endif
 
+void Calculator::recalculatePositions_Beeman(std::list<Molecule> &molecules)
+{
+	for (auto &i : molecules) {
+		i.oldr = i.r;
+		i.r += i.v * dt;
+		i.r += 4.0 / 6.0 * (i.F / i.m) * (dt*dt);
+		i.r -= 1.0 / 6.0 * (i.oldF / i.m) * (dt*dt);
+	}
+}
 
 void Calculator::recalculateSpeeds_Beeman(std::list<Molecule> &molecules)
 {
@@ -242,20 +239,41 @@ double Calculator::pow(Vector v, int i)
 void Calculator::start()
 {
 	space->mutex.lock();
+
+
 	//pre-init:
 	calculateNewForces();
-	for (auto &i : space->molecules) {
-		i.F = i.newF;
+	//forAllU(k, space->underspaces) {
+	//	calculateNewForcesForUnderspace(k.nx, k.ny, k.nz);
+	//}
+
+	for (auto &t : space->molecules) {
+		t.F = t.newF;
 	}
+	//forAllM(t, space->underspaces){
+	//	t.F = t.newF;
+	//}
+
 	//init: first iteration
-	recalculatePositions_VelocityVerlet();
+	recalculatePositions_VelocityVerlet();		//FIXME
+
 	calculateNewForces();
 	for (auto &i : space->molecules) {
 		i.F = i.newF;
 	}
-	recalculateSpeeds_VelocityVerlet();
-	averageSpeed();
+	//forAllU(k, space->underspaces)
+	//{
+	//	calculateNewForcesForUnderspace(k.nx, k.ny, k.nz);
+	//}
+	//forAllM(t, space->underspaces)
+	//{
+	//	t.F = t.newF;
+	//}
+
+	recalculateSpeeds_VelocityVerlet();		//FIXME
+
 	space->toUnderspaces();
+	//averageSpeed();
 	//next iterations:
 	calculationsRequired = true;
 	space->mutex.unlock();
@@ -266,6 +284,7 @@ void Calculator::pause()
 {
 	calculationsRequired = false;
 }
+
 
 
 
@@ -281,9 +300,9 @@ void Calculator::calculateNewForcesForUnderspace(int nx, int ny, int nz)
 				int y = ny + dy;
 				int z = nz + dz;
 				if (x < 0 || y < 0 || z < 0) continue;
-				if (x > space->underspaces.size()) continue;
-				if (y > space->underspaces[x].size()) continue;
-				if (z > space->underspaces[x][y].size()) continue;
+				if (x >= space->underspaces.size()) continue;
+				if (y >= space->underspaces[x].size()) continue;
+				if (z >= space->underspaces[x][y].size()) continue;
 				Underspace &neighboringSpace = space->underspaces[x][y][z];
 				calculateNewForces(centralSpace.molecules, neighboringSpace.molecules);
 			}
@@ -317,7 +336,7 @@ void Calculator::modeling()
 		qDebug() << "	enter in modeling() cycle";
 #endif
 		for (int i = 0; i < 20; ++i) {
-			oneStep();
+			_oneStep();
 		}
 #ifdef DEBUG
 		qDebug() << "	return from modeling() cycle";
@@ -328,6 +347,7 @@ void Calculator::modeling()
 	QMetaObject::invokeMethod(this, "modeling", Qt::QueuedConnection);
 }
 
+#ifdef OLDCODE
 void Calculator::averageSpeed()
 {
 	space->averageV = 0;
@@ -339,10 +359,26 @@ void Calculator::averageSpeed()
 	if (space->averageV > space->maxV)
 		space->maxV = space->averageV;
 	space->deltaV = space->maxV - space->minV;
-	//space->averageV = space->molecules[0].v;
+}
+#endif
+
+void Calculator::_averageSpeed()
+{
+	space->averageV = 0;
+	for (auto i : space->underspaces)
+		for (auto j : i)
+			for (auto k : j)
+				for (auto t : k.molecules)
+					space->averageV += t.v;
+	space->averageV /= space->molecules.size();		//WARNING
+	if (space->averageV < space->minV)
+		space->minV = space->averageV;
+	if (space->averageV > space->maxV)
+		space->maxV = space->averageV;
+	space->deltaV = space->maxV - space->minV;
 }
 
-
+#ifdef OLDCODE
 Vector Calculator::integrateWithTaylorAproximation(double h, const Vector &f, const Vector &d1f /*= Vector()*/, const Vector &d2f /*= Vector()*/)
 {
 	Vector result = f * h;
@@ -358,4 +394,4 @@ Vector Calculator::VerletIntegration(const Vector &r, const Vector &oldr, const 
 	newr += a * (dt*dt);
 	return newr;
 }
-
+#endif
