@@ -25,6 +25,8 @@ void Calculator::_oneStep()
 		t.oldF = t.F;
 		t.F = t.newF;
 	}
+
+	_averageSpeed();
 }
 
 #ifdef OLDCODE
@@ -51,12 +53,10 @@ inline Vector Calculator::Force_LennardJones(Vector r, double square)
 
 void Calculator::calculateNewForces(MoloculesList &molecules1, MoloculesList &molecules2)
 {
-	auto end1 = molecules1.end();
-	for (auto i = molecules1.begin(); i != end1; ++i) {
+	for (auto i = molecules1.begin(); i != molecules1.end(); ++i) {
 		//(*i).newF = Vector();			//FIXME
 		int size = space->molecules.size();
-		auto end2 = molecules2.end();
-		for (auto j = molecules2.begin(); j != end2; ++j) {
+		for (auto j = molecules2.begin(); j != molecules2.end(); ++j) {
 			if (i._Ptr == j._Ptr) continue;
 			Vector r = (*j).r - (*i).r;
 			register double square = r.square();
@@ -201,8 +201,7 @@ void Calculator::pause()
 void Calculator::calculateNewForcesForUnderspace(int nx, int ny, int nz)
 {
 	//QThread::msleep(1);
-	size_t centralSpaceIndex = nx * space->Ny*space->Nz + ny * space->Nz + nz;
-	//Underspace &centralSpace = space->underspaces[index];
+	Underspace &centralSpace = space->underspaces[nx][ny][nz];
 	auto closestSpaces = { -1, 0, 1 };
 	for (const auto &dx : closestSpaces) {
 		for (const auto &dy : closestSpaces) {
@@ -214,8 +213,7 @@ void Calculator::calculateNewForcesForUnderspace(int nx, int ny, int nz)
 				if (x >= space->Nx) continue;
 				if (y >= space->Ny) continue;
 				if (z >= space->Nz) continue;
-				size_t neighboringSpaceIndex = x * space->Ny*space->Nz + y * space->Nz + z;
-				calculateNewForces(space->underspaces[centralSpaceIndex].molecules, space->underspaces[neighboringSpaceIndex].molecules);
+				calculateNewForces(centralSpace.molecules, space->underspaces[x][y][z].molecules);
 			}
 		}
 	}
@@ -234,9 +232,7 @@ void Calculator::normalizeUnderspace(Underspace &space)
 		int moveToZ = molecule.r.z / space.size.z;
 		if (moveToX != space.nx || moveToY != space.ny || moveToZ != space.nz) {
 			iter = space.molecules.erase(iter);
-
-			size_t index = moveToX * (this->space->Ny*this->space->Nz) + moveToY * (this->space->Nz) + moveToZ;
-			this->space->underspaces[index].molecules.push_back(molecule);
+			this->space->underspaces[moveToX][moveToY][moveToZ].molecules.push_back(molecule);
 		}
 		else {
 			++iter;
@@ -267,7 +263,6 @@ void Calculator::modeling()
 		//forAllU(k, space->underspaces)
 		//	normalizeUnderspace(k);
 		normalizeUnderspaces_Vector();
-		_averageSpeed();
 #ifdef DEBUG
 		qDebug() << "	return from modeling() cycle";
 #endif

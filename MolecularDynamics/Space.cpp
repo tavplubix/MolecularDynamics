@@ -47,18 +47,20 @@ void Space::initializeUnderspaces()
 	Nx = 1 + width * Angstrom / Underspace::size.x;
 	Ny = 1 + height * Angstrom / Underspace::size.y;
 	Nz = 1 + depth * Angstrom / Underspace::size.z;
-	underspaces.resize(Nx*Ny*Ny);
-	
+	underspaces.resize(Nx);
+	for (auto &i : underspaces)
+		i.resize(Ny);
+	for (auto &i : underspaces) {
+		for (auto &j : i) {
+			j.resize(Nz);
+		}
+	}
 	for (size_t x = 0; x < Nx; ++x) {
 		for (size_t y = 0; y < Ny; ++y) {
 			for (size_t z = 0; z < Nz; ++z) {
-				size_t index = x * Ny*Nz + y * Nz + z;
-				underspaces[index].nx = x;
-				underspaces[index].ny = y;
-				underspaces[index].nz = z;
-				//underspaces[x][y][z].nx = x;
-				//underspaces[x][y][z].ny = y;
-				//underspaces[x][y][z].nz = z;
+				underspaces[x][y][z].nx = x;
+				underspaces[x][y][z].ny = y;
+				underspaces[x][y][z].nz = z;
 			}
 		}
 	}
@@ -67,8 +69,10 @@ void Space::initializeUnderspaces()
 
 void Space::toUnderspaces()
 {
-	for (auto &k : underspaces)
-		k.molecules.clear();
+	for (auto &i : underspaces)
+		for (auto &j : i)
+			for (auto &k : j)
+				k.molecules.clear();
 
 	for (auto i : molecules) {
 		int nx = int(i.r.x / Underspace::size.x);
@@ -78,8 +82,7 @@ void Space::toUnderspaces()
 		if (ny < 0) ny = 0; if (Ny <= ny) ny = Ny - 1;
 		if (nz < 0) nz = 0; if (Nz <= nz) nz = Nz - 1;
 		//try {
-			size_t index = nx * Ny*Nz + ny * Nz + nz;
-			underspaces[index].molecules.push_back(i);
+			underspaces[nx][ny][nz].molecules.push_back(i);
 		//} catch (...) {
 			//qDebug() << "Space::toUnderspaces(): Vector: out of range";
 			//QErrorMessage err;
