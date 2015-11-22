@@ -9,8 +9,12 @@
 #include <functional>
 #include <iterator>
 
-#define forAllU(t, s) for (auto &i: s) for (auto &j: i) for (auto &t: j)
-#define forAllM(t, s) for (auto &i: s) for (auto &j: i) for (auto &k: j) for (auto &t: k.molecules)
+//#define forAllU(t, s) for (auto &i: s) for (auto &j: i) for (auto &t: j)
+//#define forAllM(t, s) for (auto &i: s) for (auto &j: i) for (auto &k: j) for (auto &t: k.molecules)
+
+#define forAllU(t, s) for (auto &t: s)
+#define forAllM(t, s) for (auto &k: s) for (auto &t: k.molecules)
+
 
 //class MoleculesContainer;
 
@@ -56,7 +60,8 @@ public:
 	Space(int width, int height, int n);
 	Space& operator=(const Space&& s);
 	std::vector<Molecule> molecules;
-	Matrix3D<Underspace> underspaces;
+	//Matrix3D<Underspace> underspaces;
+	std::vector<Underspace> underspaces;
 	public slots:
 	//void saveCoordinates();
 	void saveCoordinatesAndSpeeds(const QString& filename);
