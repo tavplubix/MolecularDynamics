@@ -10,7 +10,7 @@ MainGui::MainGui(QWidget *parent)
 {
 	ui.setupUi(this);
 
-	space = new Space(500, 500, 500);
+	space = new Space(ui.widthSpinBox->value(), ui.heightSpinBox->value(), ui.numberOfMoleculesSpinBox->value());
 	calculator = new Calculator(space);
 
 	//Create PaintWidget for space
@@ -27,10 +27,10 @@ MainGui::MainGui(QWidget *parent)
 
 	//Borders
 	connect(ui.heightSpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), [&](int height){
-		space->height = height;
+		space->height = height;		//FIXME resize Space::underspaces
 	});
 	connect(ui.widthSpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), [&](int width){
-		space->width = width;
+		space->width = width;		//FIXME resize Space::underspaces
 	});
 
 
@@ -97,6 +97,7 @@ void MainGui::setButtons()
 			ui.pauseContinueButton->setHidden(false);
 			ui.loadButton->setHidden(false);
 			ui.stopStartButton->setText("Stop");
+			ui.pauseContinueButton->setText("Pause");
 			calculator->calculationsRequired = true;
 		}
 		else throw std::exception("something strange has happend in slot connected to stopStartButton");

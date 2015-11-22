@@ -12,17 +12,21 @@
 #define forAllU(t, s) for (auto &i: s) for (auto &j: i) for (auto &t: j)
 #define forAllM(t, s) for (auto &i: s) for (auto &j: i) for (auto &k: j) for (auto &t: k.molecules)
 
+//class MoleculesContainer;
 
+
+//typedef std::list<Molecule> MoloculesList;
+typedef std::vector<Molecule> MoloculesList;
 
 class Underspace
 {
 public:
-	std::list<Molecule> molecules;
+	MoloculesList molecules;
 	//const Vector minR, maxR;
 	int nx, ny, nz;
 public:
 	const static Vector size;
-	//Underspace(std::list<Molecule> &&molecules);
+	//Underspace(MoloculesList &&molecules);
 	//Underspace(std::function<Molecule()> generator);
 	//Underspace(std::function<Vector()> speedsGenerator, std::function<Vector(Vector)> positionsGenerator);
 	//bool shouldContains(Molecule m);
@@ -44,8 +48,10 @@ public:
 	//TODO incapsulate this fields:
 	mutable QMutex mutex;
 	int width, height, depth;
+	int Nx, Ny, Nz;
 	double averageV;
 	double maxV, minV, deltaV;
+	int numberOfMolecules;
 	//===============================
 	Space(int width, int height, int n);
 	Space& operator=(const Space&& s);
@@ -70,7 +76,14 @@ public:
 };
 */
 
+/*
+class MoleculesContainer
+	: private std::vector<Molecule>
+{
+	static const double Reserve;
+public:
 
+};
 
-
-
+const double MoleculesContainer::Reserve = 1.2;
+*/

@@ -12,28 +12,25 @@ private:
 	double dt = 1.0e-15;
 	double maxDistSquare = pow(4 * Molecule::sigma, 2);
 
-	//void averageSpeed();
 	void _averageSpeed();
 
 	inline Vector Force_LennardJones(Molecule &m1, Molecule &m2);
 	inline Vector Calculator::Force_LennardJones(Vector r, double square);		//r - distance between two molecules, square=r*r
-	void recalculatePositions_VelocityVerlet();
-	void recalculateSpeeds_VelocityVerlet();
 
-	void recalculatePositions_Beeman();
-	void recalculatePositions_Beeman(std::list<Molecule> &molecules);
-	void recalculateSpeeds_Beeman();
-	void recalculateSpeeds_Beeman(std::list<Molecule> &molecules);
+	void recalculatePositions_VelocityVerlet(MoloculesList &molecules);
+	void recalculateSpeeds_VelocityVerlet(MoloculesList &molecules);
+
+
+	void recalculatePositions_Beeman(MoloculesList &molecules);
+	void recalculateSpeeds_Beeman(MoloculesList &molecules);
 	void calculateNewForces();		//for Beeman
-	void calculateNewForces(std::list<Molecule> &molecules1, std::list<Molecule> &molecules2);
+	void calculateNewForces(MoloculesList &molecules1, MoloculesList &molecules2);
 
-	Vector VerletIntegration(const Vector &r, const Vector &oldR, const Vector &a);
-	Vector integrateWithTaylorAproximation(double h, const Vector &f, const Vector &d1f = Vector(), const Vector &d2f = Vector());
-	void oneStep();
 	void _oneStep();
 
 	void calculateNewForcesForUnderspace(int nx, int ny, int nz);
-	void validateUnderspace(Underspace &space);
+	void normalizeUnderspace(Underspace &space);
+	void normalizeUnderspaces_Vector();
 
 	Q_INVOKABLE void modeling();
 public:

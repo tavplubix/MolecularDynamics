@@ -6,7 +6,7 @@
 #include <random>
 
 
-const Vector Underspace::size = Vector(300 * Angstrom, 300 * Angstrom, 300 * Angstrom);
+const Vector Underspace::size = Vector(3 * Molecule::sigma, 3 * Molecule::sigma, 3 * Molecule::sigma);
 
 void Space::generateCoordinates()
 {
@@ -44,9 +44,9 @@ void Space::generateSpeeds()
 void Space::initializeUnderspaces()
 {
 
-	int Nx = 1 + width * Angstrom / Underspace::size.x;
-	int Ny = 1 + height * Angstrom / Underspace::size.y;
-	int Nz = 1 + depth * Angstrom / Underspace::size.z;
+	Nx = 1 + width * Angstrom / Underspace::size.x;
+	Ny = 1 + height * Angstrom / Underspace::size.y;
+	Nz = 1 + depth * Angstrom / Underspace::size.z;
 	underspaces.resize(Nx);
 	for (auto &i : underspaces)
 		i.resize(Ny);
@@ -75,23 +75,26 @@ void Space::toUnderspaces()
 				k.molecules.clear();
 
 	for (auto i : molecules) {
-		int nx = i.r.x / Underspace::size.x;
-		int ny = i.r.y / Underspace::size.y;
-		int nz = i.r.z / Underspace::size.z;
-		try {
+		int nx = int(i.r.x / Underspace::size.x);
+		int ny = int(i.r.y / Underspace::size.y);
+		int nz = int(i.r.z / Underspace::size.z);
+		if (nx < 0) nx = 0; if (Nx <= nx) nx = Nx - 1;
+		if (ny < 0) ny = 0; if (Ny <= ny) ny = Ny - 1;
+		if (nz < 0) nz = 0; if (Nz <= nz) nz = Nz - 1;
+		//try {
 			underspaces[nx][ny][nz].molecules.push_back(i);
-		} catch (...) {
-			qDebug() << "Space::toUnderspaces(): Vector: out of range";
-			QErrorMessage err;
-			err.showMessage("Space::toUnderspaces(): Vector: out of range");
-			err.exec();
-		}
+		//} catch (...) {
+			//qDebug() << "Space::toUnderspaces(): Vector: out of range";
+			//QErrorMessage err;
+			//err.showMessage("Space::toUnderspaces(): Vector: out of range");
+			//err.exec();
+		//}
 	}
 
 }
 
 Space::Space(int width, int height, int n)
-	:width(width), height(height), depth(1)
+	:width(width), height(height), depth(1), numberOfMolecules(n)
 {
 	maxV = 0;
 	minV = std::numeric_limits<double>::infinity();
@@ -104,6 +107,8 @@ Space::Space(int width, int height, int n)
 
 	initializeUnderspaces();
 	toUnderspaces();
+	molecules.clear();
+	//molecules.shrink_to_fit();
 
 #ifdef DEBUG
 	saveCoordinatesAndSpeeds("./../last.log.mdcs");
@@ -116,12 +121,14 @@ Space& Space::operator=(const Space&& s)
 	s.mutex.lock();
 	mutex.lock();
 	molecules = std::move(s.molecules);
+	underspaces = std::move(s.underspaces);
 	width = s.width;
 	height = s.height;
 	averageV = s.averageV;
 	minV = s.minV;
 	maxV = s.maxV;
 	deltaV = s.deltaV;
+	numberOfMolecules = s.numberOfMolecules;
 	mutex.unlock();
 	s.mutex.unlock();
 	return *this;
@@ -132,9 +139,9 @@ void Space::saveCoordinatesAndSpeeds(const QString& filename)
 	mutex.lock();
 	QFile file(filename);
 	file.open(QIODevice::WriteOnly);
-	file.write(QByteArray::number((unsigned long long)molecules.size()));
+	file.write(QByteArray::number((unsigned long long)numberOfMolecules));
 	file.write("\n");
-	for (auto molecule : molecules) {
+	forAllM (molecule, underspaces) {
 		file.write((char*)&molecule.r.x, sizeof(molecule.r.x));
 		file.write((char*)&molecule.r.y, sizeof(molecule.r.y));
 		file.write((char*)&molecule.r.z, sizeof(molecule.r.z));
@@ -154,7 +161,8 @@ void Space::loadStateCS(const QString& filename)
 	molecules.clear();
 	QByteArray arrSize = file.readLine();
 	arrSize.chop(1);
-	molecules.resize(arrSize.toULongLong());
+	numberOfMolecules = arrSize.toULongLong();
+	molecules.resize(numberOfMolecules);
 	for (auto &molecule : molecules) {
 		const size_t size = 6 * sizeof(double);		//WARNING
 		char buf[size];
@@ -164,5 +172,6 @@ void Space::loadStateCS(const QString& filename)
 		molecule.r = Vector(t[0], t[1], t[2]);
 		molecule.v = Vector(t[3], t[4], t[5]);
 	}
+	toUnderspaces();
 	mutex.unlock();
 }
