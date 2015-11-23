@@ -13,7 +13,7 @@ MainGui::MainGui(QWidget *parent)
 	ui.numberOfMoleculesSpinBox->setValue(50000);
 	ui.widthSpinBox->setValue(1700);
 	ui.heightSpinBox->setValue(700);
-	ui
+	ui.precisionSpinBox->setValue(14);
 
 	space = new Space(ui.widthSpinBox->value(), ui.heightSpinBox->value(), ui.numberOfMoleculesSpinBox->value());
 	calculator = new Calculator(space);
