@@ -44,6 +44,8 @@ private:
 public:
 	void toUnderspaces();
 public:
+	double time_s;
+	unsigned long long iterations;
 	//QReadWriteLock mutex;
 	//TODO incapsulate this fields:
 	mutable QMutex mutex;

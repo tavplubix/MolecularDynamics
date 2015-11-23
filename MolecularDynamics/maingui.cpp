@@ -10,6 +10,11 @@ MainGui::MainGui(QWidget *parent)
 {
 	ui.setupUi(this);
 
+	ui.numberOfMoleculesSpinBox->setValue(50000);
+	ui.widthSpinBox->setValue(1700);
+	ui.heightSpinBox->setValue(700);
+	ui
+
 	space = new Space(ui.widthSpinBox->value(), ui.heightSpinBox->value(), ui.numberOfMoleculesSpinBox->value());
 	calculator = new Calculator(space);
 
@@ -38,8 +43,19 @@ MainGui::MainGui(QWidget *parent)
 	timer = new QTimer(this);
 	timer->setInterval(100);
 	connect(timer, &QTimer::timeout, pw, static_cast<void(PaintWidget::*)(void)>(&PaintWidget::update));
+	lastIter = 0;
+	lastTime = std::time(nullptr);
 	connect(timer, &QTimer::timeout, this, [&](){
+		unsigned long long iter = space->iterations, t = time(nullptr);
 		this->setWindowTitle(QString::number(calculator->get_dt()));
+		ui.timeLabel->setText("Time: " + QString::number(space->time_s));
+		ui.iterationsLabel->setText("Iterations: " + QString::number(iter));
+		ui.iterPerSecLabel->setText("Iterations per second: " + QString::number((iter - lastIter) / double(t - lastTime)));
+		//int dt = t - lastTime;
+		//if (dt > 30) {
+		//	lastIter = iter;
+		//	lastTime = t;
+		//}
 	});
 	timer->start();
 
@@ -101,6 +117,8 @@ void MainGui::setButtons()
 			calculator->calculationsRequired = true;
 		}
 		else throw std::exception("something strange has happend in slot connected to stopStartButton");
+		lastIter = space->iterations;
+		lastTime = std::time(nullptr);
 	});
 
 	//Pause/Continue Button
@@ -115,6 +133,8 @@ void MainGui::setButtons()
 			ui.saveButton->setHidden(true);
 			ui.pauseContinueButton->setText("Pause");
 		}
+		lastIter = space->iterations;
+		lastTime = std::time(nullptr);
 	});
 
 	//Save Button

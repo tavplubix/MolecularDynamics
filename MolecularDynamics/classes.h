@@ -39,7 +39,7 @@ class PaintWidget : public QWidget
 private:
 	Space *space;
 	const int zoom = 1;
-	const int hIndent = 35;
+	const int hIndent = 25;
 public:
 	PaintWidget(Space *space, QWidget *parent = 0);
 	void paintEvent(QPaintEvent *);

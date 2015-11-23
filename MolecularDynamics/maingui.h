@@ -14,6 +14,7 @@ public:
 	~MainGui();
 
 private:
+	unsigned long long lastIter, lastTime;
 	inline void setButtons();
 	QThread *calculationsThread;
 	QTimer *timer;

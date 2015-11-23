@@ -1,32 +1,49 @@
 #include "Calculator.h"
 #include <QEventLoop>
 #include <QEventLoopLocker>
+#include <QtConcurrent>
+#include <QFuture>
 
 //#define OLDCODE
 
 
 void Calculator::_oneStep()
 {
-	
-	forAllU(k, space->underspaces)
-		recalculatePositions_Beeman(k.molecules);
-	//forAllU(k, space->underspaces)
-	//	validateUnderspace(k);
-
+	auto lambdaP = [&](std::vector<std::vector<Underspace>> & part) {
+		for (auto &i : part)
+			for (auto &k : i)
+				recalculatePositions_Beeman(k.molecules);
+	};
+	auto futuresP = QtConcurrent::map(space->underspaces, lambdaP);
 	forAllM(t, space->underspaces)
 		t.newF = Vector();
-	forAllU(k, space->underspaces)
-		calculateNewForcesForUnderspace(k.nx, k.ny, k.nz);
+	futuresP.waitForFinished();
 
-	forAllU(k, space->underspaces)
-		recalculateSpeeds_Beeman(k.molecules);
+
+	auto lambdaF = [&](std::vector<std::vector<Underspace>> & part) {
+		for (auto &i : part)
+			for (auto &k : i)
+				calculateNewForcesForUnderspace(k.nx, k.ny, k.nz);
+	};
+	auto futuresF = QtConcurrent::map(space->underspaces, lambdaF);
+	futuresF.waitForFinished();
+
+
+	auto lambdaS = [&](std::vector<std::vector<Underspace>> & part) {
+		for (auto &i : part)
+			for (auto &k : i)
+				recalculateSpeeds_Beeman(k.molecules);
+	};
+	auto futuresS = QtConcurrent::map(space->underspaces, lambdaS);
+	futuresS.waitForFinished();
+
+
 	forAllM(t, space->underspaces)
 	{
 		t.oldF = t.F;
 		t.F = t.newF;
 	}
 
-	_averageSpeed();
 }
 
 #ifdef OLDCODE
@@ -53,20 +70,15 @@ inline Vector Calculator::Force_LennardJones(Vector r, double square)
 
 void Calculator::calculateNewForces(MoloculesList &molecules1, MoloculesList &molecules2)
 {
-	for (auto i = molecules1.begin(); i != molecules1.end(); ++i) {
-		//(*i).newF = Vector();			//FIXME
-		int size = space->molecules.size();
-		for (auto j = molecules2.begin(); j != molecules2.end(); ++j) {
+	auto end1 = molecules1.end();
+//#pragma omp parallel 
+	for (auto i = molecules1.begin(); i != end1; ++i) {
+		auto end2 = molecules2.end();
+		for (auto j = molecules2.begin(); j != end2; ++j) {
 			if (i._Ptr == j._Ptr) continue;
 			Vector r = (*j).r - (*i).r;
 			register double square = r.square();
 			if (maxDistSquare < square) continue;
-			//Vector dF = Force_LennardJones(space->molecules[i], space->molecules[j]);
-#ifdef DEBUG
-			if (!std::isfinite(Force_LennardJones(r, square))) throw std::exception("infinite force");
-			if (std::isnan(Force_LennardJones(r, square))) throw std::exception("dF == NaN");
-#endif
-			//space->molecules[i].newF += dF;
 			(*i).newF += Force_LennardJones(r, square);
 		}
 	}
@@ -99,6 +111,7 @@ void Calculator::recalculateSpeeds_VelocityVerlet(MoloculesList &molecules)
 
 void Calculator::recalculatePositions_Beeman(MoloculesList &molecules)
 {
+//#pragma omp parallel 
 	for (auto &i : molecules) {
 		i.oldr = i.r;
 		i.r += i.v * dt;
@@ -109,6 +122,7 @@ void Calculator::recalculatePositions_Beeman(MoloculesList &molecules)
 
 void Calculator::recalculateSpeeds_Beeman(MoloculesList &molecules)
 {
+//#pragma omp parallel 
 	for (auto &i : molecules) {
 		i.v += 2.0 / 6.0 * (i.newF / i.m) * dt;
 		i.v += 5.0 / 6.0 * (i.F / i.m) * dt;
@@ -259,9 +273,12 @@ void Calculator::modeling()
 #endif
 		for (int i = 0; i < 30; ++i) {
 			_oneStep();
+			space->iterations++;
+			space->time_s += dt;
 		}
 		//forAllU(k, space->underspaces)
 		//	normalizeUnderspace(k);
+		_averageSpeed();
 		normalizeUnderspaces_Vector();
 #ifdef DEBUG
 		qDebug() << "	return from modeling() cycle";

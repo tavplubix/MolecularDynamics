@@ -11,19 +11,26 @@ const Vector Underspace::size = Vector(3 * Molecule::sigma, 3 * Molecule::sigma,
 void Space::generateCoordinates()
 {
 	size_t size = molecules.size();
-	const int minDistance = 2 + int(Molecule::sigma / Angstrom);
-	std::map<int, std::set<int>> used;		//CRUTCH
-	for (auto &i : molecules) {
+	const double minDistance = 1.5 * Molecule::sigma;
+	double distance = sqrt((width * Angstrom * height * Angstrom) / double(numberOfMolecules));
+	if (distance < minDistance) {
+		qDebug() << "WARNING: in Space::generateCoordinates(): distance < minDistance";
+		throw 0;
+	}
+	int NX = 1 + width*Angstrom / distance;
+	int NY = 1 + height*Angstrom / distance;
+	//std::map<int, std::set<int>> used;		//CRUTCH
+	int nx = 0, ny = 0;
+	for (auto &m : molecules) {
+		m.r.x = nx * distance;
+		m.r.y = ny * distance;
+		m.r.z = 0;
 
-		int tmpX = (std::rand() * minDistance) % width;
-		int tmpY;
-		do {
-			tmpY = (std::rand() * minDistance) % height;
-		} while (used[tmpX].find(tmpY) != used[tmpX].end());		//WARNING
-		used[tmpX].insert(tmpY);
-		i.r.x = double(tmpX) * Angstrom;
-		i.r.y = double(tmpY) * Angstrom;
-		i.r.z = 0;
+		++nx;
+		if (nx >= NX) {
+			nx = 0;
+			++ny;
+		}
 	}
 }
 
@@ -99,6 +106,8 @@ Space::Space(int width, int height, int n)
 	maxV = 0;
 	minV = std::numeric_limits<double>::infinity();
 	deltaV = 0;
+	time_s = 0;
+	iterations = 0;
 	std::srand(std::time(nullptr));
 	molecules.resize(n);
 
@@ -122,6 +131,11 @@ Space& Space::operator=(const Space&& s)
 	mutex.lock();
 	molecules = std::move(s.molecules);
 	underspaces = std::move(s.underspaces);
+	Nx = s.Nx;
+	Ny = s.Ny;
+	Nz = s.Nz;
+	time_s = s.time_s;
+	iterations = s.iterations;
 	width = s.width;
 	height = s.height;
 	averageV = s.averageV;
