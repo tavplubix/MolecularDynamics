@@ -1,18 +1,16 @@
 #include "maingui.h"
-#include "classes.h"
-#include "Calculator.h"
-#include "Space.h"
 #include <functional>
 #include <QFileDialog>
+#include <ctime>
 
 MainGui::MainGui(QWidget *parent)
 	: QMainWindow(parent)
 {
 	ui.setupUi(this);
 
-	ui.numberOfMoleculesSpinBox->setValue(50000);
-	ui.widthSpinBox->setValue(1700);
-	ui.heightSpinBox->setValue(700);
+	ui.numberOfMoleculesSpinBox->setValue(5);
+	ui.widthSpinBox->setValue(100);
+	ui.heightSpinBox->setValue(100);
 	ui.precisionSpinBox->setValue(14);
 
 	space = new Space(ui.widthSpinBox->value(), ui.heightSpinBox->value(), ui.numberOfMoleculesSpinBox->value());

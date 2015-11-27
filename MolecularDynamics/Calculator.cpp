@@ -4,6 +4,8 @@
 #include <QtConcurrent>
 #include <QFuture>
 
+#include "cuda.h"
+
 //#define OLDCODE
 
 
@@ -19,7 +21,7 @@ void Calculator::_oneStep()
 		t.newF = Vector();
 	futuresP.waitForFinished();
 
-
+#ifndef CUDA
 	auto lambdaF = [&](std::vector<std::vector<Underspace>> & part) {
 		for (auto &i : part)
 			for (auto &k : i)
@@ -27,7 +29,10 @@ void Calculator::_oneStep()
 	};
 	auto futuresF = QtConcurrent::map(space->underspaces, lambdaF);
 	futuresF.waitForFinished();
-
+#else
+	forAllU(k, space->underspaces)
+		calculateNewForcesForUnderspace(k.nx, k.ny, k.nz);
+#endif
 
 	auto lambdaS = [&](std::vector<std::vector<Underspace>> & part) {
 		for (auto &i : part)
@@ -61,17 +66,17 @@ inline Vector Calculator::Force_LennardJones(Molecule &m1, Molecule &m2)
 
 inline Vector Calculator::Force_LennardJones(Vector r, double square)
 {
-	square = (Molecule::sigma * Molecule::sigma) / square;
-	double U = 2.0*pow(square, 14 / 2) - pow(square, 8 / 2);
-	U *= 24.0 * Molecule::epsilon / pow(Molecule::sigma, 2);
-	return -U * r;
+	register const double sigmaSquare = Molecule::sigma * Molecule::sigma;
+	square = sigmaSquare / square;
+	register double U = 2.0*pow(square, 14 / 2) - pow(square, 8 / 2);
+	register const double c = -24.0 * Molecule::epsilon / sigmaSquare;
+	return c * U * r;
 }
 
 
 void Calculator::calculateNewForces(MoloculesList &molecules1, MoloculesList &molecules2)
 {
 	auto end1 = molecules1.end();
-//#pragma omp parallel 
 	for (auto i = molecules1.begin(); i != end1; ++i) {
 		auto end2 = molecules2.end();
 		for (auto j = molecules2.begin(); j != end2; ++j) {
@@ -127,11 +132,17 @@ void Calculator::recalculateSpeeds_Beeman(MoloculesList &molecules)
 		i.v += 2.0 / 6.0 * (i.newF / i.m) * dt;
 		i.v += 5.0 / 6.0 * (i.F / i.m) * dt;
 		i.v -= 1.0 / 6.0 * (i.oldF / i.m) * dt;
-		if (i.r.x <= 0 || space->width * Angstrom <= i.r.x) {
-			i.v.x = -i.v.x;
+		if (i.r.x <= 0 ) {
+			i.v.x = std::abs(i.v.x);
 		}
-		if (i.r.y <= 0 || space->height * Angstrom <= i.r.y) {
-			i.v.y = -i.v.y;
+		if (space->width * Angstrom <= i.r.x) {
+			i.v.x = - std::abs(i.v.x);
+		}
+		if (i.r.y <= 0) {
+			i.v.y = std::abs(i.v.y);
+		}
+		if (space->height * Angstrom <= i.r.y) {
+			i.v.y = - std::abs(i.v.y);
 		}
 	}
 }
@@ -227,7 +238,11 @@ void Calculator::calculateNewForcesForUnderspace(int nx, int ny, int nz)
 				if (x >= space->Nx) continue;
 				if (y >= space->Ny) continue;
 				if (z >= space->Nz) continue;
+#ifndef CUDA
 				calculateNewForces(centralSpace.molecules, space->underspaces[x][y][z].molecules);
+#else
+				calculateNewForces_GPU(centralSpace.molecules, space->underspaces[x][y][z].molecules);
+#endif
 			}
 		}
 	}
@@ -263,6 +278,13 @@ void Calculator::normalizeUnderspaces_Vector()
 	space->toUnderspaces();
 }
 
+
+void Calculator::freeze(double vMul /*= 0.999*/)
+{
+	forAllM(m, space->underspaces)
+		m.v *= vMul;
+}
+
 void Calculator::modeling()
 {
 	while (calculationsRequired) {
@@ -278,6 +300,7 @@ void Calculator::modeling()
 		}
 		//forAllU(k, space->underspaces)
 		//	normalizeUnderspace(k);
+		freeze();
 		_averageSpeed();
 		normalizeUnderspaces_Vector();
 #ifdef DEBUG

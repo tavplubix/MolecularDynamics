@@ -3,7 +3,7 @@
 #include <QObject>
 #include <QMutex>
 #include <QErrorMessage>
-#include "classes.h"
+#include "Molecule.h"
 #include <list>
 #include <vector>
 #include <functional>

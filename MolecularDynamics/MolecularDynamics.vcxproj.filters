@@ -49,9 +49,6 @@
     <ClCompile Include="GeneratedFiles\qrc_maingui.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="classes.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Vector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -70,15 +67,6 @@
     <ClCompile Include="GeneratedFiles\Profiling\moc_maingui.cpp">
       <Filter>Generated Files\Profiling</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_classes.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_classes.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Profiling\moc_classes.cpp">
-      <Filter>Generated Files\Profiling</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_Calculator.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -86,6 +74,21 @@
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Profiling\moc_Calculator.cpp">
+      <Filter>Generated Files\Profiling</Filter>
+    </ClCompile>
+    <ClCompile Include="PaintWidget.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Molecule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_PaintWidget.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_PaintWidget.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Profiling\moc_PaintWidget.cpp">
       <Filter>Generated Files\Profiling</Filter>
     </ClCompile>
   </ItemGroup>
@@ -99,10 +102,13 @@
     <CustomBuild Include="maingui.qrc">
       <Filter>Resource Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="classes.h">
+    <CustomBuild Include="Calculator.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="Calculator.h">
+    <CustomBuild Include="Molecule.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="PaintWidget.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -116,9 +122,17 @@
     <ClInclude Include="Space.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cuda.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="MolecularDynamics.pri" />
     <None Include="MolecularDynamics.pro" />
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="kernel_forces.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
   </ItemGroup>
 </Project>

@@ -1,17 +1,20 @@
 #include "Space.h"
 #include <QFile>
+#include <QDebug>
 
 #include <map>
 #include <set>
 #include <random>
+#include <ctime>
 
 
-const Vector Underspace::size = Vector(3 * Molecule::sigma, 3 * Molecule::sigma, 3 * Molecule::sigma);
+//const Vector Underspace::size = Vector(3 * Molecule::sigma, 3 * Molecule::sigma, 3 * Molecule::sigma);
+const Vector Underspace::size = Vector(100 * Angstrom, 100 * Angstrom, 100 * Angstrom);
 
 void Space::generateCoordinates()
 {
 	size_t size = molecules.size();
-	const double minDistance = 1.5 * Molecule::sigma;
+	const double minDistance = 1.0 * Molecule::sigma;
 	double distance = sqrt((width * Angstrom * height * Angstrom) / double(numberOfMolecules));
 	if (distance < minDistance) {
 		qDebug() << "WARNING: in Space::generateCoordinates(): distance < minDistance";

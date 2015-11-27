@@ -3,7 +3,9 @@
 
 #include <QtWidgets/QMainWindow>
 #include "ui_maingui.h"
-#include "classes.h"
+#include "Molecule.h"
+#include "PaintWidget.h"
+#include "Calculator.h"
 
 class MainGui : public QMainWindow
 {

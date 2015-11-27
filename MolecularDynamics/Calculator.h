@@ -1,5 +1,5 @@
 #pragma once
-#include "classes.h"
+#include "Molecule.h"
 #include "Space.h"
 
 
@@ -31,6 +31,8 @@ private:
 	void calculateNewForcesForUnderspace(int nx, int ny, int nz);
 	void normalizeUnderspace(Underspace &space);
 	void normalizeUnderspaces_Vector();
+
+	void freeze(double vMul = 0.999);
 
 	Q_INVOKABLE void modeling();
 public:
