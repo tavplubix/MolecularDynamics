@@ -28,6 +28,16 @@ MainGui::MainGui(QWidget *parent)
 		calculator->set_dt_precision(precision);
 	});
 
+	//Zoom
+	connect(ui.zoomSpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [&](double zoom) {
+		pw->zoom = zoom;
+	});
+
+	//Heating/Freezing
+	connect(ui.heatingSpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [&](double heating) {
+		calculator->heating = heating;
+	});
+
 	//Borders
 	connect(ui.heightSpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), [&](int height){
 		space->height = height;		//FIXME resize Space::underspaces

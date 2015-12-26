@@ -1,6 +1,9 @@
 #include "Space.h"
 #include <QFile>
 #include <QDebug>
+#include <QErrorMessage>
+#include <QObject>
+#include <QMutex>
 
 #include <map>
 #include <set>
@@ -8,8 +11,8 @@
 #include <ctime>
 
 
-//const Vector Underspace::size = Vector(3 * Molecule::sigma, 3 * Molecule::sigma, 3 * Molecule::sigma);
-const Vector Underspace::size = Vector(100 * Angstrom, 100 * Angstrom, 100 * Angstrom);
+const Vector Underspace::size = Vector(3 * Molecule::sigma, 3 * Molecule::sigma, 3 * Molecule::sigma);
+//const Vector Underspace::size = Vector(100 * Angstrom, 100 * Angstrom, 100 * Angstrom);
 
 void Space::generateCoordinates()
 {
@@ -192,3 +195,55 @@ void Space::loadStateCS(const QString& filename)
 	toUnderspaces();
 	mutex.unlock();
 }
+
+
+CUDASpace* Space::toCUDA() const
+{
+	CUDASpace *cs = new CUDASpace;
+	cs->width = width;
+	cs->height = height;
+	cs->Nx = Nx;
+	cs->Ny = Ny;
+	cs->Nz = Nz;
+	//TODO allocate memory
+	cs->underspaces = new CUDAUnderspace**[Nx];
+	for (size_t i = 0; i < cs->Nx; ++i) {
+		cs->underspaces[i] = new CUDAUnderspace*[Ny];
+		for (size_t j = 0; j < cs->Ny; ++j) {
+			cs->underspaces[i][j] = new CUDAUnderspace[Nx];
+			for (size_t k = 0; k < cs->Nz; ++k) {
+				underspaces[i][j][k].toCUDA(&cs->underspaces[i][j][k]);
+			}
+		}
+	}
+	return cs;
+}
+
+void Underspace::toCUDA(CUDAUnderspace *cus) const
+{
+	cus->numberOfMolecules = molecules.size();
+	cus->molecules = new CUDAMolecule[cus->numberOfMolecules];
+	for (size_t i = 0; i < cus->numberOfMolecules; ++i) {
+		molecules[i].oldr	.toCUDA(cus->molecules[i].oldr);
+		molecules[i].r		.toCUDA(cus->molecules[i].r);
+		molecules[i].oldF	.toCUDA(cus->molecules[i].oldF);
+		molecules[i].F		.toCUDA(cus->molecules[i].F);
+		molecules[i].newF	.toCUDA(cus->molecules[i].newF);
+		molecules[i].v		.toCUDA(cus->molecules[i].v);
+	}
+}
+
+void Underspace::fromCuda(CUDAUnderspace *cus)
+{
+	molecules.resize(cus->numberOfMolecules);
+	for (size_t i = 0; i < cus->numberOfMolecules; ++i) {
+		molecules[i].oldr	.fromCUDA(cus->molecules[i].oldr);
+		molecules[i].r		.fromCUDA(cus->molecules[i].r);
+		molecules[i].oldF	.fromCUDA(cus->molecules[i].oldF);
+		molecules[i].F		.fromCUDA(cus->molecules[i].F);
+		molecules[i].newF	.fromCUDA(cus->molecules[i].newF);
+		molecules[i].v		.fromCUDA(cus->molecules[i].v);
+	}
+}
+
+

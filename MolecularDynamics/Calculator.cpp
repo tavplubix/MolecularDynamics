@@ -163,8 +163,14 @@ void Calculator::set_dt_precision(int precision)	//hot only
 Calculator::Calculator(Space *space, QObject *parent /*= 0*/)
 	:QObject(parent), space(space)
 {
+	allocateMemory(space->numberOfMolecules);
 	calculationsRequired = false;
 	QMetaObject::invokeMethod(this, "modeling", Qt::QueuedConnection);		//modeling() does nothing if calculationsRequired == false
+}
+
+Calculator::~Calculator()
+{
+	freeMemory();
 }
 
 double Calculator::pow(double d, int i)
@@ -187,7 +193,6 @@ double Calculator::pow(Vector v, int i)
 void Calculator::start()
 {
 	space->mutex.lock();
-
 
 	//pre-init:
 	forAllU(k, space->underspaces) 
@@ -300,7 +305,7 @@ void Calculator::modeling()
 		}
 		//forAllU(k, space->underspaces)
 		//	normalizeUnderspace(k);
-		freeze();
+		freeze(heating);
 		_averageSpeed();
 		normalizeUnderspaces_Vector();
 #ifdef DEBUG

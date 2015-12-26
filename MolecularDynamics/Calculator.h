@@ -1,7 +1,10 @@
 #pragma once
+#include <QObject>
+
 #include "Molecule.h"
 #include "Space.h"
 
+//#define CUDA
 
 
 class Calculator : public QObject
@@ -36,11 +39,13 @@ private:
 
 	Q_INVOKABLE void modeling();
 public:
+	volatile double heating = 1;
 	Q_INVOKABLE void set_dt_precision(int precision);
 	void setSpace(Space* s);
 	double get_dt() { return dt; };
 	volatile bool calculationsRequired;
 	Calculator(Space *space, QObject *parent = 0);
+	~Calculator();
 	//static double LennardJonesPotential(Molecule &m1, Molecule &m2);
 	static double pow(double d, int i);
 	static double pow(Vector v, int i);

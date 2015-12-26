@@ -97,3 +97,17 @@ Vector Vector::operator*(const double I) const
 }
 
 
+void Vector::toCUDA(CUDAVector& cv) const
+{
+	cv.v[0] = x;
+	cv.v[1] = y;
+	cv.v[2] = z;
+}
+
+void Vector::fromCUDA(CUDAVector& cv)
+{
+	x = cv.v[0];
+	y = cv.v[1];
+	z = cv.v[2];
+}
+

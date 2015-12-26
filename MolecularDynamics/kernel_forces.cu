@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <vector>
 
-
+#include "Space.h"
 
 #include "Vector.h"
 #include "Molecule.h"
@@ -17,6 +17,7 @@
 #define sigma 2.74*10e-10	//m
 #define epsilon 36.2*1.3806488e-23	//J
 
+#define maxDistSquare 4.0 * sigma * 4.0 * sigma;
 
 
 
@@ -25,12 +26,31 @@ typedef std::vector<Molecule> MoloculesList;
 
 const size_t maxSize = 1024 * 16;
 double h_newF[3 * maxSize], h_r[3 * maxSize];
+double *d_newF, *d_r, *d_squares;
+double *space;
 
 
+void allocateMemory(size_t size)
+{
+	if (size > maxSize)
+		throw 0;		//WARNING
+	cudaMalloc(&d_newF, sizeof(double) * 3 * size);
+	cudaMalloc(&d_r, sizeof(double) * 3 * size);
+	cudaMalloc(&d_squares, sizeof(double) * size);
+}
+void freeMemory()
+{
+	cudaFree(d_newF);
+	cudaFree(d_r);
+	cudaFree(d_squares);
+}
 
 __global__ void kernel_calculateSquares(double *squares, const double *r, int n)
 {
-	int molecule = blockDim.x * blockIdx.x + threadIdx.x;
+	auto lambdaTest = [&]() -> int {
+		return blockDim.x * blockIdx.x + threadIdx.x;
+	};
+	int molecule = lambdaTest();//blockDim.x * blockIdx.x + threadIdx.x;
 	const double sigmaSquare = sigma * sigma;
 	if (molecule >= n) return;
 	int rIndex = molecule * 3;
@@ -79,12 +99,12 @@ void calculateNewForces_GPU(MoloculesList &molecules1, MoloculesList &molecules2
 
 		//allocate memory on GPU
 		size_t size = molecules2.size();
-		if (size > maxSize)
-			throw 0;		//WARNING
-		double *d_newF, *d_r, *d_squares;
-		cudaMalloc(&d_newF, sizeof(double) * 3 * size);
-		cudaMalloc(&d_r, sizeof(double) * 3 * size);
-		cudaMalloc(&d_squares, sizeof(double) * size);
+		//if (size > maxSize)
+		//	throw 0;		//WARNING
+		//double *d_newF, *d_r, *d_squares;
+		//cudaMalloc(&d_newF, sizeof(double) * 3 * size);
+		//cudaMalloc(&d_r, sizeof(double) * 3 * size);
+		//cudaMalloc(&d_squares, sizeof(double) * size);
 
 		//copy array to GPU
 		cudaMemcpy(d_r, h_r, 3 * sizeof(double)*size, cudaMemcpyHostToDevice);
@@ -112,15 +132,59 @@ void calculateNewForces_GPU(MoloculesList &molecules1, MoloculesList &molecules2
 		}
 
 		//free memory on GPU
-		cudaFree(d_newF);
-		cudaFree(d_r);
-		cudaFree(d_squares);
+		//cudaFree(d_newF);
+		//cudaFree(d_r);
+		//cudaFree(d_squares);
 
 	}
 }
 
 
+/*
+__device__ inline Vector Force_LennardJones_GPU(Vector r, double square)
+{
+	register const double sigmaSquare = sigma * sigma;
+	square = sigmaSquare / square;
+	register double U = 2.0*pow(square, 14 / 2) - pow(square, 8 / 2);
+	register const double c = -24.0 * epsilon / sigmaSquare;
+	return c * U * r;
+}
 
+__device__ void calculateNewForces_GPU_rutine(MoloculesList &molecules1, MoloculesList &molecules2)
+{
+	auto end1 = molecules1.end();
+	for (auto i = molecules1.begin(); i != end1; ++i) {
+		auto end2 = molecules2.end();
+		for (auto j = molecules2.begin(); j != end2; ++j) {
+			if (i._Ptr == j._Ptr) continue;
+			Vector r = (*j).r - (*i).r;
+			register double square = r.square();
+			//if (maxDistSquare < square) continue;
+			(*i).newF += Force_LennardJones_GPU(r, square);
+		}
+	}
+}
+
+__global__ void calculateNewForcesForUnderspace_GPU(Space* space, int nx, int ny, int nz)
+{
+	//QThread::msleep(1);
+	Underspace &centralSpace = space->underspaces[nx][ny][nz];
+	auto closestSpaces = { -1, 0, 1 };
+	for (const auto &dx : closestSpaces) {
+		for (const auto &dy : closestSpaces) {
+			for (const auto &dz : closestSpaces) {
+				int x = nx + dx;
+				int y = ny + dy;
+				int z = nz + dz;
+				if (x < 0 || y < 0 || z < 0) continue;
+				if (x >= space->Nx) continue;
+				if (y >= space->Ny) continue;
+				if (z >= space->Nz) continue;
+				calculateNewForces_GPU_rutine(centralSpace.molecules, space->underspaces[x][y][z].molecules);
+			}
+		}
+	}
+}*/
 
 
 

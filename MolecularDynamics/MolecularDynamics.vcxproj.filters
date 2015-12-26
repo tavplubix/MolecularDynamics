@@ -91,6 +91,9 @@
     <ClCompile Include="GeneratedFiles\Profiling\moc_PaintWidget.cpp">
       <Filter>Generated Files\Profiling</Filter>
     </ClCompile>
+    <ClCompile Include="c_cuda_stuctures.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="maingui.h">
@@ -125,6 +128,9 @@
     <ClInclude Include="cuda.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="c_cuda_structures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="MolecularDynamics.pri" />
@@ -132,6 +138,9 @@
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="kernel_forces.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="c_cuda_stuctures.cu">
       <Filter>Source Files</Filter>
     </CudaCompile>
   </ItemGroup>

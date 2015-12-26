@@ -1,5 +1,6 @@
 #pragma once
 #include <math.h>
+#include "c_cuda_structures.h"
 
 class Point;
 class Vector;
@@ -71,4 +72,6 @@ public:
 		return V1.x * V2.x + V1.y * V2.y + V1.z * V2.z;
 	}
 
+	void toCUDA(CUDAVector& cv) const;
+	void fromCUDA(CUDAVector& cv);
 };

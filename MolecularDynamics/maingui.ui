@@ -24,54 +24,14 @@
      </rect>
     </property>
     <layout class="QGridLayout" name="mainLayout">
-     <item row="2" column="0">
-      <widget class="QPushButton" name="stopStartButton">
-       <property name="text">
-        <string>Stop</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
+     <item row="3" column="1">
       <widget class="QPushButton" name="pauseContinueButton">
        <property name="text">
         <string>Pause</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="3">
-      <widget class="QPushButton" name="saveButton">
-       <property name="text">
-        <string>Save</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <spacer name="horizontalSpacer_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="3" column="2">
-      <spacer name="horizontalSpacer_4">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="3" column="3">
+     <item row="4" column="3">
       <spacer name="horizontalSpacer_5">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -84,43 +44,10 @@
        </property>
       </spacer>
      </item>
-     <item row="2" column="2">
-      <widget class="QPushButton" name="loadButton">
+     <item row="1" column="2">
+      <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Load</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="0" column="1">
-      <widget class="QSpinBox" name="precisionSpinBox">
-       <property name="minimum">
-        <number>12</number>
-       </property>
-       <property name="maximum">
-        <number>20</number>
-       </property>
-       <property name="value">
-        <number>15</number>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Width:</string>
+        <string>Height:</string>
        </property>
       </widget>
      </item>
@@ -131,10 +58,23 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="2">
-      <widget class="QLabel" name="label_4">
+     <item row="3" column="4">
+      <widget class="QLabel" name="iterPerSecLabel">
        <property name="text">
-        <string>Height:</string>
+        <string>Iterations per second:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QSpinBox" name="precisionSpinBox">
+       <property name="minimum">
+        <number>13</number>
+       </property>
+       <property name="maximum">
+        <number>20</number>
+       </property>
+       <property name="value">
+        <number>15</number>
        </property>
       </widget>
      </item>
@@ -150,6 +90,126 @@
         <number>3000</number>
        </property>
       </widget>
+     </item>
+     <item row="0" column="4">
+      <widget class="QLabel" name="timeLabel">
+       <property name="text">
+        <string>Time: </string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="3" column="0">
+      <widget class="QPushButton" name="stopStartButton">
+       <property name="text">
+        <string>Stop</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <widget class="QSpinBox" name="heightSpinBox">
+       <property name="minimum">
+        <number>100</number>
+       </property>
+       <property name="maximum">
+        <number>800</number>
+       </property>
+       <property name="value">
+        <number>700</number>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="3">
+      <widget class="QPushButton" name="saveButton">
+       <property name="text">
+        <string>Save</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QPushButton" name="loadButton">
+       <property name="text">
+        <string>Load</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Width:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Precision:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="4">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="4" column="5">
+      <spacer name="horizontalSpacer_6">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="4" column="1">
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
      <item row="0" column="3">
       <widget class="QSpinBox" name="widthSpinBox">
@@ -167,59 +227,6 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="3">
-      <widget class="QSpinBox" name="heightSpinBox">
-       <property name="minimum">
-        <number>100</number>
-       </property>
-       <property name="maximum">
-        <number>800</number>
-       </property>
-       <property name="value">
-        <number>700</number>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Precision:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="4">
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="3" column="5">
-      <spacer name="horizontalSpacer_6">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="0" column="4">
-      <widget class="QLabel" name="timeLabel">
-       <property name="text">
-        <string>Time: </string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="4">
       <widget class="QLabel" name="iterationsLabel">
        <property name="text">
@@ -227,10 +234,52 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="4">
-      <widget class="QLabel" name="iterPerSecLabel">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_5">
        <property name="text">
-        <string>Iterations per second:</string>
+        <string>Zoom: </string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QDoubleSpinBox" name="zoomSpinBox">
+       <property name="minimum">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>10.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="value">
+        <double>1.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>Heating/Freezing: </string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="3">
+      <widget class="QDoubleSpinBox" name="heatingSpinBox">
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="minimum">
+        <double>0.900000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>1.100000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.001000000000000</double>
+       </property>
+       <property name="value">
+        <double>1.000000000000000</double>
        </property>
       </widget>
      </item>

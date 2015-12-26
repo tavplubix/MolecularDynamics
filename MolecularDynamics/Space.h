@@ -1,8 +1,6 @@
 #pragma once
 
-#include <QObject>
 #include <QMutex>
-#include <QErrorMessage>
 #include "Molecule.h"
 #include <list>
 #include <vector>
@@ -24,13 +22,14 @@ public:
 	MoloculesList molecules;
 	//const Vector minR, maxR;
 	int nx, ny, nz;
-public:
 	const static Vector size;
 	//Underspace(MoloculesList &&molecules);
 	//Underspace(std::function<Molecule()> generator);
 	//Underspace(std::function<Vector()> speedsGenerator, std::function<Vector(Vector)> positionsGenerator);
 	//bool shouldContains(Molecule m);
 	//bool actuallyContains(Molecule m);
+	void toCUDA(CUDAUnderspace *cus) const;
+	void fromCuda(CUDAUnderspace *cus);
 };
 template<typename T>
 using  Matrix3D = std::vector < std::vector< std::vector<T> > >;
@@ -59,13 +58,17 @@ public:
 	Space& operator=(const Space&& s);
 	std::vector<Molecule> molecules;
 	Matrix3D<Underspace> underspaces;
-	public slots:
+	//public slots:
 	//void saveCoordinates();
 	void saveCoordinatesAndSpeeds(const QString& filename);
 	//void saveAll();
 	//void loadStateC(const QString& filename);
 	void loadStateCS(const QString& filename);	//load coordinates and speeds (CS)
 	//void loadStateALL(const QString& filename);
+
+
+	CUDASpace* toCUDA() const;
+	void fromCuda(CUDASpace *cs);
 };
 
 /*
