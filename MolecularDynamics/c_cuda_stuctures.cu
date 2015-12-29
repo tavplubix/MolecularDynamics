@@ -1,6 +1,7 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include <math.h>
+#include <iostream>
 
 #include "c_cuda_structures.h"
 
@@ -170,7 +171,7 @@ __device__ void d_calculateNewForces(CUDAUnderspace *cus1, CUDAUnderspace *cus2)
 //==========================================================================
 //					Operations with CUDASpace
 //==========================================================================
-__global__ extern void cuda_recalculatePositions(CUDASpace *cs)
+__global__ void cuda_recalculatePositions(CUDASpace *cs)
 {
 	size_t nx = blockDim.x * blockIdx.x + threadIdx.x;
 	if (nx >= cs->Nx) return;
@@ -182,7 +183,7 @@ __global__ extern void cuda_recalculatePositions(CUDASpace *cs)
 	d_recalculatePositions_Beeman(&cs->underspaces[nx][ny][nz], cs->dt);
 }
 
-__global__ extern void cuda_recalculateSpeeds(CUDASpace *cs)
+__global__ void cuda_recalculateSpeeds(CUDASpace *cs)
 {
 	size_t nx = blockDim.x * blockIdx.x + threadIdx.x;
 	if (nx >= cs->Nx) return;
@@ -194,7 +195,7 @@ __global__ extern void cuda_recalculateSpeeds(CUDASpace *cs)
 	d_recalculateSpeeds_Beeman(&cs->underspaces[nx][ny][nz], cs->dt, cs->width, cs->height);
 }
 
-__global__ extern void cuda_recalculateForces(CUDASpace *cs)
+__global__ void cuda_recalculateForces(CUDASpace *cs)
 {
 	size_t nx = blockDim.x * blockIdx.x + threadIdx.x;
 	//if (nx >= cs->Nx) return;	
@@ -206,7 +207,7 @@ __global__ extern void cuda_recalculateForces(CUDASpace *cs)
 	d_calculateNewForcesForUnderspace(cs, nx, ny, nz);
 }
 
-__global__ extern void cuda_validate(CUDASpace *cs)
+__global__ void cuda_validate(CUDASpace *cs)
 {
 	size_t nx = blockDim.x * blockIdx.x + threadIdx.x;
 	if (nx >= cs->Nx) return;
@@ -224,7 +225,7 @@ __global__ extern void cuda_validate(CUDASpace *cs)
 	}
 }
 
-__host__ extern void oneStep(CUDASpace *d_cs,int Nx, int Ny, int Nz)
+void cuda_oneStep(CUDASpace *d_cs,int Nx, int Ny, int Nz)
 {
 	int numberOfCores = 512;
 	int coresPerDim = numberOfCores / 3;
@@ -233,14 +234,18 @@ __host__ extern void oneStep(CUDASpace *d_cs,int Nx, int Ny, int Nz)
 	blocks = dim3(coresPerDim, coresPerDim, coresPerDim);
 
 	cuda_recalculatePositions	<<<grid, blocks>>> (d_cs);
+	cudaDeviceSynchronize();
 	cuda_recalculateForces		<<<grid, blocks>>> (d_cs);
+	cudaDeviceSynchronize();
 	cuda_recalculateSpeeds		<<<grid, blocks>>> (d_cs);
+	cudaDeviceSynchronize();
 	cuda_validate				<<<grid, blocks>>> (d_cs);
+	cudaDeviceSynchronize();
 }
 
 
 
-__host__ CUDASpace* copyToDevice(CUDASpace *h_cs/*, CUDASpace *d_cs*/)
+extern "C" CUDASpace* /*void*/ copyToDevice(CUDASpace *h_cs/*, CUDASpace **d_cs*/)
 {
 	CUDASpace *cs;
 	cudaMalloc(&cs, sizeof(CUDASpace));
@@ -262,11 +267,11 @@ __host__ CUDASpace* copyToDevice(CUDASpace *h_cs/*, CUDASpace *d_cs*/)
 	cudaMemcpy(&cs->Nx, &h_cs->Nx, sizeof(h_cs->Nx), cudaMemcpyHostToDevice);
 	cudaMemcpy(&cs->Ny, &h_cs->Ny, sizeof(h_cs->Ny), cudaMemcpyHostToDevice);
 	cudaMemcpy(&cs->Nz, &h_cs->Nz, sizeof(h_cs->Nz), cudaMemcpyHostToDevice);
-
+	//*d_cs = cs;
 	return cs;
 }
 
-__host__ CUDASpace* copyFromDevice(CUDASpace *d_cs/*, CUDASpace *h_cs*/)
+CUDASpace* copyFromDevice(CUDASpace *d_cs/*, CUDASpace *h_cs*/)
 {
 	CUDASpace *cs = new CUDASpace;
 	cs->underspaces = new CUDAUnderspace**[d_cs->Nx];
@@ -291,8 +296,7 @@ __host__ CUDASpace* copyFromDevice(CUDASpace *d_cs/*, CUDASpace *h_cs*/)
 	return cs;
 }
 
-
-__host__ void freeDeviceMem(CUDASpace *d_cs)
+void freeDeviceMem(CUDASpace *d_cs)
 {
 	for (size_t i = 0; i < d_cs->Nx; ++i) {
 		for (size_t j = 0; j < d_cs->Ny; ++j) {
@@ -306,7 +310,8 @@ __host__ void freeDeviceMem(CUDASpace *d_cs)
 	cudaFree(d_cs->underspaces);
 	cudaFree(d_cs);
 }
-__host__ void freeHostMem(CUDASpace *h_cs)
+
+void freeHostMem(CUDASpace *h_cs)
 {
 	for (size_t i = 0; i < h_cs->Nx; ++i) {
 		for (size_t j = 0; j < h_cs->Ny; ++j) {

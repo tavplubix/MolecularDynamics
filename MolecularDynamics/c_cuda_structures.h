@@ -79,10 +79,10 @@ __global__ extern void cuda_validate(CUDASpace *cs);
 //==========================================================================
 //						CUDA host functions for Space
 //==========================================================================
-__host__ extern void oneStep(CUDASpace *d_cs, int Nx, int Ny, int Nz);
+extern void cuda_oneStep(CUDASpace *d_cs, int Nx, int Ny, int Nz);
 
-__host__ extern CUDASpace* copyToDevice(CUDASpace *h_cs/*, CUDASpace *d_cs*/);
-__host__ extern CUDASpace* copyFromDevice(CUDASpace *d_cs/*, CUDASpace *h_cs*/);
+extern "C" CUDASpace* copyToDevice(CUDASpace *h_cs/*, CUDASpace **d_cs*/);
+extern CUDASpace* copyFromDevice(CUDASpace *d_cs/*, CUDASpace *h_cs*/);
 
-__host__ extern void freeDeviceMem(CUDASpace *d_cs);
-__host__ extern void freeHostMem(CUDASpace *h_cs);
+extern void freeDeviceMem(CUDASpace *d_cs);
+extern void freeHostMem(CUDASpace *h_cs);

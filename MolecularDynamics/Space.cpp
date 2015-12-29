@@ -219,6 +219,18 @@ CUDASpace* Space::toCUDA() const
 	return cs;
 }
 
+
+void Space::fromCuda(CUDASpace *cs)
+{
+	for (size_t i = 0; i < cs->Nx; ++i) {
+		for (size_t j = 0; j < cs->Ny; ++j) {
+			for (size_t k = 0; k < cs->Nz; ++k) {
+				underspaces[i][j][k].fromCUDA(&cs->underspaces[i][j][k]);
+			}
+		}
+	}
+}
+
 void Underspace::toCUDA(CUDAUnderspace *cus) const
 {
 	cus->numberOfMolecules = molecules.size();
@@ -233,7 +245,7 @@ void Underspace::toCUDA(CUDAUnderspace *cus) const
 	}
 }
 
-void Underspace::fromCuda(CUDAUnderspace *cus)
+void Underspace::fromCUDA(CUDAUnderspace *cus)
 {
 	molecules.resize(cus->numberOfMolecules);
 	for (size_t i = 0; i < cus->numberOfMolecules; ++i) {

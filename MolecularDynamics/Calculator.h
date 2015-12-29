@@ -4,7 +4,7 @@
 #include "Molecule.h"
 #include "Space.h"
 
-//#define CUDA
+#define CUDA
 
 
 class Calculator : public QObject

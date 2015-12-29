@@ -298,6 +298,7 @@ void Calculator::modeling()
 #ifdef DEBUG
 		qDebug() << "	enter in modeling() cycle";
 #endif
+#ifndef CUDA
 		for (int i = 0; i < 30; ++i) {
 			_oneStep();
 			space->iterations++;
@@ -305,6 +306,24 @@ void Calculator::modeling()
 		}
 		//forAllU(k, space->underspaces)
 		//	normalizeUnderspace(k);
+#else
+		CUDASpace *h_cs = space->toCUDA();
+		h_cs->dt = dt;
+		//CUDASpace *d_cs = nullptr;
+		CUDASpace *d_cs = copyToDevice(h_cs/*, &d_cs*/);
+		freeHostMem(h_cs);
+
+		for (int i = 0; i < 10; ++i) {
+			cuda_oneStep(d_cs, h_cs->Nx, h_cs->Ny, h_cs->Nz);
+			space->iterations++;
+			space->time_s += dt;
+		}
+
+		h_cs = copyFromDevice(d_cs);
+		freeDeviceMem(d_cs);
+		space->fromCuda(h_cs);
+
+#endif
 		freeze(heating);
 		_averageSpeed();
 		normalizeUnderspaces_Vector();

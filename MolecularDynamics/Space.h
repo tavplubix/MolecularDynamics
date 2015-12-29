@@ -29,7 +29,7 @@ public:
 	//bool shouldContains(Molecule m);
 	//bool actuallyContains(Molecule m);
 	void toCUDA(CUDAUnderspace *cus) const;
-	void fromCuda(CUDAUnderspace *cus);
+	void fromCUDA(CUDAUnderspace *cus);
 };
 template<typename T>
 using  Matrix3D = std::vector < std::vector< std::vector<T> > >;
