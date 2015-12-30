@@ -205,14 +205,11 @@ CUDASpace* Space::toCUDA() const
 	cs->Nx = Nx;
 	cs->Ny = Ny;
 	cs->Nz = Nz;
-	//TODO allocate memory
-	cs->underspaces = new CUDAUnderspace**[Nx];
+	cs->underspaces = new CUDAUnderspace[Nx*Ny*Nz];
 	for (size_t i = 0; i < cs->Nx; ++i) {
-		cs->underspaces[i] = new CUDAUnderspace*[Ny];
 		for (size_t j = 0; j < cs->Ny; ++j) {
-			cs->underspaces[i][j] = new CUDAUnderspace[Nx];
 			for (size_t k = 0; k < cs->Nz; ++k) {
-				underspaces[i][j][k].toCUDA(&cs->underspaces[i][j][k]);
+				underspaces[i][j][k].toCUDA(cs->underspaces + LINEAR(cs, i, j, k));
 			}
 		}
 	}
@@ -225,7 +222,7 @@ void Space::fromCuda(CUDASpace *cs)
 	for (size_t i = 0; i < cs->Nx; ++i) {
 		for (size_t j = 0; j < cs->Ny; ++j) {
 			for (size_t k = 0; k < cs->Nz; ++k) {
-				underspaces[i][j][k].fromCUDA(&cs->underspaces[i][j][k]);
+				underspaces[i][j][k].fromCUDA(cs->underspaces + LINEAR(cs, i, j, k));
 			}
 		}
 	}

@@ -21,7 +21,7 @@ void Calculator::_oneStep()
 		t.newF = Vector();
 	futuresP.waitForFinished();
 
-#ifndef CUDA
+#ifndef OLDCUDA
 	auto lambdaF = [&](std::vector<std::vector<Underspace>> & part) {
 		for (auto &i : part)
 			for (auto &k : i)
@@ -151,10 +151,11 @@ void Calculator::set_dt_precision(int precision)	//hot only
 {
 	bool cr = calculationsRequired;
 	calculationsRequired = false;
+	//QThread::sleep(1);
 	space->mutex.lock();
 	dt = std::pow(10, -precision);
 	space->mutex.unlock();
-	start();
+	//start();
 	calculationsRequired = cr;
 }
 
@@ -243,7 +244,7 @@ void Calculator::calculateNewForcesForUnderspace(int nx, int ny, int nz)
 				if (x >= space->Nx) continue;
 				if (y >= space->Ny) continue;
 				if (z >= space->Nz) continue;
-#ifndef CUDA
+#ifndef OLDCUDA
 				calculateNewForces(centralSpace.molecules, space->underspaces[x][y][z].molecules);
 #else
 				calculateNewForces_GPU(centralSpace.molecules, space->underspaces[x][y][z].molecules);
@@ -310,17 +311,17 @@ void Calculator::modeling()
 		CUDASpace *h_cs = space->toCUDA();
 		h_cs->dt = dt;
 		//CUDASpace *d_cs = nullptr;
-		CUDASpace *d_cs = copyToDevice(h_cs/*, &d_cs*/);
-		freeHostMem(h_cs);
+		CUDASpace *d_cs = copyAndDeleteFromHost(h_cs/*, &d_cs*/);
+		//freeHostMem(h_cs);
 
-		for (int i = 0; i < 10; ++i) {
+		for (int i = 0; i < 30; ++i) {
 			cuda_oneStep(d_cs, h_cs->Nx, h_cs->Ny, h_cs->Nz);
 			space->iterations++;
 			space->time_s += dt;
 		}
 
-		h_cs = copyFromDevice(d_cs);
-		freeDeviceMem(d_cs);
+		h_cs = copyAndDeleteFromDevice(d_cs);
+		//freeDeviceMem(d_cs);
 		space->fromCuda(h_cs);
 
 #endif

@@ -6,6 +6,7 @@
 #include "c_cuda_structures.h"
 
 
+
 //==========================================================================
 //					Operations with CUDAVector
 //==========================================================================
@@ -60,13 +61,13 @@ __device__ double square(const CUDAVector &a)
 //==========================================================================
 
 #define Boltzmann  1.3806488e-23
-#define Angstrom  10e-10
+#define Angstrom  1e-10
 #define AtomicMassUnit  1.660538921e-27
-#define sigma 2.74*10e-10	//m
-#define epsilon 36.2*1.3806488e-23	//J
-#define mass 20.1797 * 1.660538921e-27
+#define sigma (2.74*1e-10)	//m
+#define epsilon (36.2*1.3806488e-23)	//J
+#define mass (20.1797 * 1.660538921e-27)
 
-#define maxDistSquare 4.0 * sigma * 4.0 * sigma
+#define maxDistSquare (4.0 * sigma * 4.0 * sigma)
 
 
 __device__ inline void d_Force_LennardJones(const CUDAVector& r, double square, CUDAVector& F)
@@ -82,6 +83,7 @@ __device__ inline void d_Force_LennardJones(const CUDAVector& r, double square, 
 //==========================================================================
 //					Operations with CUDAUnderspace
 //==========================================================================
+
 
 __device__ void d_recalculatePositions_Beeman(CUDAUnderspace *cus, double dt)
 {
@@ -103,6 +105,7 @@ __device__ void d_recalculatePositions_Beeman(CUDAUnderspace *cus, double dt)
 __device__ void d_recalculateSpeeds_Beeman(CUDAUnderspace *cus, double dt, int width, int height)
 {
 	for (size_t i = 0; i < cus->numberOfMolecules; ++i) {
+		//cus->molecules[i].newF.v[0] += 1e10;
 		CUDAVector tmp;
 		//i.v += 2.0 / 6.0 * (i.newF / i.m) * dt;
 		mulc(cus->molecules[i].newF, (2.0 / 6.0) * dt / mass, tmp);
@@ -132,7 +135,7 @@ __device__ void d_recalculateSpeeds_Beeman(CUDAUnderspace *cus, double dt, int w
 
 __device__ void d_calculateNewForcesForUnderspace(CUDASpace *cs, int nx, int ny, int nz)
 {
-	CUDAUnderspace *centralSpace = &cs->underspaces[nx][ny][nz];
+	CUDAUnderspace *centralSpace = &cs->underspaces[LINEAR(cs, nx, ny, nz)];
 	int  closest = 1;
 	for (int dx = -closest; dx <= closest; ++dx) {
 		for (int dy = -closest; dy <= closest; ++dy) {
@@ -144,7 +147,7 @@ __device__ void d_calculateNewForcesForUnderspace(CUDASpace *cs, int nx, int ny,
 				if (x >= cs->Nx) continue;
 				if (y >= cs->Ny) continue;
 				if (z >= cs->Nz) continue;
-				d_calculateNewForces(centralSpace, &cs->underspaces[x][y][z]);
+				d_calculateNewForces(centralSpace, &cs->underspaces[LINEAR(cs, x, y, z)]);
 			}
 		}
 	}
@@ -154,11 +157,12 @@ __device__ void d_calculateNewForces(CUDAUnderspace *cus1, CUDAUnderspace *cus2)
 {
 	for (size_t i = 0; i < cus1->numberOfMolecules; ++i) {
 		for (size_t j = 0; j < cus2->numberOfMolecules; ++j) {
-			if (i == j) continue;
+			//if (i == j && cus1 == cus2) continue;
 			//Vector r = (*j).r - (*i).r;
 			CUDAVector tmp;
 			sub(cus2->molecules[j].r, cus1->molecules[i].r, tmp);
 			double sq = square(tmp);
+			if (sq == 0) continue;
 			if (maxDistSquare < sq) continue;
 			//(*i).newF += d_Force_LennardJones(r, sq);
 			d_Force_LennardJones(tmp, sq, tmp);
@@ -171,6 +175,7 @@ __device__ void d_calculateNewForces(CUDAUnderspace *cus1, CUDAUnderspace *cus2)
 //==========================================================================
 //					Operations with CUDASpace
 //==========================================================================
+
 __global__ void cuda_recalculatePositions(CUDASpace *cs)
 {
 	size_t nx = blockDim.x * blockIdx.x + threadIdx.x;
@@ -178,9 +183,9 @@ __global__ void cuda_recalculatePositions(CUDASpace *cs)
 	size_t ny = blockDim.y * blockIdx.y + threadIdx.y;
 	if (ny >= cs->Ny) return;
 	size_t nz = blockDim.z * blockIdx.z + threadIdx.z;
-	if (ny >= cs->Ny) return;
+	if (nz >= cs->Nz) return;
 
-	d_recalculatePositions_Beeman(&cs->underspaces[nx][ny][nz], cs->dt);
+	d_recalculatePositions_Beeman(&cs->underspaces[LINEAR(cs, nx, ny, nz)], cs->dt);
 }
 
 __global__ void cuda_recalculateSpeeds(CUDASpace *cs)
@@ -190,19 +195,19 @@ __global__ void cuda_recalculateSpeeds(CUDASpace *cs)
 	size_t ny = blockDim.y * blockIdx.y + threadIdx.y;
 	if (ny >= cs->Ny) return;
 	size_t nz = blockDim.z * blockIdx.z + threadIdx.z;
-	if (ny >= cs->Ny) return;
+	if (nz >= cs->Nz) return;
 
-	d_recalculateSpeeds_Beeman(&cs->underspaces[nx][ny][nz], cs->dt, cs->width, cs->height);
+	d_recalculateSpeeds_Beeman(&cs->underspaces[LINEAR(cs, nx, ny, nz)], cs->dt, cs->width, cs->height);
 }
 
 __global__ void cuda_recalculateForces(CUDASpace *cs)
 {
 	size_t nx = blockDim.x * blockIdx.x + threadIdx.x;
-	//if (nx >= cs->Nx) return;	
+	if (nx >= cs->Nx) return;	
 	size_t ny = blockDim.y * blockIdx.y + threadIdx.y;
-	//if (ny >= cs->Ny) return;
+	if (ny >= cs->Ny) return;
 	size_t nz = blockDim.z * blockIdx.z + threadIdx.z;
-	//if (ny >= cs->Ny) return;
+	if (ny >= cs->Ny) return;
 
 	d_calculateNewForcesForUnderspace(cs, nx, ny, nz);
 }
@@ -214,88 +219,105 @@ __global__ void cuda_validate(CUDASpace *cs)
 	size_t ny = blockDim.y * blockIdx.y + threadIdx.y;
 	if (ny >= cs->Ny) return;
 	size_t nz = blockDim.z * blockIdx.z + threadIdx.z;
-	if (ny >= cs->Ny) return;
+	if (nz >= cs->Nz) return;
 
-	CUDAUnderspace& cus = cs->underspaces[nx][ny][nz];
+	CUDAUnderspace& cus = cs->underspaces[LINEAR(cs, nx, ny, nz)];
 	for (size_t i = 0; i < cus.numberOfMolecules; ++i) {
 		//t.oldF = t.F;
-		mov(cus.molecules[i].oldF, cus.molecules[i].F);
+		mov(cus.molecules[i].F, cus.molecules[i].oldF);
 		//t.F = t.newF;
-		mov(cus.molecules[i].F, cus.molecules[i].newF);
+		mov(cus.molecules[i].newF, cus.molecules[i].F);
+	}
+}
+
+__global__ void cuda_dropNewF(CUDASpace *cs)
+{
+	size_t nx = blockDim.x * blockIdx.x + threadIdx.x;
+	if (nx >= cs->Nx) return;
+	size_t ny = blockDim.y * blockIdx.y + threadIdx.y;
+	if (ny >= cs->Ny) return;
+	size_t nz = blockDim.z * blockIdx.z + threadIdx.z;
+	if (nz >= cs->Nz) return;
+	CUDAUnderspace& cus = cs->underspaces[LINEAR(cs, nx, ny, nz)];
+	for (size_t i = 0; i < cus.numberOfMolecules; ++i) {
+		//t.newF = Vector();
+		cus.molecules[i].newF.v[0] = 0;
+		cus.molecules[i].newF.v[1] = 0;
+		cus.molecules[i].newF.v[2] = 0;
 	}
 }
 
 void cuda_oneStep(CUDASpace *d_cs,int Nx, int Ny, int Nz)
 {
-	int numberOfCores = 512;
-	int coresPerDim = numberOfCores / 3;
+	int numberOfCores = 1024;
+	//int coresPerDim = int(pow(numberOfCores, 1.0/3.0));
+	int coresPerDim = int(sqrt(numberOfCores));
 	dim3 grid, blocks;
-	grid = dim3(Nx / coresPerDim + 1, Ny / coresPerDim + 1, Nz / coresPerDim + 1);
-	blocks = dim3(coresPerDim, coresPerDim, coresPerDim);
+	//grid = dim3(Nx / coresPerDim + 1, Ny / coresPerDim + 1, Nz / coresPerDim + 1);
+	grid = dim3(Nx / coresPerDim + 1, Ny / coresPerDim + 1, Nz);
+	blocks = dim3(coresPerDim, coresPerDim, 1);
 
 	cuda_recalculatePositions	<<<grid, blocks>>> (d_cs);
+	//auto cudaStatus = cudaGetLastError();
 	cudaDeviceSynchronize();
+
+	cuda_dropNewF				<<<grid, blocks>>> (d_cs);
+	cudaDeviceSynchronize();
+
 	cuda_recalculateForces		<<<grid, blocks>>> (d_cs);
 	cudaDeviceSynchronize();
+
 	cuda_recalculateSpeeds		<<<grid, blocks>>> (d_cs);
 	cudaDeviceSynchronize();
+
 	cuda_validate				<<<grid, blocks>>> (d_cs);
 	cudaDeviceSynchronize();
 }
 
 
 
-extern "C" CUDASpace* /*void*/ copyToDevice(CUDASpace *h_cs/*, CUDASpace **d_cs*/)
+extern CUDASpace* /*void*/ copyAndDeleteFromHost(CUDASpace *h_cs/*, CUDASpace **d_cs*/)
 {
-	CUDASpace *cs;
-	cudaMalloc(&cs, sizeof(CUDASpace));
-	cudaMalloc(&cs->underspaces, sizeof(CUDAUnderspace**) * h_cs->Nx);
-	for (size_t i = 0; i < h_cs->Nx; ++i) {
-		cudaMalloc(&cs->underspaces[i], sizeof(CUDAUnderspace*) * h_cs->Ny);
-		for (size_t j = 0; j < h_cs->Ny; ++j) {
-			cudaMalloc(&cs->underspaces[i][j], sizeof(CUDAUnderspace) * h_cs->Nz);
-			for (size_t k = 0; k < h_cs->Nz; ++k) {
-				cudaMalloc(&cs->underspaces[i][j][k].molecules, sizeof(CUDAMolecule) * h_cs->underspaces[i][j][k].numberOfMolecules);
-				cudaMemcpy(cs->underspaces[i][j][k].molecules, h_cs->underspaces[i][j][k].molecules, h_cs->underspaces[i][j][k].numberOfMolecules, cudaMemcpyHostToDevice);
-				cudaMemcpy(&cs->underspaces[i][j][k].numberOfMolecules, &h_cs->underspaces[i][j][k].numberOfMolecules, sizeof(h_cs->underspaces[i][j][k].numberOfMolecules), cudaMemcpyHostToDevice);
-			}
-		}
+	CUDASpace *d_cs;
+	cudaMalloc(&d_cs, sizeof(CUDASpace));		//allocate memory for CUDASpace structure on device
+	CUDAUnderspace *us_backup = h_cs->underspaces;		
+	cudaMalloc(&h_cs->underspaces, BYTES(h_cs));		//allocate memory for underspaces on device
+	cudaMemcpy(d_cs, h_cs, sizeof(CUDASpace), cudaMemcpyHostToDevice);		//copy CUDASpace structure from h_cs (host) to d_cs (device)
+	
+	
+	//allocate memory for molecules on device and copy arrays of molecules to device memory
+	for (size_t i = 0; i < SIZE(h_cs); ++i) {
+		CUDAMolecule *m_backup = us_backup[i].molecules;
+		cudaMalloc(&us_backup[i].molecules, sizeof(CUDAMolecule) * us_backup[i].numberOfMolecules);
+		cudaMemcpy(h_cs->underspaces + i, us_backup + i, sizeof(CUDAUnderspace), cudaMemcpyHostToDevice);
+		cudaMemcpy(us_backup[i].molecules, m_backup, 
+			sizeof(CUDAMolecule) * us_backup[i].numberOfMolecules, cudaMemcpyHostToDevice);
+		us_backup[i].molecules = m_backup;
 	}
-	cudaMemcpy(&cs->dt, &h_cs->dt, sizeof(h_cs->dt), cudaMemcpyHostToDevice);
-	cudaMemcpy(&cs->width, &h_cs->width, sizeof(h_cs->width), cudaMemcpyHostToDevice);
-	cudaMemcpy(&cs->height, &h_cs->height, sizeof(h_cs->height), cudaMemcpyHostToDevice);
-	cudaMemcpy(&cs->Nx, &h_cs->Nx, sizeof(h_cs->Nx), cudaMemcpyHostToDevice);
-	cudaMemcpy(&cs->Ny, &h_cs->Ny, sizeof(h_cs->Ny), cudaMemcpyHostToDevice);
-	cudaMemcpy(&cs->Nz, &h_cs->Nz, sizeof(h_cs->Nz), cudaMemcpyHostToDevice);
-	//*d_cs = cs;
-	return cs;
+	h_cs->underspaces = us_backup;		//restore h_cs
+
+	return d_cs;
 }
 
-CUDASpace* copyFromDevice(CUDASpace *d_cs/*, CUDASpace *h_cs*/)
+CUDASpace* copyAndDeleteFromDevice(CUDASpace *d_cs/*, CUDASpace *h_cs*/)
 {
-	CUDASpace *cs = new CUDASpace;
-	cs->underspaces = new CUDAUnderspace**[d_cs->Nx];
-	for (size_t i = 0; i < d_cs->Nx; ++i) {
-		cs->underspaces[i] = new CUDAUnderspace*[d_cs->Ny];
-		for (size_t j = 0; j < d_cs->Ny; ++j) {
-			cs->underspaces[i][j] = new CUDAUnderspace[d_cs->Nz];
-			for (size_t k = 0; k < d_cs->Nz; ++k) {
-				cudaMalloc(&cs->underspaces[i][j][k].molecules, sizeof(CUDAMolecule) * d_cs->underspaces[i][j][k].numberOfMolecules);
-				cudaMemcpy(cs->underspaces[i][j][k].molecules, d_cs->underspaces[i][j][k].molecules, d_cs->underspaces[i][j][k].numberOfMolecules, cudaMemcpyDeviceToHost);
-				cudaMemcpy(&cs->underspaces[i][j][k].numberOfMolecules, &d_cs->underspaces[i][j][k].numberOfMolecules, sizeof(d_cs->underspaces[i][j][k].numberOfMolecules), cudaMemcpyDeviceToHost);
-			}
-		}
-	}
-	cudaMemcpy(&cs->dt, &d_cs->dt, sizeof(d_cs->dt), cudaMemcpyDeviceToHost);
-	cudaMemcpy(&cs->width, &d_cs->width, sizeof(d_cs->width), cudaMemcpyDeviceToHost);
-	cudaMemcpy(&cs->height, &d_cs->height, sizeof(d_cs->height), cudaMemcpyDeviceToHost);
-	cudaMemcpy(&cs->Nx, &d_cs->Nx, sizeof(d_cs->Nx), cudaMemcpyDeviceToHost);
-	cudaMemcpy(&cs->Ny, &d_cs->Ny, sizeof(d_cs->Ny), cudaMemcpyDeviceToHost);
-	cudaMemcpy(&cs->Nz, &d_cs->Nz, sizeof(d_cs->Nz), cudaMemcpyDeviceToHost);
+	CUDASpace *h_cs = new CUDASpace;
+	cudaMemcpy(h_cs, d_cs, sizeof(CUDASpace), cudaMemcpyDeviceToHost);
+	CUDAUnderspace *d_cus = h_cs->underspaces;
+	h_cs->underspaces = new CUDAUnderspace[BYTES(h_cs)];
 
-	return cs;
+	for (size_t i = 0; i < SIZE(h_cs); ++i) {
+		cudaMemcpy(h_cs->underspaces + i, d_cus + i, sizeof(CUDAUnderspace), cudaMemcpyDeviceToHost);
+		CUDAMolecule *d_cm = h_cs->underspaces[i].molecules;
+		h_cs->underspaces[i].molecules = new CUDAMolecule[h_cs->underspaces[i].numberOfMolecules];
+		cudaMemcpy(h_cs->underspaces[i].molecules, d_cm, 
+			sizeof(CUDAMolecule) * h_cs->underspaces[i].numberOfMolecules, cudaMemcpyDeviceToHost);
+	}
+
+	return h_cs;
 }
 
+/*
 void freeDeviceMem(CUDASpace *d_cs)
 {
 	for (size_t i = 0; i < d_cs->Nx; ++i) {
@@ -325,5 +347,5 @@ void freeHostMem(CUDASpace *h_cs)
 	delete h_cs->underspaces;
 	delete h_cs;
 }
-
+*/
 

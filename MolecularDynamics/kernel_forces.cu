@@ -188,7 +188,3 @@ __global__ void calculateNewForcesForUnderspace_GPU(Space* space, int nx, int ny
 
 
 
-
-
-
-

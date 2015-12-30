@@ -4,6 +4,7 @@
 
 
 
+
 //==========================================================================
 //						Structures
 //==========================================================================
@@ -28,10 +29,15 @@ struct CUDAUnderspace
 	size_t numberOfMolecules;
 };
 
+
+#define LINEAR(p, x, y, z) z * p->Nx * p->Ny  +  y * p->Nx  +  x
+#define BYTES(p) p->Nx * p->Ny * p->Nz * sizeof(CUDAUnderspace)
+#define SIZE(p) p->Nx * p->Ny * p->Nz
+
 struct CUDASpace
 {
 	//CUDAUnderspace *underspaces;
-	CUDAUnderspace ***underspaces;
+	CUDAUnderspace *underspaces;
 	size_t Nx, Ny, Nz;
 	double dt;
 	int width, height;
@@ -81,8 +87,8 @@ __global__ extern void cuda_validate(CUDASpace *cs);
 //==========================================================================
 extern void cuda_oneStep(CUDASpace *d_cs, int Nx, int Ny, int Nz);
 
-extern "C" CUDASpace* copyToDevice(CUDASpace *h_cs/*, CUDASpace **d_cs*/);
-extern CUDASpace* copyFromDevice(CUDASpace *d_cs/*, CUDASpace *h_cs*/);
+extern CUDASpace* copyAndDeleteFromHost(CUDASpace *h_cs/*, CUDASpace **d_cs*/);
+extern CUDASpace* copyAndDeleteFromDevice(CUDASpace *d_cs/*, CUDASpace *h_cs*/);
 
-extern void freeDeviceMem(CUDASpace *d_cs);
-extern void freeHostMem(CUDASpace *h_cs);
+//extern void freeDeviceMem(CUDASpace *d_cs);
+//extern void freeHostMem(CUDASpace *h_cs);

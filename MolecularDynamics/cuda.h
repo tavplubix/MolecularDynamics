@@ -10,4 +10,7 @@ extern void allocateMemory(size_t size);
 extern void freeMemory();
 
 
+extern CUDASpace* copyToDevice(CUDASpace *h_cs/*, CUDASpace **d_cs*/);
+
+
 
