@@ -310,17 +310,18 @@ void Calculator::modeling()
 #else
 		CUDASpace *h_cs = space->toCUDA();
 		h_cs->dt = dt;
+		size_t wholeSize = WHOLE_SIZE_OF_SPACE(h_cs);
 		//CUDASpace *d_cs = nullptr;
-		CUDASpace *d_cs = copyAndDeleteFromHost(h_cs/*, &d_cs*/);
+		CUDASpace *d_cs = moveFromHost(h_cs, wholeSize);
 		//freeHostMem(h_cs);
 
 		for (int i = 0; i < 30; ++i) {
-			cuda_oneStep(d_cs, h_cs->Nx, h_cs->Ny, h_cs->Nz);
+			cuda_oneStep(d_cs, space->Nx, space->Ny, space->Nz);
 			space->iterations++;
 			space->time_s += dt;
 		}
 
-		h_cs = copyAndDeleteFromDevice(d_cs);
+		h_cs = moveFromDevice(d_cs, wholeSize);
 		//freeDeviceMem(d_cs);
 		space->fromCuda(h_cs);
 

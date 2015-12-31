@@ -1,19 +1,36 @@
 #pragma once
 #include "cuda_runtime.h"
 
+#ifdef ODINARY_PRECISION
+typedef float myfloat;
+#else
+typedef double myfloat;
+#endif
 
 
 
+
+#define LINEAR(p, x, y, z) z * p->Nx * p->Ny  +  y * p->Nx  +  x
+#define BYTES(p) p->Nx * p->Ny * p->Nz * sizeof(CUDAUnderspace)
+#define SIZE(p) p->Nx * p->Ny * p->Nz
+
+#define GET_POINTER(type, ptr, shift) reinterpret_cast<type*>( reinterpret_cast<size_t>(ptr) + shift )
+#define GET_SHIFT(ptr1, ptr2) (reinterpret_cast<size_t>(ptr2) - reinterpret_cast<size_t>(ptr1))
+#define WHOLE_SIZE_OF_SPACE(space)  1*sizeof(CUDASpace) + space->Nx*space->Ny*space->Nz*sizeof(CUDAUnderspace) + space->numberOfAllMolecules*sizeof(CUDAMolecule);
 
 //==========================================================================
 //						Structures
 //==========================================================================
 
+typedef unsigned char byte;		//sizeof(byte) == 1
+//5.3.3 - ... sizeof(char), sizeof(signed char) and sizeof(unsigned char) are 1 ...
+
+
 
 #define VECTOR_DIMENSION 3
 struct CUDAVector
 {
-	double v[VECTOR_DIMENSION];
+	myfloat v[VECTOR_DIMENSION];
 };
 
 struct CUDAMolecule
@@ -25,23 +42,25 @@ struct CUDAMolecule
 
 struct CUDAUnderspace
 {
-	CUDAMolecule *molecules;
+	//CUDAMolecule *molecules;
+	size_t moleculesShift;
 	size_t numberOfMolecules;
 };
 
 
-#define LINEAR(p, x, y, z) z * p->Nx * p->Ny  +  y * p->Nx  +  x
-#define BYTES(p) p->Nx * p->Ny * p->Nz * sizeof(CUDAUnderspace)
-#define SIZE(p) p->Nx * p->Ny * p->Nz
 
 struct CUDASpace
 {
+	//CUDAUnderspace ***underspaces;
 	//CUDAUnderspace *underspaces;
-	CUDAUnderspace *underspaces;
+	size_t underspacesShift;
 	size_t Nx, Ny, Nz;
-	double dt;
+	myfloat dt;
 	int width, height;
+	size_t numberOfAllMolecules;
 };
+
+
 
 
 //==========================================================================
@@ -50,16 +69,16 @@ struct CUDASpace
 __device__ extern void mov(const CUDAVector &a, CUDAVector& result);
 __device__ extern void add(const CUDAVector &a, const CUDAVector& b, CUDAVector& result);
 __device__ extern void sub(const CUDAVector &a, const CUDAVector& b, CUDAVector& result);
-__device__ extern void mulv(const CUDAVector &a, const CUDAVector& b, CUDAVector& result);
-__device__ extern void mulc(const CUDAVector &a, const double b, CUDAVector& result);
-__device__ extern void div(const CUDAVector &a, const double b, CUDAVector& result);
+__device__ extern void mul(const CUDAVector &a, const CUDAVector& b, CUDAVector& result);
+__device__ extern void mul(const CUDAVector &a, const myfloat b, CUDAVector& result);
+__device__ extern void div(const CUDAVector &a, const myfloat b, CUDAVector& result);
 __device__ extern double square(const CUDAVector &a);
 
 //==========================================================================
 //						CUDA device functions for Molecule
 //==========================================================================
 //extern inline void Force_LennardJones(CUDAMolecule& m1, CUDAMolecule& m2);
-__device__ inline void d_Force_LennardJones(const CUDAVector& r, double square, CUDAVector& F);		//r - distance between two molecules, square=r*r
+__device__ inline void d_Force_LennardJones(const CUDAVector& r, myfloat square, CUDAVector& F);		//r - distance between two molecules, square=r*r
 
 
 
@@ -67,8 +86,8 @@ __device__ inline void d_Force_LennardJones(const CUDAVector& r, double square, 
 //==========================================================================
 //						CUDA device functions for Underspace
 //==========================================================================
-__device__ extern void d_recalculatePositions_Beeman(CUDAUnderspace *cus, double dt);
-__device__ extern void d_recalculateSpeeds_Beeman(CUDAUnderspace *cus, double dt, int width, int height);
+__device__ extern void d_recalculatePositions_Beeman(CUDAUnderspace *cus, myfloat dt);
+__device__ extern void d_recalculateSpeeds_Beeman(CUDAUnderspace *cus, myfloat dt, int width, int height);
 __device__ extern void d_calculateNewForcesForUnderspace(CUDASpace *cs, int nx, int ny, int nz);
 __device__ extern void d_calculateNewForces(CUDAUnderspace *cus1, CUDAUnderspace *cus2);
 
@@ -87,8 +106,8 @@ __global__ extern void cuda_validate(CUDASpace *cs);
 //==========================================================================
 extern void cuda_oneStep(CUDASpace *d_cs, int Nx, int Ny, int Nz);
 
-extern CUDASpace* copyAndDeleteFromHost(CUDASpace *h_cs/*, CUDASpace **d_cs*/);
-extern CUDASpace* copyAndDeleteFromDevice(CUDASpace *d_cs/*, CUDASpace *h_cs*/);
+extern CUDASpace* moveFromHost(CUDASpace *h_cs, size_t wholeSize = 0);
+extern CUDASpace* moveFromDevice(CUDASpace *d_cs, size_t wholeSize = 0);
 
 //extern void freeDeviceMem(CUDASpace *d_cs);
 //extern void freeHostMem(CUDASpace *h_cs);

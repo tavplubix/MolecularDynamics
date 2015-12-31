@@ -8,9 +8,9 @@ MainGui::MainGui(QWidget *parent)
 {
 	ui.setupUi(this);
 
-	ui.numberOfMoleculesSpinBox->setValue(100);
-	ui.widthSpinBox->setValue(100);
-	ui.heightSpinBox->setValue(100);
+	ui.numberOfMoleculesSpinBox->setValue(5000);
+	ui.widthSpinBox->setValue(500);
+	ui.heightSpinBox->setValue(500);
 	ui.precisionSpinBox->setValue(14);
 
 	space = new Space(ui.widthSpinBox->value(), ui.heightSpinBox->value(), ui.numberOfMoleculesSpinBox->value());

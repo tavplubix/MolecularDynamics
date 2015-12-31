@@ -1,14 +1,17 @@
 #pragma once
 
 #include <QMutex>
-#include "Molecule.h"
 #include <list>
 #include <vector>
 #include <functional>
 #include <iterator>
 
+
+#include "Molecule.h"
+
 #define forAllU(t, s) for (auto &i: s) for (auto &j: i) for (auto &t: j)
 #define forAllM(t, s) for (auto &i: s) for (auto &j: i) for (auto &k: j) for (auto &t: k.molecules)
+
 
 //class MoleculesContainer;
 
@@ -28,7 +31,7 @@ public:
 	//Underspace(std::function<Vector()> speedsGenerator, std::function<Vector(Vector)> positionsGenerator);
 	//bool shouldContains(Molecule m);
 	//bool actuallyContains(Molecule m);
-	void toCUDA(CUDAUnderspace *cus) const;
+	void toCUDA(CUDAUnderspace *cus, CUDAMolecule *placeForMolecules) const;
 	void fromCUDA(CUDAUnderspace *cus);
 };
 template<typename T>

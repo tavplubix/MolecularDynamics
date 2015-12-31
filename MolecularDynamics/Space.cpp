@@ -11,7 +11,7 @@
 #include <ctime>
 
 
-const Vector Underspace::size = Vector(3 * Molecule::sigma, 3 * Molecule::sigma, 3 * Molecule::sigma);
+const Vector Underspace::size = Vector(5 * Molecule::sigma, 5 * Molecule::sigma, 5 * Molecule::sigma);
 //const Vector Underspace::size = Vector(100 * Angstrom, 100 * Angstrom, 100 * Angstrom);
 
 void Space::generateCoordinates()
@@ -198,18 +198,28 @@ void Space::loadStateCS(const QString& filename)
 
 
 CUDASpace* Space::toCUDA() const
-{
-	CUDASpace *cs = new CUDASpace;
+{	
+	//allocate memory for all data
+	size_t wholeSize = 1 * sizeof(CUDASpace) + Nx*Ny*Nz*sizeof(CUDAUnderspace) + numberOfMolecules*sizeof(CUDAMolecule);
+	byte *p = new byte[wholeSize];		
+	auto cs =  reinterpret_cast<CUDASpace*>(p);
 	cs->width = width;
 	cs->height = height;
 	cs->Nx = Nx;
 	cs->Ny = Ny;
 	cs->Nz = Nz;
-	cs->underspaces = new CUDAUnderspace[Nx*Ny*Nz];
+	cs->numberOfAllMolecules = numberOfMolecules;
+	p += 1*sizeof(CUDASpace);
+	auto cus = reinterpret_cast<CUDAUnderspace*>(p);
+	cs->underspacesShift = GET_SHIFT(cs, p);
+	p += Nx*Ny*Nz*sizeof(CUDAUnderspace);
 	for (size_t i = 0; i < cs->Nx; ++i) {
 		for (size_t j = 0; j < cs->Ny; ++j) {
 			for (size_t k = 0; k < cs->Nz; ++k) {
-				underspaces[i][j][k].toCUDA(cs->underspaces + LINEAR(cs, i, j, k));
+				auto placeForMolecules = reinterpret_cast<CUDAMolecule*>(p);
+				auto currentUnderspace = cus + LINEAR(cs, i, j, k);
+				underspaces[i][j][k].toCUDA(currentUnderspace, placeForMolecules);
+				p += underspaces[i][j][k].molecules.size() * sizeof(CUDAMolecule);
 			}
 		}
 	}
@@ -219,39 +229,41 @@ CUDASpace* Space::toCUDA() const
 
 void Space::fromCuda(CUDASpace *cs)
 {
+	auto cus = GET_POINTER(CUDAUnderspace, cs, cs->underspacesShift);
 	for (size_t i = 0; i < cs->Nx; ++i) {
 		for (size_t j = 0; j < cs->Ny; ++j) {
 			for (size_t k = 0; k < cs->Nz; ++k) {
-				underspaces[i][j][k].fromCUDA(cs->underspaces + LINEAR(cs, i, j, k));
+				underspaces[i][j][k].fromCUDA(cus + LINEAR(cs, i, j, k));
 			}
 		}
 	}
 }
 
-void Underspace::toCUDA(CUDAUnderspace *cus) const
+void Underspace::toCUDA(CUDAUnderspace *cus, CUDAMolecule *placeForMolecules) const
 {
 	cus->numberOfMolecules = molecules.size();
-	cus->molecules = new CUDAMolecule[cus->numberOfMolecules];
+	cus->moleculesShift = GET_SHIFT(cus, placeForMolecules);
 	for (size_t i = 0; i < cus->numberOfMolecules; ++i) {
-		molecules[i].oldr	.toCUDA(cus->molecules[i].oldr);
-		molecules[i].r		.toCUDA(cus->molecules[i].r);
-		molecules[i].oldF	.toCUDA(cus->molecules[i].oldF);
-		molecules[i].F		.toCUDA(cus->molecules[i].F);
-		molecules[i].newF	.toCUDA(cus->molecules[i].newF);
-		molecules[i].v		.toCUDA(cus->molecules[i].v);
+		molecules[i].oldr	.toCUDA(placeForMolecules[i].oldr);
+		molecules[i].r		.toCUDA(placeForMolecules[i].r);
+		molecules[i].oldF	.toCUDA(placeForMolecules[i].oldF);
+		molecules[i].F		.toCUDA(placeForMolecules[i].F);
+		molecules[i].newF	.toCUDA(placeForMolecules[i].newF);
+		molecules[i].v		.toCUDA(placeForMolecules[i].v);
 	}
 }
 
 void Underspace::fromCUDA(CUDAUnderspace *cus)
 {
+	auto cm = GET_POINTER(CUDAMolecule, cus, cus->moleculesShift);
 	molecules.resize(cus->numberOfMolecules);
 	for (size_t i = 0; i < cus->numberOfMolecules; ++i) {
-		molecules[i].oldr	.fromCUDA(cus->molecules[i].oldr);
-		molecules[i].r		.fromCUDA(cus->molecules[i].r);
-		molecules[i].oldF	.fromCUDA(cus->molecules[i].oldF);
-		molecules[i].F		.fromCUDA(cus->molecules[i].F);
-		molecules[i].newF	.fromCUDA(cus->molecules[i].newF);
-		molecules[i].v		.fromCUDA(cus->molecules[i].v);
+		molecules[i].oldr	.fromCUDA(cm[i].oldr);
+		molecules[i].r		.fromCUDA(cm[i].r);
+		molecules[i].oldF	.fromCUDA(cm[i].oldF);
+		molecules[i].F		.fromCUDA(cm[i].F);
+		molecules[i].newF	.fromCUDA(cm[i].newF);
+		molecules[i].v		.fromCUDA(cm[i].v);
 	}
 }
 
