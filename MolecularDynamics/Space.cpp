@@ -11,7 +11,7 @@
 #include <ctime>
 
 
-const Vector Underspace::size = Vector(5 * Molecule::sigma, 5 * Molecule::sigma, 5 * Molecule::sigma);
+const Vector Underspace::size = Vector(3 * Molecule::sigma, 3 * Molecule::sigma, 3 * Molecule::sigma);
 //const Vector Underspace::size = Vector(100 * Angstrom, 100 * Angstrom, 100 * Angstrom);
 
 void Space::generateCoordinates()

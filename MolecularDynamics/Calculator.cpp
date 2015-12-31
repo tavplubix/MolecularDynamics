@@ -164,7 +164,7 @@ void Calculator::set_dt_precision(int precision)	//hot only
 Calculator::Calculator(Space *space, QObject *parent /*= 0*/)
 	:QObject(parent), space(space)
 {
-	allocateMemory(space->numberOfMolecules);
+	//allocateMemory(space->numberOfMolecules);
 	calculationsRequired = false;
 	QMetaObject::invokeMethod(this, "modeling", Qt::QueuedConnection);		//modeling() does nothing if calculationsRequired == false
 }
@@ -321,9 +321,11 @@ void Calculator::modeling()
 			space->time_s += dt;
 		}
 
-		h_cs = moveFromDevice(d_cs, wholeSize);
+		h_cs = moveFromDevice(d_cs, wholeSize, reinterpret_cast<byte*>(h_cs));
 		//freeDeviceMem(d_cs);
 		space->fromCuda(h_cs);
+
+		delete[] reinterpret_cast<byte*>(h_cs);
 
 #endif
 		freeze(heating);

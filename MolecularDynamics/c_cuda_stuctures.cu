@@ -294,17 +294,18 @@ extern CUDASpace* moveFromHost(CUDASpace *h_cs, size_t wholeSize/* = 0*/)
 		wholeSize = WHOLE_SIZE_OF_SPACE(h_cs);
 	cudaMalloc(&d_cs, wholeSize);		//allocate device memory for all data
 	cudaMemcpy(d_cs, h_cs, wholeSize, cudaMemcpyHostToDevice);		//copy all data from h_cs (host) to d_cs (device)
-	delete[] h_cs;		//delete data from host memory;
+	//delete[] reinterpret_cast<byte*>(h_cs);		//delete data from host memory;
 
 	return d_cs;
 }
 
-CUDASpace* moveFromDevice(CUDASpace *d_cs, size_t wholeSize/* = 0*/)
+CUDASpace* moveFromDevice(CUDASpace *d_cs, size_t wholeSize/* = 0*/, byte *h_p/* = nullptr*/)
 {
 	if (wholeSize == 0) 
 		throw 0;		//TODO copy CUDASpace only from device and calculate wholeSize
 
-	byte *h_p = new byte[wholeSize];		//allocate host memory for all data
+	if (h_p == nullptr) 
+		h_p = new byte[wholeSize];		//allocate host memory for all data
 	cudaMemcpy(h_p, d_cs, wholeSize, cudaMemcpyDeviceToHost);	//copy all data
 	auto h_cs = reinterpret_cast<CUDASpace*>(h_p);		//get pointer to CUDASpace
 	cudaFree(d_cs);		//delete data from device memory

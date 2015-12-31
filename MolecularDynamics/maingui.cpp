@@ -7,10 +7,10 @@ MainGui::MainGui(QWidget *parent)
 	: QMainWindow(parent)
 {
 	ui.setupUi(this);
-
-	ui.numberOfMoleculesSpinBox->setValue(5000);
-	ui.widthSpinBox->setValue(500);
-	ui.heightSpinBox->setValue(500);
+	this->resize(1850, 990);
+	ui.numberOfMoleculesSpinBox->setValue(30000);
+	ui.widthSpinBox->setValue(1800);
+	ui.heightSpinBox->setValue(750);
 	ui.precisionSpinBox->setValue(14);
 
 	space = new Space(ui.widthSpinBox->value(), ui.heightSpinBox->value(), ui.numberOfMoleculesSpinBox->value());

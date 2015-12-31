@@ -78,4 +78,7 @@ Global
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		Qt5Version = 5.5 msvc2013_64
 	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
 EndGlobal

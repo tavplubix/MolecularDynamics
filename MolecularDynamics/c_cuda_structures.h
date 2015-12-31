@@ -1,6 +1,9 @@
 #pragma once
 #include "cuda_runtime.h"
 
+
+//#define ODINARY_PRECISION
+
 #ifdef ODINARY_PRECISION
 typedef float myfloat;
 #else
@@ -107,7 +110,7 @@ __global__ extern void cuda_validate(CUDASpace *cs);
 extern void cuda_oneStep(CUDASpace *d_cs, int Nx, int Ny, int Nz);
 
 extern CUDASpace* moveFromHost(CUDASpace *h_cs, size_t wholeSize = 0);
-extern CUDASpace* moveFromDevice(CUDASpace *d_cs, size_t wholeSize = 0);
+extern CUDASpace* moveFromDevice(CUDASpace *d_cs, size_t wholeSize = 0, byte *h_p = nullptr);
 
 //extern void freeDeviceMem(CUDASpace *d_cs);
 //extern void freeHostMem(CUDASpace *h_cs);
