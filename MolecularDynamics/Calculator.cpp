@@ -294,12 +294,10 @@ void Calculator::freeze(double vMul /*= 0.999*/)
 void Calculator::modeling()
 {
 	while (calculationsRequired) {
+		
+#ifndef CUDA
 		space->mutex.lock();
 		//space->mutex.lockForWrite();
-#ifdef DEBUG
-		qDebug() << "	enter in modeling() cycle";
-#endif
-#ifndef CUDA
 		for (int i = 0; i < 30; ++i) {
 			_oneStep();
 			space->iterations++;
@@ -313,16 +311,17 @@ void Calculator::modeling()
 		size_t wholeSize = WHOLE_SIZE_OF_SPACE(h_cs);
 		//CUDASpace *d_cs = nullptr;
 		CUDASpace *d_cs = moveFromHost(h_cs, wholeSize);
-		//freeHostMem(h_cs);
 
-		for (int i = 0; i < 30; ++i) {
+		for (int i = 0; i < 50; ++i) {
 			cuda_oneStep(d_cs, space->Nx, space->Ny, space->Nz);
 			space->iterations++;
 			space->time_s += dt;
 		}
 
 		h_cs = moveFromDevice(d_cs, wholeSize, reinterpret_cast<byte*>(h_cs));
-		//freeDeviceMem(d_cs);
+
+		space->mutex.lock();
+		//space->mutex.lockForWrite();
 		space->fromCuda(h_cs);
 
 		delete[] reinterpret_cast<byte*>(h_cs);
@@ -331,9 +330,6 @@ void Calculator::modeling()
 		freeze(heating);
 		_averageSpeed();
 		normalizeUnderspaces_Vector();
-#ifdef DEBUG
-		qDebug() << "	return from modeling() cycle";
-#endif
 		space->mutex.unlock();	//WARNING мьютекс может не освободиться, если будет выкинуто исключение
 	}
 
