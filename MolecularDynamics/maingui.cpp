@@ -3,6 +3,7 @@
 #include <QFileDialog>
 #include <ctime>
 
+
 MainGui::MainGui(QWidget *parent)
 	: QMainWindow(parent)
 {
