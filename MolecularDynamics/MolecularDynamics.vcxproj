@@ -288,7 +288,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Profiling|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Molecule.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_Calculator.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Profiling|Win32'">true</ExcludedFromBuild>
@@ -341,6 +340,7 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="maingui.cpp" />
+    <ClCompile Include="Molecule.cpp" />
     <ClCompile Include="PaintWidget.cpp" />
     <ClCompile Include="Space.cpp" />
     <ClCompile Include="Vector.cpp" />
