@@ -125,6 +125,16 @@ Space::Space(int width, int height, int n)
 	molecules.clear();
 	//molecules.shrink_to_fit();
 
+	//TODO: full VMD format support
+	if (n != 0)
+	{
+		char buff[40];
+		time_t now = time(NULL);
+		strftime(buff, 40, "%d_%m_%Y__%H_%M_%S.lammpstrj", localtime(&now));
+		trajektoryFile.setFileName(buff);
+		trajektoryFile.open(QIODevice::Append);
+	}
+
 #ifdef DEBUG
 	saveCoordinatesAndSpeeds("./../last.log.mdcs");
 #endif
@@ -171,6 +181,24 @@ void Space::saveCoordinatesAndSpeeds(const QString& filename)
 		file.write((char*)&molecule.v.z, sizeof(molecule.v.z));
 	}
 	mutex.unlock();
+}
+
+void Space::saveTrajektory()
+{
+	/*TODO other output formats, now only VMD trajektory*/
+	int _i = 1;
+	QTextStream out(&trajektoryFile);
+	out.setCodec("UTF-8");
+	//out << "abc";
+	
+	out << "ITEM: TIMESTEP\n" << trajektoryTime+10 << "\nITEM: NUMBER OF ATOMS\n" << numberOfMolecules << "\n" 
+		<< "ITEM: BOX BOUNDS pp pp pp\n0 50.25\n0 50.25\n0 50.25\nITEM: ATOMS type id xs ys zs \n";
+	//ITEM : ATOMS type id xs ys zs
+	//1 1 0.306349 0.483313 0.084611	//WARNIG TODO: delete kostil
+	forAllM(molecule, underspaces) {
+		out << "1 " << _i << " " << molecule.r.x /** std::pow(10,8)*/ << " " << molecule.r.y /** std::pow(10, 8)*/ << " " << molecule.r.z /** std::pow(10, 8)*/ << "\n";
+		_i++;
+	}
 }
 
 void Space::loadStateCS(const QString& filename)

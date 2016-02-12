@@ -38,6 +38,10 @@
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
+    <Filter Include="Output Files">
+      <UniqueIdentifier>{54992448-fd45-428b-aa12-5a7591c3fb3a}</UniqueIdentifier>
+      <Extensions>*.lampstrj</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

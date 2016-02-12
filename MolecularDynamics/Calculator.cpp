@@ -330,6 +330,7 @@ void Calculator::modeling()
 		freeze(heating);
 		_averageSpeed();
 		normalizeUnderspaces_Vector();
+		space->saveTrajektory(); //simple VMD trajektory file generation
 		space->mutex.unlock();	//WARNING мьютекс может не освободиться, если будет выкинуто исключение
 	}
 
@@ -349,4 +350,5 @@ void Calculator::_averageSpeed()
 		space->maxV = space->averageV;
 	space->deltaV = space->maxV - space->minV;
 }
+
 
