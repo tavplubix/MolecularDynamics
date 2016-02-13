@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QMutex>
+#include <QFile>
 #include <list>
 #include <vector>
 #include <functional>
@@ -43,6 +44,9 @@ private:
 	void generateCoordinates();
 	void generateSpeeds();
 	void initializeUnderspaces();
+
+	void generate2DWall();
+	void generate2DBall();
 public:
 	void toUnderspaces();
 public:
@@ -57,6 +61,8 @@ public:
 	double K, U;
 	double maxV, minV, deltaV;
 	int numberOfMolecules;
+	QFile trajektoryFile;
+	long long int trajektoryTime = 103000;
 	//===============================
 	Space(int width, int height, int n);
 	Space& operator=(const Space&& s);
@@ -65,6 +71,7 @@ public:
 	//public slots:
 	//void saveCoordinates();
 	void saveCoordinatesAndSpeeds(const QString& filename);
+	void saveTrajektory();
 	//void saveAll();
 	//void loadStateC(const QString& filename);
 	void loadStateCS(const QString& filename);	//load coordinates and speeds (CS)

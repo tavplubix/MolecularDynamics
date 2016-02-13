@@ -110,7 +110,10 @@ void Calculator::recalculateSpeeds_VelocityVerlet(MoloculesList &molecules)
 		if (i.r.y <= 0 || space->height * Angstrom <= i.r.y) {
 			i.v.y = -i.v.y;
 		}
+		if (i.r.z <= 0 || space->depth * Angstrom <= i.r.z) {
+			i.v.z = -i.v.z;
 	}
+}
 }
 
 
@@ -138,13 +141,21 @@ void Calculator::recalculateSpeeds_Beeman(MoloculesList &molecules)
 		if (space->width * Angstrom <= i.r.x) {
 			i.v.x = - std::abs(i.v.x);
 		}
+
 		if (i.r.y <= 0) {
 			i.v.y = std::abs(i.v.y);
 		}
 		if (space->height * Angstrom <= i.r.y) {
 			i.v.y = - std::abs(i.v.y);
 		}
+
+		if (i.r.z <= 0) {
+			i.v.z = std::abs(i.v.z);
 	}
+		if (space->depth * Angstrom <= i.r.z) {
+			i.v.z = -std::abs(i.v.z);
+		}
+}
 }
 
 void Calculator::set_dt_precision(int precision)	//hot only
@@ -334,6 +345,7 @@ void Calculator::modeling()
 		_wholeEnergy();
 #endif
 		normalizeUnderspaces_Vector();
+		space->saveTrajektory(); //simple VMD trajektory file generation
 		space->mutex.unlock();	//WARNING мьютекс может не освободиться, если будет выкинуто исключение
 	}
 

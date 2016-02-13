@@ -59,7 +59,7 @@ struct CUDASpace
 	size_t underspacesShift;
 	size_t Nx, Ny, Nz;
 	myfloat dt;
-	int width, height;
+	int width, height, depth;
 	size_t numberOfAllMolecules;
 };
 
@@ -90,7 +90,7 @@ __device__ inline void d_Force_LennardJones(const CUDAVector& r, myfloat square,
 //						CUDA device functions for Underspace
 //==========================================================================
 __device__ extern void d_recalculatePositions_Beeman(CUDAUnderspace *cus, myfloat dt);
-__device__ extern void d_recalculateSpeeds_Beeman(CUDAUnderspace *cus, myfloat dt, int width, int height);
+__device__ extern void d_recalculateSpeeds_Beeman(CUDAUnderspace *cus, myfloat dt, int width, int height, int depth);
 __device__ extern void d_calculateNewForcesForUnderspace(CUDASpace *cs, int nx, int ny, int nz);
 __device__ extern void d_calculateNewForces(CUDAUnderspace *cus1, CUDAUnderspace *cus2);
 

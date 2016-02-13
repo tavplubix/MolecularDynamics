@@ -269,7 +269,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Calculator.cpp" />
-    <ClCompile Include="c_cuda_stuctures.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_PaintWidget.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Profiling|Win32'">true</ExcludedFromBuild>
@@ -527,6 +526,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
     <None Include="MolecularDynamics.pri" />
     <None Include="MolecularDynamics.pro" />
   </ItemGroup>

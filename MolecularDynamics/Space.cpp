@@ -1,4 +1,4 @@
-#include "Space.h"
+﻿#include "Space.h"
 #include <QFile>
 #include <QDebug>
 #include <QErrorMessage>
@@ -10,6 +10,8 @@
 #include <random>
 #include <ctime>
 
+//#define WALL
+
 
 const Vector Underspace::size = Vector(3 * Molecule::sigma, 3 * Molecule::sigma, 3 * Molecule::sigma);
 //const Vector Underspace::size = Vector(100 * Angstrom, 100 * Angstrom, 100 * Angstrom);
@@ -18,24 +20,31 @@ void Space::generateCoordinates()
 {
 	size_t size = molecules.size();
 	const double minDistance = 1.0 * Molecule::sigma;
-	double distance = sqrt((width * Angstrom * height * Angstrom) / double(numberOfMolecules));
+	double distance = pow((width * height *depth) / double(numberOfMolecules), 1.0/3.0) * Angstrom;
 	if (distance < minDistance) {
 		qDebug() << "WARNING: in Space::generateCoordinates(): distance < minDistance";
 		throw 0;
 	}
 	int NX = 1 + width*Angstrom / distance;
 	int NY = 1 + height*Angstrom / distance;
+	int NZ = 1 + depth*Angstrom / distance;
 	//std::map<int, std::set<int>> used;		//CRUTCH
-	int nx = 0, ny = 0;
+	int nx = 0, ny = 0, nz = 0;
 	for (auto &m : molecules) {
 		m.r.x = nx * distance;
 		m.r.y = ny * distance;
-		m.r.z = 0;
+		m.r.z = nz * distance;
 
 		++nx;
 		if (nx >= NX) {
 			nx = 0;
 			++ny;
+			if (ny >= NY) {
+				ny = 0;
+				++nz;
+				if (nz >= NZ)
+					throw 0;
+			}
 		}
 	}
 }
@@ -44,15 +53,112 @@ void Space::generateSpeeds()
 {
 	std::random_device rd;
 	std::default_random_engine generator(rd());
-	double averageSpeed = 400.0;
+	double averageSpeed = 300.0;
 	double sigma = averageSpeed / std::sqrt(3.0);
 	std::normal_distribution<double> normal(0, sigma);
 	for (auto &i : molecules) {
 		i.v.x = normal(generator);
 		i.v.y = normal(generator);
-		i.v.z = 0;
+		i.v.z = normal(generator);
 	}
 }
+
+
+void Space::generate2DWall()
+{
+	//hardcoded settings
+	const int xshift = 100;
+	const int yshift = 30;
+	const int zshift = 10;
+	const int NX = 20;
+	const int NY = 120;
+	const int NZ = 1;
+
+	double distance = 1.11 * Molecule::sigma;
+	double xStep = distance * sqrt(3.0) * 0.5;
+	double yStep = distance;
+
+	//initialize random generator with normal distribution
+	std::random_device rd;
+	std::default_random_engine generator(rd());
+	double averageSpeed = 30.0;
+	double sigma = averageSpeed / std::sqrt(3.0);
+	std::normal_distribution<double> normal(0, sigma);
+
+	for (int nx = 0; nx < NX; ++nx) {
+		for (int ny = 0; ny < NY; ++ny) {
+			for (int nz = 0; nz < NZ; ++nz) {
+				Molecule m;
+				//set positions
+				m.r.x = xshift*Angstrom + nx*xStep;
+				m.r.y = yshift*Angstrom + ny*yStep;
+				if (nx % 2 == 1)
+					m.r.y += 0.5 * distance;
+				m.r.z = 0;// zshift*Angstrom + nz*distance;		//WARNING
+
+				//set coordinates
+				m.v.x = normal(generator);
+				m.v.y = normal(generator);
+				m.v.z = 0;// normal(generator);
+
+				molecules.push_back(m);
+			}
+		}
+	}
+
+}
+
+void Space::generate2DBall()
+{
+	//hardcoded settings
+	const int xshift = 0;
+	const int yshift = 190;
+	const int zshift = 10;
+	const int NX = 30;
+	const int NY = 10;
+	const int NZ = 1;
+	const int xSpeed = 800;
+
+	double distance = 1.11 * Molecule::sigma;
+	double xStep = distance * sqrt(3.0) * 0.5;
+	double yStep = distance;
+
+	//initialize random generator with normal distribution
+	std::random_device rd;
+	std::default_random_engine generator(rd());
+	double averageSpeed = 30.0;
+	double sigma = averageSpeed / std::sqrt(3.0);
+	std::normal_distribution<double> normal(0, sigma);
+
+	for (int nx = 0; nx < NX; ++nx) {
+		for (int ny = 0; ny < NY; ++ny) {
+			for (int nz = 0; nz < NZ; ++nz) {
+				Molecule m;
+				//set positions
+				m.r.x = xshift*Angstrom + nx*xStep;
+				m.r.y = yshift*Angstrom + ny*yStep;
+				if (nx % 2 == 1)
+					m.r.y += 0.5 * distance;
+				m.r.z = 0;// zshift*Angstrom + nz*distance;		//WARNING
+
+				//set coordinates
+				m.v.x = normal(generator) + xSpeed;
+				m.v.y = normal(generator);
+				m.v.z = 0;// normal(generator);
+
+				molecules.push_back(m);
+			}
+		}
+	}
+
+	
+}
+
+
+
+
+
+
 
 void Space::initializeUnderspaces()
 {
@@ -107,7 +213,7 @@ void Space::toUnderspaces()
 }
 
 Space::Space(int width, int height, int n)
-	:width(width), height(height), depth(1), numberOfMolecules(n)
+	:width(width), height(height), depth(100), numberOfMolecules(n)
 {
 	maxV = 0;
 	minV = std::numeric_limits<double>::infinity();
@@ -115,15 +221,31 @@ Space::Space(int width, int height, int n)
 	time_s = 0;
 	iterations = 0;
 	std::srand(std::time(nullptr));
+#ifndef WALL
 	molecules.resize(n);
 
 	generateCoordinates();
 	generateSpeeds();
+#else
+	generate2DWall();
+	generate2DBall();
+	numberOfMolecules = molecules.size();
+#endif
 
 	initializeUnderspaces();
 	toUnderspaces();
 	molecules.clear();
 	//molecules.shrink_to_fit();
+
+	//TODO: full VMD format support
+	if (n != 0)
+	{
+		char buff[40];
+		time_t now = time(NULL);
+		strftime(buff, 40, "%d_%m_%Y__%H_%M_%S.lammpstrj", localtime(&now));
+		trajektoryFile.setFileName(buff);
+		trajektoryFile.open(QIODevice::Append);
+	}
 
 #ifdef DEBUG
 	saveCoordinatesAndSpeeds("./../last.log.mdcs");
@@ -173,6 +295,26 @@ void Space::saveCoordinatesAndSpeeds(const QString& filename)
 	mutex.unlock();
 }
 
+void Space::saveTrajektory()
+{
+	/*TODO other output formats, now only VMD trajektory*/
+	int _i = 1;
+	QTextStream out(&trajektoryFile);
+	out.setCodec("UTF-8");
+	//out << "abc";
+	
+	out << "ITEM: TIMESTEP\n" << trajektoryTime+10 << "\nITEM: NUMBER OF ATOMS\n" << numberOfMolecules << "\n" 
+		<< "ITEM: BOX BOUNDS pp pp pp\n0 50.25\n0 50.25\n0 50.25\nITEM: ATOMS type id xs ys zs \n";
+	//ITEM : ATOMS type id xs ys zs
+	//1 1 0.306349 0.483313 0.084611
+	//TODO delete kostil
+	forAllM(molecule, underspaces) {
+		out << "1 " << _i << " " << molecule.r.x /** std::pow(10,8)*/ << " " << molecule.r.y /** std::pow(10, 8)*/ << " " << molecule.r.z /** std::pow(10, 8)*/ << "\n";
+		_i++;
+	}
+	out.flush();
+}
+
 void Space::loadStateCS(const QString& filename)
 {
 	mutex.lock();
@@ -205,6 +347,7 @@ CUDASpace* Space::toCUDA() const
 	auto cs =  reinterpret_cast<CUDASpace*>(p);
 	cs->width = width;
 	cs->height = height;
+	cs->depth = depth;
 	cs->Nx = Nx;
 	cs->Ny = Ny;
 	cs->Nz = Nz;
@@ -252,6 +395,9 @@ void Underspace::toCUDA(CUDAUnderspace *cus, CUDAMolecule *placeForMolecules) co
 		molecules[i].v		.toCUDA(placeForMolecules[i].v);
 	}
 }
+
+
+
 
 void Underspace::fromCUDA(CUDAUnderspace *cus)
 {

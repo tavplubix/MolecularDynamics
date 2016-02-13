@@ -38,6 +38,10 @@
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
+    <Filter Include="Output Files">
+      <UniqueIdentifier>{54992448-fd45-428b-aa12-5a7591c3fb3a}</UniqueIdentifier>
+      <Extensions>*.lampstrj</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -53,9 +57,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Calculator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Space.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_maingui.cpp">
@@ -85,13 +86,13 @@
     <ClCompile Include="GeneratedFiles\Profiling\moc_PaintWidget.cpp">
       <Filter>Generated Files\Profiling</Filter>
     </ClCompile>
-    <ClCompile Include="c_cuda_stuctures.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Molecule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PaintWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Space.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -135,6 +136,7 @@
   <ItemGroup>
     <None Include="MolecularDynamics.pri" />
     <None Include="MolecularDynamics.pro" />
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="kernel_forces.cu">
