@@ -103,7 +103,7 @@ __device__ void d_recalculatePositions_Beeman(CUDAUnderspace *cus, myfloat dt)
 	}
 }
 
-__device__ void d_recalculateSpeeds_Beeman(CUDAUnderspace *cus, myfloat dt, int width, int height)
+__device__ void d_recalculateSpeeds_Beeman(CUDAUnderspace *cus, myfloat dt, int width, int height, int depth)
 {
 	auto molecules = GET_POINTER(CUDAMolecule, cus, cus->moleculesShift);
 	for (size_t i = 0; i < cus->numberOfMolecules; ++i) {
@@ -131,6 +131,13 @@ __device__ void d_recalculateSpeeds_Beeman(CUDAUnderspace *cus, myfloat dt, int 
 		}
 		if (height * Angstrom <= molecules[i].r.v[1]) {
 			molecules[i].v.v[1] = -abs(molecules[i].v.v[1]);
+		}
+
+		if (molecules[i].r.v[2] <= 0) {
+			molecules[i].v.v[2] = abs(molecules[i].v.v[2]);
+		}
+		if (depth * Angstrom <= molecules[i].r.v[2]) {
+			molecules[i].v.v[2] = -abs(molecules[i].v.v[2]);
 		}
 	}
 }
@@ -204,7 +211,7 @@ __global__ void cuda_recalculateSpeeds(CUDASpace *cs)
 	size_t nz = blockDim.z * blockIdx.z + threadIdx.z;
 	if (nz >= cs->Nz) return;
 
-	d_recalculateSpeeds_Beeman(&underspaces[LINEAR(cs, nx, ny, nz)], cs->dt, cs->width, cs->height);
+	d_recalculateSpeeds_Beeman(&underspaces[LINEAR(cs, nx, ny, nz)], cs->dt, cs->width, cs->height, cs->depth);
 }
 
 __global__ void cuda_recalculateForces(CUDASpace *cs)

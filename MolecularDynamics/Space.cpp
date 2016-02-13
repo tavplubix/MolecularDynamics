@@ -50,7 +50,7 @@ void Space::generateSpeeds()
 	for (auto &i : molecules) {
 		i.v.x = normal(generator);
 		i.v.y = normal(generator);
-		i.v.z = 0;
+		i.v.z = normal(generator);
 	}
 }
 
@@ -107,7 +107,7 @@ void Space::toUnderspaces()
 }
 
 Space::Space(int width, int height, int n)
-	:width(width), height(height), depth(1), numberOfMolecules(n)
+	:width(width), height(height), depth(100), numberOfMolecules(n)
 {
 	maxV = 0;
 	minV = std::numeric_limits<double>::infinity();
@@ -194,11 +194,12 @@ void Space::saveTrajektory()
 	out << "ITEM: TIMESTEP\n" << trajektoryTime+10 << "\nITEM: NUMBER OF ATOMS\n" << numberOfMolecules << "\n" 
 		<< "ITEM: BOX BOUNDS pp pp pp\n0 50.25\n0 50.25\n0 50.25\nITEM: ATOMS type id xs ys zs \n";
 	//ITEM : ATOMS type id xs ys zs
-	//1 1 0.306349 0.483313 0.084611	//WARNIG TODO: delete kostil
+	//1 1 0.306349 0.483313 0.084611	//TODO delete kostil
 	forAllM(molecule, underspaces) {
 		out << "1 " << _i << " " << molecule.r.x /** std::pow(10,8)*/ << " " << molecule.r.y /** std::pow(10, 8)*/ << " " << molecule.r.z /** std::pow(10, 8)*/ << "\n";
 		_i++;
 	}
+	out.flush();
 }
 
 void Space::loadStateCS(const QString& filename)
@@ -233,6 +234,7 @@ CUDASpace* Space::toCUDA() const
 	auto cs =  reinterpret_cast<CUDASpace*>(p);
 	cs->width = width;
 	cs->height = height;
+	cs->depth = depth;
 	cs->Nx = Nx;
 	cs->Ny = Ny;
 	cs->Nz = Nz;
