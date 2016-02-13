@@ -17,12 +17,18 @@ void PaintWidget::paintEvent(QPaintEvent *)
 	std::vector<Molecule> copy = space->molecules;
 	double averageV = space->averageV;
 	double deltaV = space->deltaV;
+	double K = space->K;
+	double U = space->U;
+	double energy = K + U;
 	double height = space->height;
 	double width = space->width;
 #ifdef DEBUG
 	qDebug() << "\n	return from paintEvent()\n";
 #endif
 	space->mutex.unlock();
+
+	maxE = std::max(maxE, energy);
+	minE = std::min(minE, energy);
 
 	//static std::vector<int> oldx, oldy;
 	QPainter painter(this);
@@ -66,8 +72,17 @@ void PaintWidget::paintEvent(QPaintEvent *)
 	//}
 	painter.setPen(Qt::black);
 	painter.drawText(5, height * zoom + hIndent, QString("Average speed: ") + QString::number(averageV, 'f', 3));
-	painter.drawText(5, height * zoom + 2 * hIndent, QString("Delta: ") + QString::number(deltaV, 'f', 3));
 
+#ifdef DEBUG
+	painter.drawText(5, height * zoom + 2 * hIndent, QString("Delta: ") + QString::number(deltaV, 'f', 3));
+	painter.drawText(5, height * zoom + 3 * hIndent, QString("K: ") + QString::number(K, 'e', 3));
+	painter.drawText(5, height * zoom + 4 * hIndent, QString("U: ") + QString::number(U, 'e', 3));
+	painter.drawText(5, height * zoom + 5 * hIndent, QString("Enegry: ") + QString::number(energy, 'e', 3));
+	painter.drawText(5, height * zoom + 6 * hIndent, QString("maxE: ") + QString::number(maxE, 'g'));
+	painter.drawText(5, height * zoom + 7 * hIndent, QString("minE: ") + QString::number(minE, 'g'));
+	painter.drawText(5, height * zoom + 8 * hIndent, QString("deltaE: ") + QString::number(maxE - minE, 'e', 3));
+	painter.drawText(5, height * zoom + 9 * hIndent, QString("dE/E: ") + QString::number((maxE - minE)/energy, 'f', 6));
+#endif
 
 }
 

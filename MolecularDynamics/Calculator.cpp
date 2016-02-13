@@ -215,6 +215,7 @@ void Calculator::start()
 		recalculateSpeeds_VelocityVerlet(k.molecules);	
 
 	_averageSpeed();
+	_wholeEnergy();
 	//next iterations:
 	calculationsRequired = true;
 	space->mutex.unlock();
@@ -329,6 +330,9 @@ void Calculator::modeling()
 #endif
 		freeze(heating);
 		_averageSpeed();
+#ifdef DEBUG
+		_wholeEnergy();
+#endif
 		normalizeUnderspaces_Vector();
 		space->mutex.unlock();	//WARNING мьютекс может не освободиться, если будет выкинуто исключение
 	}
@@ -348,5 +352,70 @@ void Calculator::_averageSpeed()
 	if (space->averageV > space->maxV)
 		space->maxV = space->averageV;
 	space->deltaV = space->maxV - space->minV;
+}
+
+void Calculator::_wholeEnergy()
+{
+	double K = 0, U = 0;
+	forAllM(t, space->underspaces) 
+		K += t.v.square();
+	K *= Molecule::m * 0.5;
+
+	for (auto &i : space->underspaces)
+		for (auto &j : i)
+			for (auto &k : j)
+				U += calculatePotentialEnergyForUnderspace(k.nx, k.ny, k.nz);
+	space->K = K;
+	space->U = U;
+	
+}
+
+
+double Calculator::calculatePotentialEnergyForUnderspace(int nx, int ny, int nz)
+{
+	double U = 0;
+	Underspace &centralSpace = space->underspaces[nx][ny][nz];
+	auto closestSpaces = { -1, 0, 1 };
+	for (const auto &dx : closestSpaces) {
+		for (const auto &dy : closestSpaces) {
+			for (const auto &dz : closestSpaces) {
+				int x = nx + dx;
+				int y = ny + dy;
+				int z = nz + dz;
+				if (x < 0 || y < 0 || z < 0) continue;
+				if (x >= space->Nx) continue;
+				if (y >= space->Ny) continue;
+				if (z >= space->Nz) continue;
+				U += calculatePotentionalEnergy(centralSpace.molecules, space->underspaces[x][y][z].molecules);
+			}
+		}
+	}
+	return U;
+}
+
+double Calculator::calculatePotentionalEnergy(MoloculesList &molecules1, MoloculesList &molecules2)
+{
+	double U = 0;
+	auto end1 = molecules1.end();
+	for (auto i = molecules1.begin(); i != end1; ++i) {
+		auto end2 = molecules2.end();
+		double dU = 0;
+		for (auto j = molecules2.begin(); j != end2; ++j) {
+			if (i._Ptr == j._Ptr) continue;
+			Vector r = (*j).r - (*i).r;
+			double c = std::pow(Molecule::sigma / r, 12) - std::pow(Molecule::sigma / r, 6);
+			double ddU = 4.0 * Molecule::epsilon * c;
+			//register double square = r.square();
+			//if (maxDistSquare < square) continue;
+			//double F = Force_LennardJones(r, square);
+			//const double c = 24.0 * Molecule::epsilon / (Molecule::sigma * Molecule::sigma);
+			//double ddU = F / (c * r);
+			//if (r < Molecule::sigma)
+			//	ddU = -ddU;
+			dU += ddU;
+		}
+		U += dU;
+	}
+	return U;
 }
 

@@ -76,9 +76,6 @@
     <ClCompile Include="GeneratedFiles\Profiling\moc_Calculator.cpp">
       <Filter>Generated Files\Profiling</Filter>
     </ClCompile>
-    <ClCompile Include="PaintWidget.cpp">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_PaintWidget.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -92,6 +89,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Molecule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PaintWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -54,6 +54,7 @@ public:
 	int width, height, depth;
 	int Nx, Ny, Nz;
 	double averageV;
+	double K, U;
 	double maxV, minV, deltaV;
 	int numberOfMolecules;
 	//===============================

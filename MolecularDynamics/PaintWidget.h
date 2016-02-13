@@ -19,6 +19,8 @@ class PaintWidget : public QWidget
 private:
 	Space *space;
 	const int hIndent = 25;
+
+	double maxE = -1000, minE = 1000;		//CRUTCH
 public:
 	PaintWidget(Space *space, QWidget *parent = 0);
 	void paintEvent(QPaintEvent *);

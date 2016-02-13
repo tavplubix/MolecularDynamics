@@ -12,13 +12,16 @@ class Calculator : public QObject
 	Q_OBJECT
 private:
 	Space* space;
-	double dt = 1.0e-14;
+	double dt = 1.0e-15;
 	double maxDistSquare = pow(4 * Molecule::sigma, 2);
 
 	void _averageSpeed();
+	void _wholeEnergy();
+	double calculatePotentialEnergyForUnderspace(int nx, int ny, int nz);
+	double calculatePotentionalEnergy(MoloculesList &molecules1, MoloculesList &molecules2);
 
 	inline Vector Force_LennardJones(Molecule &m1, Molecule &m2);
-	inline Vector Calculator::Force_LennardJones(Vector r, double square);		//r - distance between two molecules, square=r*r
+	inline Vector Force_LennardJones(Vector r, double square);		//r - distance between two molecules, square=r*r
 
 	void recalculatePositions_VelocityVerlet(MoloculesList &molecules);
 	void recalculateSpeeds_VelocityVerlet(MoloculesList &molecules);
