@@ -20,6 +20,8 @@ public:
 	//double x, y;
 	//double vx, vy;
 	//double Fx, Fy;
+	short type;
+	int id;
 	Vector r, oldr, v, F, oldF, newF;
 	const static double m, radius, sigma, epsilon;
 };

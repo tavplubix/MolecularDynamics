@@ -10,7 +10,7 @@
 #include <random>
 #include <ctime>
 
-//#define WALL
+#define WALL
 
 
 const Vector Underspace::size = Vector(3 * Molecule::sigma, 3 * Molecule::sigma, 3 * Molecule::sigma);
@@ -30,10 +30,13 @@ void Space::generateCoordinates()
 	int NZ = 1 + depth*Angstrom / distance;
 	//std::map<int, std::set<int>> used;		//CRUTCH
 	int nx = 0, ny = 0, nz = 0;
+	int n = 1;
 	for (auto &m : molecules) {
 		m.r.x = nx * distance;
 		m.r.y = ny * distance;
 		m.r.z = nz * distance;
+		m.type = 1;
+		m.id = n++;
 
 		++nx;
 		if (nx >= NX) {
@@ -101,6 +104,9 @@ void Space::generate2DWall()
 				m.v.y = normal(generator);
 				m.v.z = 0;// normal(generator);
 
+				m.type = 1;
+				m.id = molecules.size() + 1;
+
 				molecules.push_back(m);
 			}
 		}
@@ -113,7 +119,7 @@ void Space::generate2DBall()
 	//hardcoded settings
 	const int xshift = 0;
 	const int yshift = 190;
-	const int zshift = 10;
+	const int zshift = 0;
 	const int NX = 30;
 	const int NY = 10;
 	const int NZ = 1;
@@ -145,6 +151,9 @@ void Space::generate2DBall()
 				m.v.x = normal(generator) + xSpeed;
 				m.v.y = normal(generator);
 				m.v.z = 0;// normal(generator);
+
+				m.type = 2;
+				m.id = molecules.size() + 1;
 
 				molecules.push_back(m);
 			}
@@ -213,7 +222,7 @@ void Space::toUnderspaces()
 }
 
 Space::Space(int width, int height, int n)
-	:width(width), height(height), depth(100), numberOfMolecules(n)
+	:width(width), height(height), depth(1), numberOfMolecules(n)
 {
 	maxV = 0;
 	minV = std::numeric_limits<double>::infinity();
@@ -309,7 +318,7 @@ void Space::saveTrajektory()
 	//1 1 0.306349 0.483313 0.084611
 	//TODO delete kostil
 	forAllM(molecule, underspaces) {
-		out << "1 " << _i << " " << molecule.r.x /** std::pow(10,8)*/ << " " << molecule.r.y /** std::pow(10, 8)*/ << " " << molecule.r.z /** std::pow(10, 8)*/ << "\n";
+		out << molecule.type << " " << molecule.id << " " << molecule.r.x /** std::pow(10,8)*/ << " " << molecule.r.y /** std::pow(10, 8)*/ << " " << molecule.r.z /** std::pow(10, 8)*/ << "\n";
 		_i++;
 	}
 	out.flush();
@@ -393,6 +402,8 @@ void Underspace::toCUDA(CUDAUnderspace *cus, CUDAMolecule *placeForMolecules) co
 		molecules[i].F		.toCUDA(placeForMolecules[i].F);
 		molecules[i].newF	.toCUDA(placeForMolecules[i].newF);
 		molecules[i].v		.toCUDA(placeForMolecules[i].v);
+		placeForMolecules[i].type = molecules[i].type;
+		placeForMolecules[i].id = molecules[i].id;
 	}
 }
 
@@ -410,6 +421,8 @@ void Underspace::fromCUDA(CUDAUnderspace *cus)
 		molecules[i].F		.fromCUDA(cm[i].F);
 		molecules[i].newF	.fromCUDA(cm[i].newF);
 		molecules[i].v		.fromCUDA(cm[i].v);
+		molecules[i].type = cm[i].type;
+		molecules[i].id = cm[i].id;
 	}
 }
 

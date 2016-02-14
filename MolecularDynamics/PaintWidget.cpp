@@ -35,7 +35,7 @@ void PaintWidget::paintEvent(QPaintEvent *)
 	painter.setPen(Qt::SolidLine);
 	painter.setPen(Qt::red);
 	painter.drawRect(0, 0, width * zoom, height * zoom);
-	painter.setPen(Qt::blue);
+	//painter.setPen(Qt::blue);
 	painter.setBrush(Qt::green);
 
 	//for (auto i : copy) {
@@ -50,6 +50,10 @@ void PaintWidget::paintEvent(QPaintEvent *)
 
 	//forAllM(t, space->underspaces) {
 	for (auto &t : copy) {
+		if (t.type == 1)
+			painter.setPen(Qt::blue);
+		else 
+			painter.setPen(Qt::red);
 		int x = t.r.x / Angstrom;
 		int y = t.r.y / Angstrom;
 		if (space->numberOfMolecules <= 0/*5000*/) {

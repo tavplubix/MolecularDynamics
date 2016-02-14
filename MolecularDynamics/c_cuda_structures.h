@@ -41,6 +41,8 @@ struct CUDAMolecule
 	CUDAVector r, oldr;
 	CUDAVector v;
 	CUDAVector F, oldF, newF;
+	short type;
+	int id;
 };
 
 struct CUDAUnderspace
