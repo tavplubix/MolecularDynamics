@@ -70,12 +70,12 @@ void Space::generateSpeeds()
 void Space::generate2DWall()
 {
 	//hardcoded settings
-	const int xshift = 100;
-	const int yshift = 30;
-	const int zshift = 10;
-	const int NX = 20;
-	const int NY = 120;
-	const int NZ = 1;
+	int xshift = 100;
+	int yshift = 40;
+	int zshift = 10;
+	int NX = 5;
+	int NY = 120;
+	int NZ = 1;
 
 	double distance = 1.11 * Molecule::sigma;
 	double xStep = distance * sqrt(3.0) * 0.5;
@@ -120,10 +120,10 @@ void Space::generate2DBall()
 	const int xshift = 0;
 	const int yshift = 190;
 	const int zshift = 0;
-	const int NX = 30;
-	const int NY = 10;
+	const int NX = 5;
+	const int NY = 5;
 	const int NZ = 1;
-	const int xSpeed = 800;
+	const int xSpeed = 2000;
 
 	double distance = 1.11 * Molecule::sigma;
 	double xStep = distance * sqrt(3.0) * 0.5;
@@ -168,6 +168,49 @@ void Space::generate2DBall()
 
 
 
+
+void Space::generate2DRectangle(int xshift, int yshift, int xsize, int ysize, int type, int xspeed /*= 0*/, int yspeed /*= 0*/)
+{
+	//hardcoded settings
+	const int NX = xsize;
+	const int NY = ysize;
+	const int NZ = 1;
+
+	double distance = 1.11 * Molecule::sigma;
+	double xStep = distance * sqrt(3.0) * 0.5;
+	double yStep = distance;
+
+	//initialize random generator with normal distribution
+	std::random_device rd;
+	std::default_random_engine generator(rd());
+	double averageSpeed = 30.0;
+	double sigma = averageSpeed / std::sqrt(3.0);
+	std::normal_distribution<double> normal(0, sigma);
+
+	for (int nx = 0; nx < NX; ++nx) {
+		for (int ny = 0; ny < NY; ++ny) {
+			for (int nz = 0; nz < NZ; ++nz) {
+				Molecule m;
+				//set positions
+				m.r.x = xshift*Angstrom + nx*xStep;
+				m.r.y = yshift*Angstrom + ny*yStep;
+				if (nx % 2 == 1)
+					m.r.y += 0.5 * distance;
+				m.r.z = 0;// zshift*Angstrom + nz*distance;		//WARNING
+
+						  //set coordinates
+				m.v.x = normal(generator) + xspeed;
+				m.v.y = normal(generator) + yspeed;
+				m.v.z = 0;// normal(generator);
+
+				m.type = type;
+				m.id = molecules.size() + 1;
+
+				molecules.push_back(m);
+			}
+		}
+	}
+}
 
 void Space::initializeUnderspaces()
 {
@@ -236,8 +279,10 @@ Space::Space(int width, int height, int n)
 	generateCoordinates();
 	generateSpeeds();
 #else
-	generate2DWall();
-	generate2DBall();
+	//generate2DWall();
+	//generate2DBall();
+	generate2DRectangle(300, 120, 190, 190, 1, 0, 0);
+	generate2DRectangle(10, 370, 100, 11, 2, 1000, 0);
 	numberOfMolecules = molecules.size();
 #endif
 

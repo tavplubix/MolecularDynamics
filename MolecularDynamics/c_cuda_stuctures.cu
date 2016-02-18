@@ -74,7 +74,10 @@ __device__ inline void d_Force_LennardJones(const CUDAVector& r, myfloat square,
 {
 	const myfloat sigmaSquare = sigma * sigma;
 	square = sigmaSquare / square;
-	myfloat U = 2.0*pow(square, 14 / 2) - pow(square, 8 / 2);
+	const myfloat r4 = square*square;
+	const myfloat r8 = r4*r4;
+	const myfloat U = 2.0*r8*r4*square - r8;
+	//myfloat U = 2.0*pow(square, 14 / 2) - pow(square, 8 / 2);
 	const myfloat c = -24.0 * epsilon / sigmaSquare;
 	mul(r, c * U, F);
 }
