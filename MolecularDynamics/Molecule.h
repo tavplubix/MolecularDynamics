@@ -1,5 +1,6 @@
 #pragma once
 #include "Vector.h"
+#include <vector>
 
 
 namespace constants {
@@ -24,6 +25,7 @@ public:
 	int id;
 	Vector r, oldr, v, F, oldF, newF;
 	const static double m, radius, sigma, epsilon;
+	static std::vector<double> epsilonv, sigmav;
 };
 
 

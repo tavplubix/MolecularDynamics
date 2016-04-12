@@ -63,6 +63,9 @@ public:
 	int numberOfMolecules;
 	QFile trajektoryFile;
 	long long int trajektoryTime = 103000;
+
+	std::vector<std::vector<double>> sigma, epsilon;
+
 	//===============================
 	Space(int width, int height, int n);
 	Space& operator=(const Space&& s);
