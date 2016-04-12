@@ -73,8 +73,14 @@ __device__ double square(const CUDAVector &a)
 
 __device__ inline void d_Force_LennardJones(const CUDAVector& r, myfloat square, CUDAVector& F, myfloat sigma, myfloat epsilon)
 {
-	/*volatile*/ myfloat _sigma = sigma;
-	/*volatile*/ myfloat _epsilon = epsilon;
+#ifdef ODINARY_PRECISION
+	myfloat _sigma = sigma;
+	myfloat _epsilon = epsilon;
+#else
+	volatile myfloat _sigma = sigma;
+	volatile myfloat _epsilon = epsilon;
+#endif
+	
 	myfloat sigmaSquare = _sigma * _sigma;
 	square = sigmaSquare / square;
 	myfloat r4 = square * square;
