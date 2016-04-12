@@ -88,7 +88,7 @@ void Space::generate2DWall()
 	double averageSpeed = 20.0;
 	double sigma = averageSpeed / std::sqrt(3.0);
 	std::normal_distribution<double> normal(0, sigma);
-	
+
 	for (int nx = 0; nx < NX; ++nx) {
 		for (int ny = 0; ny < NY; ++ny) {
 			for (int nz = 0; nz < NZ; ++nz) {
@@ -106,7 +106,7 @@ void Space::generate2DWall()
 				m.v.z = 0;// normal(generator);
 
 				if (nx < 15)
-					m.type = 1;
+				m.type = 1;
 				else
 					m.type = 3;
 				m.id = molecules.size() + 1;
@@ -115,72 +115,7 @@ void Space::generate2DWall()
 			}
 		}
 	}
-	//========================================================================================
-	//hardcoded settings
-	/*
-	xshift = 140;
-	yshift = 30;
-	zshift = 0;
-	NX = 5;
-	NY = 120;
-	NZ = 1;
 
-	for (int nx = 0; nx < NX; ++nx) {
-		for (int ny = 0; ny < NY; ++ny) {
-			for (int nz = 0; nz < NZ; ++nz) {
-				Molecule m;
-				//set positions
-				m.r.x = xshift*Angstrom + nx*xStep;
-				m.r.y = yshift*Angstrom + ny*yStep;
-				if (nx % 2 == 1)
-					m.r.y += 0.5 * distance;
-				m.r.z = 0;// zshift*Angstrom + nz*distance;		//WARNING
-
-				//set coordinates
-				m.v.x = normal(generator);
-				m.v.y = normal(generator);
-				m.v.z = 0;// normal(generator);
-
-				m.type = 3;
-				m.id = molecules.size() + 1;
-
-				molecules.push_back(m);
-			}
-		}
-	}
-	*/
-	//========================================================================================
-	//hardcoded settings
-	/*xshift = 200;
-	yshift = 30;
-	zshift = 0;
-	NX = 20;
-	NY = 120;
-	NZ = 1;
-
-	for (int nx = 0; nx < NX; ++nx) {
-		for (int ny = 0; ny < NY; ++ny) {
-			for (int nz = 0; nz < NZ; ++nz) {
-				Molecule m;
-				//set positions
-				m.r.x = xshift*Angstrom + nx*xStep;
-				m.r.y = yshift*Angstrom + ny*yStep;
-				if (nx % 2 == 1)
-					m.r.y += 0.5 * distance;
-				m.r.z = 0;// zshift*Angstrom + nz*distance;		//WARNING
-
-				//set coordinates
-				m.v.x = normal(generator);
-				m.v.y = normal(generator);
-				m.v.z = 0;// normal(generator);
-
-				m.type = 3;
-				m.id = molecules.size() + 1;
-
-				molecules.push_back(m);
-			}
-		}
-	}*/
 }
 
 void Space::generate2DBall()
@@ -192,7 +127,7 @@ void Space::generate2DBall()
 	const int NX = 10;
 	const int NY = 10;
 	const int NZ = 1;
-	const int xSpeed = 800;
+	const int xSpeed = 2000;
 
 	double distance = 1.11 * Molecule::sigma;
 	double xStep = distance * sqrt(3.0) * 0.5;
@@ -237,6 +172,49 @@ void Space::generate2DBall()
 
 
 
+
+void Space::generate2DRectangle(int xshift, int yshift, int xsize, int ysize, int type, int xspeed /*= 0*/, int yspeed /*= 0*/)
+{
+	//hardcoded settings
+	const int NX = xsize;
+	const int NY = ysize;
+	const int NZ = 1;
+
+	double distance = 1.11 * Molecule::sigma;
+	double xStep = distance * sqrt(3.0) * 0.5;
+	double yStep = distance;
+
+	//initialize random generator with normal distribution
+	std::random_device rd;
+	std::default_random_engine generator(rd());
+	double averageSpeed = 30.0;
+	double sigma = averageSpeed / std::sqrt(3.0);
+	std::normal_distribution<double> normal(0, sigma);
+
+	for (int nx = 0; nx < NX; ++nx) {
+		for (int ny = 0; ny < NY; ++ny) {
+			for (int nz = 0; nz < NZ; ++nz) {
+				Molecule m;
+				//set positions
+				m.r.x = xshift*Angstrom + nx*xStep;
+				m.r.y = yshift*Angstrom + ny*yStep;
+				if (nx % 2 == 1)
+					m.r.y += 0.5 * distance;
+				m.r.z = 0;// zshift*Angstrom + nz*distance;		//WARNING
+
+						  //set coordinates
+				m.v.x = normal(generator) + xspeed;
+				m.v.y = normal(generator) + yspeed;
+				m.v.z = 0;// normal(generator);
+
+				m.type = type;
+				m.id = molecules.size() + 1;
+
+				molecules.push_back(m);
+			}
+		}
+	}
+}
 
 void Space::initializeUnderspaces()
 {
@@ -305,8 +283,10 @@ Space::Space(int width, int height, int n)
 	generateCoordinates();
 	generateSpeeds();
 #else
-	generate2DWall();
-	generate2DBall();
+	//generate2DWall();
+	//generate2DBall();
+	generate2DRectangle(300, 120, 190, 190, 1, 0, 0);
+	generate2DRectangle(10, 370, 100, 11, 2, 1000, 0);
 	numberOfMolecules = molecules.size();
 #endif
 

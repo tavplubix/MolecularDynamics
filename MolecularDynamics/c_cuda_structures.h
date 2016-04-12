@@ -2,7 +2,7 @@
 #include "cuda_runtime.h"
 
 
-//#define ODINARY_PRECISION
+#define ODINARY_PRECISION
 
 #ifdef ODINARY_PRECISION
 typedef float myfloat;
