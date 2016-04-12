@@ -7,6 +7,7 @@
 
 
 
+
 //==========================================================================
 //					Operations with CUDAVector
 //==========================================================================
@@ -63,22 +64,29 @@ __device__ double square(const CUDAVector &a)
 #define Boltzmann  1.3806488e-23
 #define Angstrom  1e-10
 #define AtomicMassUnit  1.660538921e-27
-#define sigma (2.74*1e-10)	//m
-#define epsilon (36.2*1.3806488e-23)	//J
+#define csigma (2.74*1e-10)	//m
+#define cepsilon (36.2*1.3806488e-23)	//J
 #define mass (20.1797 * 1.660538921e-27)
 
-#define maxDistSquare (4.0 * sigma * 4.0 * sigma)
+#define maxDistSquare (4.0 * csigma * 4.0 * csigma)
 
 
-__device__ inline void d_Force_LennardJones(const CUDAVector& r, myfloat square, CUDAVector& F)
+__device__ inline void d_Force_LennardJones(const CUDAVector& r, myfloat square, CUDAVector& F, myfloat sigma, myfloat epsilon)
 {
-	const myfloat sigmaSquare = sigma * sigma;
+#ifdef ODINARY_PRECISION
+	myfloat _sigma = sigma;
+	myfloat _epsilon = epsilon;
+#else
+	volatile myfloat _sigma = sigma;
+	volatile myfloat _epsilon = epsilon;
+#endif
+	
+	myfloat sigmaSquare = _sigma * _sigma;
 	square = sigmaSquare / square;
-	const myfloat r4 = square*square;
-	const myfloat r8 = r4*r4;
-	const myfloat U = 2.0*r8*r4*square - r8;
-	//myfloat U = 2.0*pow(square, 14 / 2) - pow(square, 8 / 2);
-	const myfloat c = -24.0 * epsilon / sigmaSquare;
+	myfloat r4 = square * square;
+	myfloat r8 = r4*r4;
+	myfloat U = 2.0*r8*r8/square - r8;
+	myfloat c = -24.0 * _epsilon / sigmaSquare;
 	mul(r, c * U, F);
 }
 
@@ -160,14 +168,21 @@ __device__ void d_calculateNewForcesForUnderspace(CUDASpace *cs, int nx, int ny,
 				if (x >= cs->Nx) continue;
 				if (y >= cs->Ny) continue;
 				if (z >= cs->Nz) continue;
-				d_calculateNewForces(centralSpace, &underspaces[LINEAR(cs, x, y, z)]);
+				d_calculateNewForces(centralSpace, &underspaces[LINEAR(cs, x, y, z)], cs);
 			}
 		}
 	}
 }
 
-__device__ void d_calculateNewForces(CUDAUnderspace *cus1, CUDAUnderspace *cus2)
+__device__ void d_calculateNewForces(CUDAUnderspace *cus1, CUDAUnderspace *cus2, CUDASpace *cs)
 {
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			cs->sigma[i][j] = csigma;
+			cs->epsilon[i][j] = cepsilon;
+		}
+	}
+
 	auto molecules1 = GET_POINTER(CUDAMolecule, cus1, cus1->moleculesShift);
 	auto molecules2 = GET_POINTER(CUDAMolecule, cus2, cus2->moleculesShift);
 	for (size_t i = 0; i < cus1->numberOfMolecules; ++i) {
@@ -178,9 +193,18 @@ __device__ void d_calculateNewForces(CUDAUnderspace *cus1, CUDAUnderspace *cus2)
 			sub(molecules2[j].r, molecules1[i].r, tmp);
 			myfloat sq = square(tmp);
 			if (sq == 0) continue;
-			if (maxDistSquare < sq) continue;
+			//if (maxDistSquare < sq) continue;
 			//(*i).newF += d_Force_LennardJones(r, sq);
-			d_Force_LennardJones(tmp, sq, tmp);
+
+			int type1 = molecules1[i].type;
+			int type2 = molecules2[j].type;
+			myfloat sigma = cs->sigma[type1][type2];
+			myfloat epsilon = cs->epsilon[type1][type2];
+			//if (3*sigma < sq) continue;
+			//int *p = nullptr;
+			//if (epsilon == 0) *p = 1;
+			d_Force_LennardJones(tmp, sq, tmp, sigma, epsilon);
+
 			add(molecules1[i].newF, tmp, molecules1[i].newF);
 		}
 	}
@@ -267,6 +291,15 @@ __global__ void cuda_dropNewF(CUDASpace *cs)
 		molecules[i].newF.v[2] = 0;
 	}
 }
+
+//__global__ void cuda_recalculateForcesForMolecules(CUDASpace *cs)
+//{
+//	auto allMolecules = GET_POINTER(CUDAMolecule, cs, cs->underspacesShift + cs->Nx*cs->Ny*cs->Nz*sizeof(CUDAUnderspace));
+//	size_t molecule = blockDim.x * blockIdx.x + threadIdx.x;
+//
+//
+//}
+
 
 void cuda_oneStep(CUDASpace *d_cs,int Nx, int Ny, int Nz)
 {

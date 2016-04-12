@@ -50,7 +50,7 @@ void PaintWidget::paintEvent(QPaintEvent *)
 
 	//forAllM(t, space->underspaces) {
 	for (auto &t : copy) {
-		if (t.type == 1)
+		if (t.type != 1)
 			painter.setPen(Qt::blue);
 		else 
 			painter.setPen(Qt::red);

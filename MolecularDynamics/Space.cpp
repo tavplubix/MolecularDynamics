@@ -9,6 +9,7 @@
 #include <set>
 #include <random>
 #include <ctime>
+#include "Molecule.h"
 
 #define WALL
 
@@ -20,7 +21,7 @@ void Space::generateCoordinates()
 {
 	size_t size = molecules.size();
 	const double minDistance = 1.0 * Molecule::sigma;
-	double distance = pow((width * height *depth) / double(numberOfMolecules), 1.0/3.0) * Angstrom;
+	double distance = pow((width * height /**depth*/) / double(numberOfMolecules), 1.0/2.0) * Angstrom;
 	if (distance < minDistance) {
 		qDebug() << "WARNING: in Space::generateCoordinates(): distance < minDistance";
 		throw 0;
@@ -62,7 +63,7 @@ void Space::generateSpeeds()
 	for (auto &i : molecules) {
 		i.v.x = normal(generator);
 		i.v.y = normal(generator);
-		i.v.z = normal(generator);
+		i.v.z = 0;// normal(generator);
 	}
 }
 
@@ -70,10 +71,10 @@ void Space::generateSpeeds()
 void Space::generate2DWall()
 {
 	//hardcoded settings
-	int xshift = 100;
-	int yshift = 40;
-	int zshift = 10;
-	int NX = 5;
+	int xshift = 80;
+	int yshift = 30;
+	int zshift = 0;
+	int NX = 30;
 	int NY = 120;
 	int NZ = 1;
 
@@ -84,7 +85,7 @@ void Space::generate2DWall()
 	//initialize random generator with normal distribution
 	std::random_device rd;
 	std::default_random_engine generator(rd());
-	double averageSpeed = 30.0;
+	double averageSpeed = 20.0;
 	double sigma = averageSpeed / std::sqrt(3.0);
 	std::normal_distribution<double> normal(0, sigma);
 
@@ -104,7 +105,10 @@ void Space::generate2DWall()
 				m.v.y = normal(generator);
 				m.v.z = 0;// normal(generator);
 
+				if (nx < 15)
 				m.type = 1;
+				else
+					m.type = 3;
 				m.id = molecules.size() + 1;
 
 				molecules.push_back(m);
@@ -120,8 +124,8 @@ void Space::generate2DBall()
 	const int xshift = 0;
 	const int yshift = 190;
 	const int zshift = 0;
-	const int NX = 5;
-	const int NY = 5;
+	const int NX = 10;
+	const int NY = 10;
 	const int NZ = 1;
 	const int xSpeed = 2000;
 
@@ -152,7 +156,7 @@ void Space::generate2DBall()
 				m.v.y = normal(generator);
 				m.v.z = 0;// normal(generator);
 
-				m.type = 2;
+				m.type = 1;
 				m.id = molecules.size() + 1;
 
 				molecules.push_back(m);
@@ -300,6 +304,24 @@ Space::Space(int width, int height, int n)
 		trajektoryFile.setFileName(buff);
 		trajektoryFile.open(QIODevice::Append);
 	}
+	std::vector<double> epsilonv = { 4*Molecule::epsilon, 5*Molecule::epsilon, 2*Molecule::epsilon, Molecule::epsilon };
+	std::vector<double> sigmav = { Molecule::sigma, Molecule::sigma, Molecule::sigma, Molecule::sigma };
+
+
+	epsilon.resize(4);
+	for (auto &i: epsilon)
+		i.resize(4);
+	sigma.resize(4);
+	for (auto &i : sigma)
+		i.resize(4);
+
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			epsilon[i][j] = sqrt(epsilonv[i] * epsilonv[j]);
+			sigma[i][j] = 0.5*(sigmav[i] + sigmav[j]);
+		}
+}
+
 
 #ifdef DEBUG
 	saveCoordinatesAndSpeeds("./../last.log.mdcs");
@@ -420,6 +442,14 @@ CUDASpace* Space::toCUDA() const
 			}
 		}
 	}
+
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			cs->epsilon[i][j] = epsilon[i][j];
+			cs->sigma[i][j] = sigma[i][j];
+		}
+	}
+
 	return cs;
 }
 

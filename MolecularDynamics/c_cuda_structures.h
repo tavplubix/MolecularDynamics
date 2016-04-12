@@ -59,6 +59,8 @@ struct CUDASpace
 	//CUDAUnderspace ***underspaces;
 	//CUDAUnderspace *underspaces;
 	size_t underspacesShift;
+	myfloat sigma[4][4];
+	myfloat epsilon[4][4];
 	size_t Nx, Ny, Nz;
 	myfloat dt;
 	int width, height, depth;
@@ -83,9 +85,9 @@ __device__ extern double square(const CUDAVector &a);
 //						CUDA device functions for Molecule
 //==========================================================================
 //extern inline void Force_LennardJones(CUDAMolecule& m1, CUDAMolecule& m2);
-__device__ inline void d_Force_LennardJones(const CUDAVector& r, myfloat square, CUDAVector& F);		//r - distance between two molecules, square=r*r
+__device__ inline void d_Force_LennardJones(const CUDAVector& r, myfloat square, CUDAVector& F, myfloat sigma, myfloat epsilon);		//r - distance between two molecules, square=r*r
 
-
+//__device__ void d_recalculateForces(CUDASpace *cs, int molecule);
 
 
 //==========================================================================
@@ -94,7 +96,7 @@ __device__ inline void d_Force_LennardJones(const CUDAVector& r, myfloat square,
 __device__ extern void d_recalculatePositions_Beeman(CUDAUnderspace *cus, myfloat dt);
 __device__ extern void d_recalculateSpeeds_Beeman(CUDAUnderspace *cus, myfloat dt, int width, int height, int depth);
 __device__ extern void d_calculateNewForcesForUnderspace(CUDASpace *cs, int nx, int ny, int nz);
-__device__ extern void d_calculateNewForces(CUDAUnderspace *cus1, CUDAUnderspace *cus2);
+__device__ extern void d_calculateNewForces(CUDAUnderspace *cus1, CUDAUnderspace *cus2, CUDASpace *cs);
 
 
 //==========================================================================
@@ -104,6 +106,8 @@ __global__ extern void cuda_recalculatePositions(CUDASpace *cs);
 __global__ extern void cuda_recalculateSpeeds(CUDASpace *cs);
 __global__ extern void cuda_recalculateForces(CUDASpace *cs);
 __global__ extern void cuda_validate(CUDASpace *cs);
+
+//__global__ extern void cuda_recalculateForcesForMolecules(CUDASpace *cs);
 
 
 //==========================================================================
