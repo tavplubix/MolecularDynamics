@@ -68,108 +68,6 @@ void Space::generateSpeeds()
 }
 
 
-void Space::generate2DWall()
-{
-	//hardcoded settings
-	int xshift = 80;
-	int yshift = 30;
-	int zshift = 0;
-	int NX = 30;
-	int NY = 120;
-	int NZ = 1;
-
-	double distance = 1.11 * Molecule::sigma;
-	double xStep = distance * sqrt(3.0) * 0.5;
-	double yStep = distance;
-
-	//initialize random generator with normal distribution
-	std::random_device rd;
-	std::default_random_engine generator(rd());
-	double averageSpeed = 20.0;
-	double sigma = averageSpeed / std::sqrt(3.0);
-	std::normal_distribution<double> normal(0, sigma);
-
-	for (int nx = 0; nx < NX; ++nx) {
-		for (int ny = 0; ny < NY; ++ny) {
-			for (int nz = 0; nz < NZ; ++nz) {
-				Molecule m;
-				//set positions
-				m.r.x = xshift*Angstrom + nx*xStep;
-				m.r.y = yshift*Angstrom + ny*yStep;
-				if (nx % 2 == 1)
-					m.r.y += 0.5 * distance;
-				m.r.z = 0;// zshift*Angstrom + nz*distance;		//WARNING
-
-				//set coordinates
-				m.v.x = normal(generator);
-				m.v.y = normal(generator);
-				m.v.z = 0;// normal(generator);
-
-				if (nx < 15)
-				m.type = 1;
-				else
-					m.type = 3;
-				m.id = molecules.size() + 1;
-
-				molecules.push_back(m);
-			}
-		}
-	}
-
-}
-
-void Space::generate2DBall()
-{
-	//hardcoded settings
-	const int xshift = 0;
-	const int yshift = 190;
-	const int zshift = 0;
-	const int NX = 10;
-	const int NY = 10;
-	const int NZ = 1;
-	const int xSpeed = 2000;
-
-	double distance = 1.11 * Molecule::sigma;
-	double xStep = distance * sqrt(3.0) * 0.5;
-	double yStep = distance;
-
-	//initialize random generator with normal distribution
-	std::random_device rd;
-	std::default_random_engine generator(rd());
-	double averageSpeed = 30.0;
-	double sigma = averageSpeed / std::sqrt(3.0);
-	std::normal_distribution<double> normal(0, sigma);
-
-	for (int nx = 0; nx < NX; ++nx) {
-		for (int ny = 0; ny < NY; ++ny) {
-			for (int nz = 0; nz < NZ; ++nz) {
-				Molecule m;
-				//set positions
-				m.r.x = xshift*Angstrom + nx*xStep;
-				m.r.y = yshift*Angstrom + ny*yStep;
-				if (nx % 2 == 1)
-					m.r.y += 0.5 * distance;
-				m.r.z = 0;// zshift*Angstrom + nz*distance;		//WARNING
-
-				//set coordinates
-				m.v.x = normal(generator) + xSpeed;
-				m.v.y = normal(generator);
-				m.v.z = 0;// normal(generator);
-
-				m.type = 1;
-				m.id = molecules.size() + 1;
-
-				molecules.push_back(m);
-			}
-		}
-	}
-
-	
-}
-
-
-
-
 
 
 
@@ -215,6 +113,78 @@ void Space::generate2DRectangle(int xshift, int yshift, int xsize, int ysize, in
 		}
 	}
 }
+
+void Space::generate3DRectangle(int xshift, int yshift, int zshift, 
+								int xsize, int ysize, int zsize, 
+								int type, 
+								int xspeed /*= 0*/, int yspeed /*= 0*/, int zspeed /*= 0*/)
+{
+	//hardcoded settings
+	const int NX = xsize;
+	const int NY = ysize;
+	const int NZ = zsize;
+
+	double distance = 1.10 * Molecule::sigma;
+	double xStep = distance * sqrt(3.0) * 0.5;
+	double yStep = distance;
+	double zStep = 1.8 * Molecule::sigma;
+
+	//initialize random generator with normal distribution
+	std::random_device rd;
+	std::default_random_engine generator(rd());
+	double averageSpeed = 10.0;
+	double ndsigma = averageSpeed / std::sqrt(3.0);
+	std::normal_distribution<double> normal(0, ndsigma);
+
+	for (int nx = 0; nx < NX; ++nx) {
+		for (int ny = 0; ny < NY; ++ny) {
+			for (int nz = 0; nz < NZ; ++nz) {
+				Molecule m;
+				//set positions
+				m.r.x = xshift*Angstrom + nx*xStep;
+				m.r.y = yshift*Angstrom + ny*yStep;
+				m.r.z = zshift*Angstrom + nz*zStep;
+				if (nx % 2 == 1)
+					m.r.y += 0.5 * distance;
+				//m.r.z = 0;// zshift*Angstrom + nz*distance;		//WARNING
+
+				//set coordinates
+				m.v.x = normal(generator) + xspeed;
+				m.v.y = normal(generator) + yspeed;
+				m.v.z = normal(generator) + zspeed;
+
+				m.type = type;
+				m.id = molecules.size() + 1;
+
+				molecules.push_back(m);
+			}
+		}
+	}
+
+	for (int nz = 0; nz < NZ - 1; ++nz) {
+		for (int nx = 0; nx < NX; ++nx) {
+			for (int ny = 0; ny < NY; ++ny) {
+				Molecule m;
+				m.r.x = xshift*Angstrom + nx*xStep + distance/3.0;
+				m.r.y = yshift*Angstrom + ny*yStep;
+				m.r.z = zshift*Angstrom + nz*zStep + zStep*0.5;
+				if (nx % 2 == 0)
+					m.r.y += 0.5 * distance;
+
+				m.v.x = normal(generator) + xspeed;
+				m.v.y = normal(generator) + yspeed;
+				m.v.z = normal(generator) + zspeed;
+
+				m.type = type + 1;
+				m.id = molecules.size() + 1;
+
+				molecules.push_back(m);
+			}
+		}
+	}
+
+}
+
 
 void Space::initializeUnderspaces()
 {
@@ -269,7 +239,7 @@ void Space::toUnderspaces()
 }
 
 Space::Space(int width, int height, int n)
-	:width(width), height(height), depth(1), numberOfMolecules(n)
+	:width(width), height(height), depth(150), numberOfMolecules(n)
 {
 	maxV = 0;
 	minV = std::numeric_limits<double>::infinity();
@@ -285,8 +255,11 @@ Space::Space(int width, int height, int n)
 #else
 	//generate2DWall();
 	//generate2DBall();
-	generate2DRectangle(300, 120, 190, 190, 1, 0, 0);
-	generate2DRectangle(10, 370, 100, 11, 2, 1000, 0);
+	//generate2DRectangle(300, 120, 190, 190, 1, 0, 0);
+	//generate2DRectangle(10, 370, 100, 11, 2, 1000, 0);
+
+	generate3DRectangle(50, 50, 50, 20, 20, 10, 1);
+
 	numberOfMolecules = molecules.size();
 #endif
 
@@ -304,7 +277,7 @@ Space::Space(int width, int height, int n)
 		trajektoryFile.setFileName(buff);
 		trajektoryFile.open(QIODevice::Append);
 	}
-	std::vector<double> epsilonv = { 4*Molecule::epsilon, 5*Molecule::epsilon, 2*Molecule::epsilon, Molecule::epsilon };
+	std::vector<double> epsilonv = { Molecule::epsilon, Molecule::epsilon, Molecule::epsilon, Molecule::epsilon };
 	std::vector<double> sigmav = { Molecule::sigma, Molecule::sigma, Molecule::sigma, Molecule::sigma };
 
 
@@ -500,5 +473,120 @@ void Underspace::fromCUDA(CUDAUnderspace *cus)
 		molecules[i].id = cm[i].id;
 	}
 }
+
+
+
+
+
+
+
+
+
+//============================================================================
+//							Deprecated methods
+//============================================================================
+
+
+void Space::generate2DWall()
+{
+	//hardcoded settings
+	int xshift = 80;
+	int yshift = 30;
+	int zshift = 0;
+	int NX = 30;
+	int NY = 120;
+	int NZ = 1;
+
+	double distance = 1.11 * Molecule::sigma;
+	double xStep = distance * sqrt(3.0) * 0.5;
+	double yStep = distance;
+
+	//initialize random generator with normal distribution
+	std::random_device rd;
+	std::default_random_engine generator(rd());
+	double averageSpeed = 20.0;
+	double sigma = averageSpeed / std::sqrt(3.0);
+	std::normal_distribution<double> normal(0, sigma);
+
+	for (int nx = 0; nx < NX; ++nx) {
+		for (int ny = 0; ny < NY; ++ny) {
+			for (int nz = 0; nz < NZ; ++nz) {
+				Molecule m;
+				//set positions
+				m.r.x = xshift*Angstrom + nx*xStep;
+				m.r.y = yshift*Angstrom + ny*yStep;
+				if (nx % 2 == 1)
+					m.r.y += 0.5 * distance;
+				m.r.z = 0;// zshift*Angstrom + nz*distance;		//WARNING
+
+				//set coordinates
+				m.v.x = normal(generator);
+				m.v.y = normal(generator);
+				m.v.z = 0;// normal(generator);
+
+				if (nx < 15)
+					m.type = 1;
+				else
+					m.type = 3;
+				m.id = molecules.size() + 1;
+
+				molecules.push_back(m);
+			}
+		}
+	}
+
+}
+
+void Space::generate2DBall()
+{
+	//hardcoded settings
+	const int xshift = 0;
+	const int yshift = 190;
+	const int zshift = 0;
+	const int NX = 10;
+	const int NY = 10;
+	const int NZ = 1;
+	const int xSpeed = 2000;
+
+	double distance = 1.11 * Molecule::sigma;
+	double xStep = distance * sqrt(3.0) * 0.5;
+	double yStep = distance;
+
+	//initialize random generator with normal distribution
+	std::random_device rd;
+	std::default_random_engine generator(rd());
+	double averageSpeed = 30.0;
+	double sigma = averageSpeed / std::sqrt(3.0);
+	std::normal_distribution<double> normal(0, sigma);
+
+	for (int nx = 0; nx < NX; ++nx) {
+		for (int ny = 0; ny < NY; ++ny) {
+			for (int nz = 0; nz < NZ; ++nz) {
+				Molecule m;
+				//set positions
+				m.r.x = xshift*Angstrom + nx*xStep;
+				m.r.y = yshift*Angstrom + ny*yStep;
+				if (nx % 2 == 1)
+					m.r.y += 0.5 * distance;
+				m.r.z = 0;// zshift*Angstrom + nz*distance;		//WARNING
+
+				//set coordinates
+				m.v.x = normal(generator) + xSpeed;
+				m.v.y = normal(generator);
+				m.v.z = 0;// normal(generator);
+
+				m.type = 1;
+				m.id = molecules.size() + 1;
+
+				molecules.push_back(m);
+			}
+		}
+	}
+
+
+}
+
+
+
 
 

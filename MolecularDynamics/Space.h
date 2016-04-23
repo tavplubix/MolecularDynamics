@@ -48,6 +48,7 @@ private:
 	void generate2DWall();
 	void generate2DBall();
 	void generate2DRectangle(int xshift, int yshift, int xsize, int ysize, int type, int xspeed = 0, int yspeed = 0);
+	void generate3DRectangle(int xshift, int yshift, int zshift, int xsize, int ysize, int zsize, int type, int xspeed = 0, int yspeed = 0, int zspeed = 0);
 public:
 	void toUnderspaces();
 public:

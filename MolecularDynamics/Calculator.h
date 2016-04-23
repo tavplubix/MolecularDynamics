@@ -12,7 +12,7 @@ class Calculator : public QObject
 	Q_OBJECT
 private:
 	Space* space;
-	double dt = 1.0e-14;
+	double dt = 1.0e-15;
 	double maxDistSquare = pow(4 * Molecule::sigma, 2);
 
 	void _averageSpeed();

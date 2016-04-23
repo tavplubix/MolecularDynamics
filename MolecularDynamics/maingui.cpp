@@ -10,9 +10,9 @@ MainGui::MainGui(QWidget *parent)
 	ui.setupUi(this);
 	this->resize(1850, 990);
 	ui.numberOfMoleculesSpinBox->setValue(3000);
-	ui.widthSpinBox->setValue(1400);//300
-	ui.heightSpinBox->setValue(1100);//430
-	ui.precisionSpinBox->setValue(14);
+	ui.widthSpinBox->setValue(150);//300
+	ui.heightSpinBox->setValue(150);//430
+	ui.precisionSpinBox->setValue(15);
 
 	space = new Space(ui.widthSpinBox->value(), ui.heightSpinBox->value(), ui.numberOfMoleculesSpinBox->value());
 	calculator = new Calculator(space);
