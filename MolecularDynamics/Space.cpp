@@ -259,6 +259,7 @@ Space::Space(int width, int height, int n)
 	//generate2DRectangle(10, 370, 100, 11, 2, 1000, 0);
 
 	generate3DRectangle(50, 50, 50, 20, 20, 10, 1);
+	generate3DRectangle(5, 70, 70, 6, 6, 3, 3, 1000);
 
 	numberOfMolecules = molecules.size();
 #endif

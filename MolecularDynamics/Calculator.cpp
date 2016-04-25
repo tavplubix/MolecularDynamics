@@ -324,7 +324,7 @@ void Calculator::modeling()
 		//CUDASpace *d_cs = nullptr;
 		CUDASpace *d_cs = moveFromHost(h_cs, wholeSize);
 
-		for (int i = 0; i < 50; ++i) {
+		for (int i = 0; i < 25; ++i) {
 			cuda_oneStep(d_cs, space->Nx, space->Ny, space->Nz);
 			space->iterations++;
 			space->time_s += dt;

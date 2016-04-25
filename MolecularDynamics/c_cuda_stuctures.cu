@@ -248,7 +248,7 @@ __global__ void cuda_recalculateForces(CUDASpace *cs)
 	size_t ny = blockDim.y * blockIdx.y + threadIdx.y;
 	if (ny >= cs->Ny) return;
 	size_t nz = blockDim.z * blockIdx.z + threadIdx.z;
-	if (ny >= cs->Ny) return;
+	if (nz >= cs->Nz) return;
 
 	d_calculateNewForcesForUnderspace(cs, nx, ny, nz);
 }
@@ -303,13 +303,14 @@ __global__ void cuda_dropNewF(CUDASpace *cs)
 
 void cuda_oneStep(CUDASpace *d_cs,int Nx, int Ny, int Nz)
 {
-	int numberOfCores = 1024;
-	//int coresPerDim = int(pow(numberOfCores, 1.0/3.0));
-	int coresPerDim = int(sqrt(numberOfCores));
+	int numberOfCores = 512;
+	int coresPerDim = int(pow(numberOfCores, 1.0/3.0));
+	//int coresPerDim = int(sqrt(numberOfCores));
 	dim3 grid, blocks;
-	//grid = dim3(Nx / coresPerDim + 1, Ny / coresPerDim + 1, Nz / coresPerDim + 1);
-	grid = dim3(Nx / coresPerDim + 1, Ny / coresPerDim + 1, Nz);
-	blocks = dim3(coresPerDim, coresPerDim, 1);
+	grid = dim3(Nx / coresPerDim + 1, Ny / coresPerDim + 1, Nz / coresPerDim + 1);
+	blocks = dim3(coresPerDim, coresPerDim, coresPerDim);
+	//grid = dim3(Nx / coresPerDim + 1, Ny / coresPerDim + 1, Nz);
+	//blocks = dim3(coresPerDim, coresPerDim, 1);
 
 	cuda_recalculatePositions	<<<grid, blocks>>> (d_cs);
 	//auto cudaStatus = cudaGetLastError();
