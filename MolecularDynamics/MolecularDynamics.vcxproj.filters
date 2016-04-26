@@ -42,19 +42,22 @@
       <UniqueIdentifier>{54992448-fd45-428b-aa12-5a7591c3fb3a}</UniqueIdentifier>
       <Extensions>*.lampstrj</Extensions>
     </Filter>
+    <Filter Include="Header Files\GUI">
+      <UniqueIdentifier>{788b2aa7-a2cf-4153-b4f7-1578e72d53e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GUI">
+      <UniqueIdentifier>{21d31f09-d3d0-49a6-b59e-a9c2b1d7a3eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CUDA Kernels">
+      <UniqueIdentifier>{c86b4056-f018-46ba-a715-34b4c29fe600}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="maingui.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\qrc_maingui.cpp">
       <Filter>Generated Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Vector.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Calculator.cpp">
       <Filter>Source Files</Filter>
@@ -89,17 +92,26 @@
     <ClCompile Include="Molecule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PaintWidget.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Space.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PaintWidget.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="maingui.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="MathVector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StartWindow.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelingWindow.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="maingui.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="maingui.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
@@ -112,16 +124,22 @@
     <CustomBuild Include="Molecule.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="maingui.h">
+      <Filter>Header Files\GUI</Filter>
+    </CustomBuild>
     <CustomBuild Include="PaintWidget.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\GUI</Filter>
+    </CustomBuild>
+    <CustomBuild Include="StartWindow.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ModelingWindow.ui">
+      <Filter>Form Files</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_maingui.h">
       <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Vector.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Space.h">
       <Filter>Header Files</Filter>
@@ -132,6 +150,21 @@
     <ClInclude Include="c_cuda_structures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MathVector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_StartWindow.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StartWindow.h">
+      <Filter>Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelingWindow.h">
+      <Filter>Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_ModelingWindow.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="MolecularDynamics.pri" />
@@ -139,11 +172,11 @@
     <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="kernel_forces.cu">
-      <Filter>Source Files</Filter>
-    </CudaCompile>
     <CudaCompile Include="c_cuda_stuctures.cu">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\CUDA Kernels</Filter>
+    </CudaCompile>
+    <CudaCompile Include="kernel_forces.cu">
+      <Filter>Source Files\CUDA Kernels</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>

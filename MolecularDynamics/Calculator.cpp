@@ -18,7 +18,7 @@ void Calculator::_oneStep()
 	};
 	auto futuresP = QtConcurrent::map(space->underspaces, lambdaP);
 	forAllM(t, space->underspaces)
-		t.newF = Vector();
+		t.newF = MathVector3D();
 	futuresP.waitForFinished();
 
 #ifndef OLDCUDA
@@ -52,11 +52,11 @@ void Calculator::_oneStep()
 }
 
 #ifdef OLDCODE
-inline Vector Calculator::Force_LennardJones(Molecule &m1, Molecule &m2)
+inline MathVector3D Calculator::Force_LennardJones(Molecule &m1, Molecule &m2)
 {
-	Vector r = m2.r - m1.r;
+	MathVector3D r = m2.r - m1.r;
 	register double square = r.square();
-	if (maxDistSquare < square) return Vector();
+	if (maxDistSquare < square) return MathVector3D();
 	square = (Molecule::sigma * Molecule::sigma) / square;
 	double U = 2.0*pow(square, 14/2) - pow(square, 8/2);
 	U *= 24.0 * Molecule::epsilon / pow(Molecule::sigma, 2);
@@ -64,7 +64,7 @@ inline Vector Calculator::Force_LennardJones(Molecule &m1, Molecule &m2)
 }
 #endif
 
-inline Vector Calculator::Force_LennardJones(Vector r, double square)
+inline MathVector3D Calculator::Force_LennardJones(MathVector3D r, double square)
 {
 	register const double sigmaSquare = Molecule::sigma * Molecule::sigma;
 	square = sigmaSquare / square;
@@ -81,7 +81,7 @@ void Calculator::calculateNewForces(MoloculesList &molecules1, MoloculesList &mo
 		auto end2 = molecules2.end();
 		for (auto j = molecules2.begin(); j != end2; ++j) {
 			if (i._Ptr == j._Ptr) continue;
-			Vector r = (*j).r - (*i).r;
+			MathVector3D r = (*j).r - (*i).r;
 			register double square = r.square();
 			if (maxDistSquare < square) continue;
 			(*i).newF += Force_LennardJones(r, square);
@@ -194,7 +194,7 @@ double Calculator::pow(double d, int i)
 }
 
 
-double Calculator::pow(Vector v, int i)
+double Calculator::pow(MathVector3D v, int i)
 {
 	if (i && 1 == 0)
 		return pow(v.x*v.x + v.y*v.y + v.z*v.z, i / 2);
@@ -414,7 +414,7 @@ double Calculator::calculatePotentionalEnergy(MoloculesList &molecules1, Molocul
 		double dU = 0;
 		for (auto j = molecules2.begin(); j != end2; ++j) {
 			if (i._Ptr == j._Ptr) continue;
-			Vector r = (*j).r - (*i).r;
+			MathVector3D r = (*j).r - (*i).r;
 			double c = std::pow(Molecule::sigma / r, 12) - std::pow(Molecule::sigma / r, 6);
 			double ddU = 4.0 * Molecule::epsilon * c;
 			//register double square = r.square();

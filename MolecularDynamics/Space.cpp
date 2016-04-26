@@ -14,7 +14,7 @@
 #define WALL
 
 
-const Vector Underspace::size = Vector(3 * Molecule::sigma, 3 * Molecule::sigma, 3 * Molecule::sigma);
+const MathVector3D Underspace::size = MathVector3D(3 * Molecule::sigma, 3 * Molecule::sigma, 3 * Molecule::sigma);
 //const Vector Underspace::size = Vector(100 * Angstrom, 100 * Angstrom, 100 * Angstrom);
 
 void Space::generateCoordinates()
@@ -381,8 +381,8 @@ void Space::loadStateCS(const QString& filename)
 		size_t actuallySize = file.read(buf, size);
 		if (actuallySize != size && actuallySize != 0) throw std::exception("invalid input file");
 		double *t = reinterpret_cast<double*>(buf);
-		molecule.r = Vector(t[0], t[1], t[2]);
-		molecule.v = Vector(t[3], t[4], t[5]);
+		molecule.r = MathVector3D(t[0], t[1], t[2]);
+		molecule.v = MathVector3D(t[3], t[4], t[5]);
 	}
 	toUnderspaces();
 	mutex.unlock();

@@ -20,8 +20,8 @@ private:
 	double calculatePotentialEnergyForUnderspace(int nx, int ny, int nz);
 	double calculatePotentionalEnergy(MoloculesList &molecules1, MoloculesList &molecules2);
 
-	inline Vector Force_LennardJones(Molecule &m1, Molecule &m2);
-	inline Vector Force_LennardJones(Vector r, double square);		//r - distance between two molecules, square=r*r
+	inline MathVector3D Force_LennardJones(Molecule &m1, Molecule &m2);
+	inline MathVector3D Force_LennardJones(MathVector3D r, double square);		//r - distance between two molecules, square=r*r
 
 	void recalculatePositions_VelocityVerlet(MoloculesList &molecules);
 	void recalculateSpeeds_VelocityVerlet(MoloculesList &molecules);
@@ -51,7 +51,7 @@ public:
 	~Calculator();
 	//static double LennardJonesPotential(Molecule &m1, Molecule &m2);
 	static double pow(double d, int i);
-	static double pow(Vector v, int i);
+	static double pow(MathVector3D v, int i);
 	public slots:
 	void start();
 	void pause();

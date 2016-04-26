@@ -7,7 +7,7 @@
 
 #include "Space.h"
 
-#include "Vector.h"
+#include "MathVector.h"
 #include "Molecule.h"
 #include "cuda.h"
 

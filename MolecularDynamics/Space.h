@@ -26,7 +26,7 @@ public:
 	MoloculesList molecules;
 	//const Vector minR, maxR;
 	int nx, ny, nz;
-	const static Vector size;
+	const static MathVector3D size;
 	//Underspace(MoloculesList &&molecules);
 	//Underspace(std::function<Molecule()> generator);
 	//Underspace(std::function<Vector()> speedsGenerator, std::function<Vector(Vector)> positionsGenerator);

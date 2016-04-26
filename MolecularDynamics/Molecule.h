@@ -1,5 +1,5 @@
 #pragma once
-#include "Vector.h"
+#include "MathVector.h"
 #include <vector>
 
 
@@ -23,7 +23,7 @@ public:
 	//double Fx, Fy;
 	short type;
 	int id;
-	Vector r, oldr, v, F, oldF, newF;
+	MathVector3D r, oldr, v, F, oldF, newF;
 	const static double m, radius, sigma, epsilon;
 	static std::vector<double> epsilonv, sigmav;
 };
