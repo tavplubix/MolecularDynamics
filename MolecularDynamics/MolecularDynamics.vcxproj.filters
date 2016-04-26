@@ -51,6 +51,18 @@
     <Filter Include="Source Files\CUDA Kernels">
       <UniqueIdentifier>{c86b4056-f018-46ba-a715-34b4c29fe600}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Calculator">
+      <UniqueIdentifier>{c0daab64-6e5c-46db-8507-c0008fa682bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Calculator">
+      <UniqueIdentifier>{e439df30-ae0a-4806-baaf-67c0aa255dee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Modules">
+      <UniqueIdentifier>{0ccbc076-74f7-4153-8174-d620faa89f35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Modules">
+      <UniqueIdentifier>{ec2489ff-768c-4017-83af-381577df59d4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -92,17 +104,11 @@
     <ClCompile Include="Molecule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Space.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="PaintWidget.cpp">
       <Filter>Source Files\GUI</Filter>
     </ClCompile>
     <ClCompile Include="maingui.cpp">
       <Filter>Source Files\GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="MathVector.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StartWindow.cpp">
       <Filter>Source Files\GUI</Filter>
@@ -110,17 +116,29 @@
     <ClCompile Include="ModelingWindow.cpp">
       <Filter>Source Files\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_StartWindow.cpp">
+    <ClCompile Include="AbstractCalculator.cpp">
+      <Filter>Source Files\Calculator</Filter>
+    </ClCompile>
+    <ClCompile Include="MathVector.cpp">
+      <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_AbstractCalculator.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_StartWindow.cpp">
+    <ClCompile Include="GeneratedFiles\Release\moc_AbstractCalculator.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Profiling\moc_StartWindow.cpp">
+    <ClCompile Include="GeneratedFiles\Profiling\moc_AbstractCalculator.cpp">
       <Filter>Generated Files\Profiling</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_ModelingWindow.cpp">
-      <Filter>Generated Files\Debug</Filter>
+    <ClCompile Include="AbstractContainer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DeprecatedSpace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Space.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -148,27 +166,18 @@
     <CustomBuild Include="ModelingWindow.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="StartWindow.h">
-      <Filter>Header Files\GUI</Filter>
-    </CustomBuild>
-    <CustomBuild Include="ModelingWindow.h">
-      <Filter>Header Files\GUI</Filter>
+    <CustomBuild Include="AbstractCalculator.h">
+      <Filter>Header Files\Calculator</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_maingui.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="Space.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="cuda.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="c_cuda_structures.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MathVector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_StartWindow.h">
@@ -177,7 +186,16 @@
     <ClInclude Include="GeneratedFiles\ui_ModelingWindow.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="common.h">
+    <ClInclude Include="MathVector.h">
+      <Filter>Header Files\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="AbstractContainer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DeprecatedSpace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Space.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

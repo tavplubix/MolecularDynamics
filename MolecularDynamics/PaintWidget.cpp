@@ -1,7 +1,7 @@
 #include "PaintWidget.h"
 
 
-PaintWidget::PaintWidget(Space *space, QWidget *parent)
+PaintWidget::PaintWidget(DeprecatedSpace *space, QWidget *parent)
 	:QWidget(parent), space(space)
 {
 

@@ -2,7 +2,7 @@
 #include <QObject>
 
 #include "Molecule.h"
-#include "Space.h"
+#include "DeprecatedSpace.h"
 
 #define CUDA
 
@@ -11,7 +11,7 @@ class Calculator : public QObject
 {
 	Q_OBJECT
 private:
-	Space* space;
+	DeprecatedSpace* space;
 	double dt = 1.0e-15;
 	double maxDistSquare = pow(4 * Molecule::sigma, 2);
 
@@ -44,18 +44,18 @@ private:
 public:
 	volatile double heating = 1;
 	Q_INVOKABLE void set_dt_precision(int precision);
-	void setSpace(Space* s);
+	void setSpace(DeprecatedSpace* s);
 	double get_dt() { return dt; };
 	volatile bool calculationsRequired;
-	Calculator(Space *space, QObject *parent = 0);
+	Calculator(DeprecatedSpace *space, QObject *parent = 0);
 	~Calculator();
 	//static double LennardJonesPotential(Molecule &m1, Molecule &m2);
 	static double pow(double d, int i);
 	static double pow(MathVector3D v, int i);
-	public slots:
+public slots:
 	void start();
 	void pause();
-signals:
+	signals:
 	void stateChanged();
 };
 

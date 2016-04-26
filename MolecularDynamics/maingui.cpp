@@ -14,7 +14,7 @@ MainGui::MainGui(QWidget *parent)
 	ui.heightSpinBox->setValue(150);//430
 	ui.precisionSpinBox->setValue(15);
 
-	space = new Space(ui.widthSpinBox->value(), ui.heightSpinBox->value(), ui.numberOfMoleculesSpinBox->value());
+	space = new DeprecatedSpace(ui.widthSpinBox->value(), ui.heightSpinBox->value(), ui.numberOfMoleculesSpinBox->value());
 	calculator = new Calculator(space);
 
 	//Create PaintWidget for space
@@ -102,7 +102,7 @@ void MainGui::setButtons()
 			ui.loadButton->setHidden(true);
 			ui.saveButton->setHidden(true);
 			//remove space
-			Space s(0, 0, 0);
+			DeprecatedSpace s(0, 0, 0);
 			*space = std::move(s);
 			
 			ui.stopStartButton->setText("Restart");
@@ -114,7 +114,7 @@ void MainGui::setButtons()
 			int height = ui.heightSpinBox->value();
 			int width = ui.widthSpinBox->value();
 			int numberOfMolecules = ui.numberOfMoleculesSpinBox->value();
-			Space s(width, height, numberOfMolecules);
+			DeprecatedSpace s(width, height, numberOfMolecules);
 			*space = std::move(s);
 			//disable some widgets
 			ui.numberOfMoleculesSpinBox->setEnabled(false);

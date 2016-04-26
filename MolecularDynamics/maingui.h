@@ -21,7 +21,7 @@ private:
 	QThread *calculationsThread;
 	QTimer *timer;
 	Calculator *calculator;
-	Space *space;
+	DeprecatedSpace *space;
 	PaintWidget *pw;
 	Ui::MainGuiClass ui;
 };
