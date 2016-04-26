@@ -110,6 +110,18 @@
     <ClCompile Include="ModelingWindow.cpp">
       <Filter>Source Files\GUI</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_StartWindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_StartWindow.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Profiling\moc_StartWindow.cpp">
+      <Filter>Generated Files\Profiling</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_ModelingWindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="maingui.ui">
@@ -136,6 +148,12 @@
     <CustomBuild Include="ModelingWindow.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="StartWindow.h">
+      <Filter>Header Files\GUI</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ModelingWindow.h">
+      <Filter>Header Files\GUI</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_maingui.h">
@@ -156,20 +174,16 @@
     <ClInclude Include="GeneratedFiles\ui_StartWindow.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="StartWindow.h">
-      <Filter>Header Files\GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelingWindow.h">
-      <Filter>Header Files\GUI</Filter>
-    </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_ModelingWindow.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="MolecularDynamics.pri" />
     <None Include="MolecularDynamics.pro" />
-    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="c_cuda_stuctures.cu">

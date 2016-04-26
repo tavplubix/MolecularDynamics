@@ -1,6 +1,7 @@
 #pragma once
 #include "MathVector.h"
 #include <vector>
+#include <QString>
 
 
 namespace constants {
@@ -13,6 +14,19 @@ namespace constants {
 }
 
 using namespace constants;
+
+class MoleculeType
+{
+	double m_sigma, m_epsilon;
+	QString m_name;
+public:
+	MoleculeType(double sigma, double epsilon, const QString& name);
+	double sigma();
+	double sigma(const MoleculeType& mt);
+	double epsilon();
+	double epsilon(const MoleculeType& mt);
+	QString name();
+};
 
 
 class Molecule
@@ -28,7 +42,11 @@ public:
 	static std::vector<double> epsilonv, sigmav;
 };
 
+//==================================================================
+//						Some types of molecules
+//==================================================================
 
+extern MoleculeType Ne;
 
 
 
