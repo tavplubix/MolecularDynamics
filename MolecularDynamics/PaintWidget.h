@@ -9,7 +9,7 @@
 #include <QReadWriteLock>
 #include <QMutex>
 
-#include "Space.h"
+#include "DeprecatedSpace.h"
 
 
 
@@ -17,12 +17,12 @@ class PaintWidget : public QWidget
 {
 	Q_OBJECT
 private:
-	Space *space;
+	DeprecatedSpace *space;
 	const int hIndent = 25;
 
 	double maxE = -1000, minE = 1000;		//CRUTCH
 public:
-	PaintWidget(Space *space, QWidget *parent = 0);
+	PaintWidget(DeprecatedSpace *space, QWidget *parent = 0);
 	void paintEvent(QPaintEvent *);
 	double zoom = 1;
 };

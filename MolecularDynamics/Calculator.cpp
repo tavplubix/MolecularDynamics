@@ -172,7 +172,7 @@ void Calculator::set_dt_precision(int precision)	//hot only
 
 
 
-Calculator::Calculator(Space *space, QObject *parent /*= 0*/)
+Calculator::Calculator(DeprecatedSpace *space, QObject *parent /*= 0*/)
 	:QObject(parent), space(space)
 {
 	//allocateMemory(space->numberOfMolecules);
