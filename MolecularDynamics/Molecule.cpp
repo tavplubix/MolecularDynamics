@@ -6,8 +6,8 @@ const double Molecule::m = 20.1797 * AtomicMassUnit;	//kg
 const double Molecule::sigma = 2.74 * Angstrom;		//m
 const double Molecule::epsilon = 1.0 * 36.2 * Boltzmann;	//J
 
-MoleculeType::MoleculeType(double sigma, double epsilon, const QString& name)
-	: m_sigma(sigma), m_epsilon(epsilon), m_name(name)
+MoleculeType::MoleculeType(double sigma, double epsilon, double mass, const QString& name)
+	: m_sigma(sigma), m_epsilon(epsilon), m_mass(mass), m_name(name)
 {
 
 }
@@ -32,6 +32,11 @@ double MoleculeType::epsilon(const MoleculeType& mt)
 	return sqrt(m_epsilon * mt.m_epsilon);
 }
 
+double MoleculeType::mass()
+{
+	return m_mass;
+}
+
 QString MoleculeType::name()
 {
 	return m_name;
@@ -41,6 +46,6 @@ QString MoleculeType::name()
 //						Some types of molecules
 //==================================================================
 
-MoleculeType Ne(2.74 * Angstrom, 1.0 * 36.2 * Boltzmann, "Ne");
+MoleculeType Ne(2.74 * Angstrom, 1.0 * 36.2 * Boltzmann, 20.1797 * AtomicMassUnit, "Ne");
 
 

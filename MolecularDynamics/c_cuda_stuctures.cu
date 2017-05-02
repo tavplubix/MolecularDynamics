@@ -77,8 +77,8 @@ __device__ inline void d_Force_LennardJones(const CUDAVector& r, myfloat square,
 	myfloat _sigma = sigma;
 	myfloat _epsilon = epsilon;
 #else
-	volatile myfloat _sigma = sigma;
-	volatile myfloat _epsilon = epsilon;
+	/*volatile*/ myfloat _sigma = sigma;
+	/*volatile*/ myfloat _epsilon = epsilon;
 #endif
 	
 	myfloat sigmaSquare = _sigma * _sigma;
@@ -88,6 +88,7 @@ __device__ inline void d_Force_LennardJones(const CUDAVector& r, myfloat square,
 	myfloat U = 2.0*r8*r8/square - r8;
 	myfloat c = -24.0 * _epsilon / sigmaSquare;
 	mul(r, c * U, F);
+	//F.v[0] += 1000000000.0 * mass;
 }
 
 

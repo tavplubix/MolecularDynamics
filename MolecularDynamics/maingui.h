@@ -5,7 +5,7 @@
 #include "ui_maingui.h"
 #include "Molecule.h"
 #include "PaintWidget.h"
-#include "Calculator.h"
+#include "DeprecatedCalculator.h"
 
 class MainGui : public QMainWindow
 {
@@ -20,7 +20,7 @@ private:
 	inline void setButtons();
 	QThread *calculationsThread;
 	QTimer *timer;
-	Calculator *calculator;
+	DeprecatedCalculator *calculator;
 	DeprecatedSpace *space;
 	PaintWidget *pw;
 	Ui::MainGuiClass ui;

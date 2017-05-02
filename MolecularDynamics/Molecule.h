@@ -17,15 +17,38 @@ using namespace constants;
 
 class MoleculeType
 {
-	double m_sigma, m_epsilon;
+	double m_sigma, m_epsilon, m_mass;
 	QString m_name;
 public:
-	MoleculeType(double sigma, double epsilon, const QString& name);
+	MoleculeType(double sigma, double epsilon, double mass, const QString& name);
 	double sigma();
 	double sigma(const MoleculeType& mt);
 	double epsilon();
 	double epsilon(const MoleculeType& mt);
+	double mass();
 	QString name();
+};
+
+//==================================================================
+//						Some types of molecules
+//==================================================================
+
+extern MoleculeType Ne;
+
+class MoleculesGroup
+{
+public:
+	MoleculeType type = Ne;
+	double xshift = 0, yshift = 0, zshift = 0;
+	int Nx = 0, Ny = 0, Nz = 0;
+	double randomSpeedComponent = 10;
+	double xspeed = 0, yspeed = 0, zspeed = 0;
+
+	void setShift(double x, double y, double z) { xshift = x; yshift = y; zshift = z; }		//Shift components in m
+	void setNumberOfMolecules(double x, double y, double z) { Nx = x; Ny = y; Nz = z; }
+	void setSpeed(double x, double y, double z) { xspeed = x; yspeed = y; zspeed = z; }
+	void setShiftInAngstroms(int x, int y, int z) { setShift(x*Angstrom, y*Angstrom, z*Angstrom); }
+
 };
 
 
@@ -42,11 +65,7 @@ public:
 	static std::vector<double> epsilonv, sigmav;
 };
 
-//==================================================================
-//						Some types of molecules
-//==================================================================
 
-extern MoleculeType Ne;
 
 
 

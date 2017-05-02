@@ -12,10 +12,10 @@ MainGui::MainGui(QWidget *parent)
 	ui.numberOfMoleculesSpinBox->setValue(3000);
 	ui.widthSpinBox->setValue(150);//300
 	ui.heightSpinBox->setValue(150);//430
-	ui.precisionSpinBox->setValue(15);
+	ui.precisionSpinBox->setValue(13);
 
 	space = new DeprecatedSpace(ui.widthSpinBox->value(), ui.heightSpinBox->value(), ui.numberOfMoleculesSpinBox->value());
-	calculator = new Calculator(space);
+	calculator = new DeprecatedCalculator(space);
 
 	//Create PaintWidget for space
 	pw = new PaintWidget(space, this);

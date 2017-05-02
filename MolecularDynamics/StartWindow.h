@@ -14,7 +14,7 @@ public:
 
 signals:
 	void createSpaceRequest(int width, int height, int depth = 0);
-	void addMoleculesToSpaceRequest(/*type: (gas, liquid, solid); constants: (sigma, epsilon)*/);
+	void addMoleculesToSpaceRequest();
 	void startModelingRequest(/*algorithm*/);
 	void pauseContinueRequest(std::function<void()> callItBackWhenPausedOrContinued);
 	void saveRequest(const QString& filename);
